@@ -300,8 +300,8 @@
             </div>
         </footer>
     </div>
-    <script src="/src/js/progress.js"></script>
-    <script src="/src/js/nav.js"></script>
+    <script type="module" src="/src/js/progress.js"></script>
+    <script type="module" src="/src/js/nav.js"></script>
     <script>
         // Register service worker for offline support
         if ('serviceWorker' in navigator) {
@@ -309,7 +309,7 @@
         }
 
         // Progress dashboard
-        (function() {
+        document.addEventListener('DOMContentLoaded', function() {
             const stats = window.ahsasProgress ? window.ahsasProgress.getStats() : null;
             if (!stats || stats.total === 0) return;
 
@@ -338,7 +338,7 @@
                     dashboard.style.display = 'none';
                 }
             });
-        })();
+        });
     </script>
 </body>
 </html>

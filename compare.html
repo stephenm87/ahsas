@@ -411,11 +411,11 @@
 
     <div class="toast" id="toast"></div>
 
-    <script src="/src/data/curriculum.js"></script>
-    <script src="/src/js/progress.js"></script>
-    <script src="/src/js/nav.js"></script>
+    <script type="module" src="/src/data/curriculum.js"></script>
+    <script type="module" src="/src/js/progress.js"></script>
+    <script type="module" src="/src/js/nav.js"></script>
     <script>
-    (function() {
+    document.addEventListener('DOMContentLoaded', function() {
         const data = window.AHSAS_CURRICULUM;
         if (!data) return;
         const themes = data.piecesThemes;
@@ -679,7 +679,7 @@
                 buildComparison();
             }
         } catch(e) {}
-    })();
+    });
     </script>
 </body>
 </html>
