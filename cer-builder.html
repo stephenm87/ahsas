@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CER Builder — AHSAS</title>
+    <meta name="description" content="Build strong historical arguments step by step using the Claims, Evidence & Reasoning framework with PIECES integration.">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <style>
+        /* CER Builder specific styles */
+        .builder-hero {
+            text-align: center;
+            padding: var(--space-xl) 0 var(--space-lg);
+        }
+        .builder-hero h1 { margin-bottom: var(--space-xs); }
+        .builder-subtitle {
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto;
+            font-size: 0.95rem;
+        }
+        .builder-actions {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+        .saved-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            color: var(--jade);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .saved-badge.visible { opacity: 1; }
+
+        /* Step indicator */
+        .steps-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+            margin: var(--space-xl) auto var(--space-lg);
+            max-width: 400px;
+        }
+        .step-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 2px solid var(--border);
+            color: var(--text-dim);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .step-dot.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            box-shadow: 0 0 12px rgba(212, 160, 57, 0.3);
+        }
+        .step-dot.done {
+            border-color: var(--jade);
+            background: var(--jade);
+            color: #fff;
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: var(--border);
+            transition: background 0.3s ease;
+        }
+        .step-line.done { background: var(--jade); }
+
+        /* Step panels */
+        .step-panel {
+            display: none;
+            animation: fadeUp 0.4s var(--ease) both;
+        }
+        .step-panel.active { display: block; }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .step-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+        }
+        .step-label-claim { color: #5fa8e8; }
+        .step-label-evidence { color: var(--jade); }
+        .step-label-reasoning { color: var(--gold); }
+        .step-label-review { color: var(--vermillion); }
+
+        .step-title {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            margin-bottom: var(--space-md);
+        }
+        .step-hint {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.7;
+            margin-bottom: var(--space-lg);
+            padding: var(--space-md);
+            background: rgba(255,255,255,0.02);
+            border-left: 3px solid var(--border);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+        .step-hint strong { color: var(--text); }
+
+        /* Hint button */
+        .hint-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            background: rgba(212, 160, 57, 0.08);
+            border: 1px solid rgba(212, 160, 57, 0.2);
+            border-radius: 20px;
+            color: var(--gold);
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: var(--space-md);
+        }
+        .hint-btn:hover {
+            background: rgba(212, 160, 57, 0.15);
+            border-color: var(--gold);
+        }
+        .hint-bubble {
+            display: none;
+            padding: var(--space-md);
+            background: rgba(212, 160, 57, 0.06);
+            border: 1px solid rgba(212, 160, 57, 0.15);
+            border-radius: var(--radius-md);
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: var(--space-md);
+            animation: fadeUp 0.3s var(--ease) both;
+        }
+        .hint-bubble.visible { display: block; }
+
+        /* PIECES selector */
+        .pieces-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+        .pieces-chip {
+            padding: var(--space-sm) var(--space-md);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+        }
+        .pieces-chip:hover {
+            border-color: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
+        }
+        .pieces-chip.selected {
+            border-color: var(--gold);
+            background: rgba(212, 160, 57, 0.1);
+            color: var(--gold);
+        }
+        .pieces-chip .chip-icon {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        /* Sentence starters */
+        .starter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-md);
+        }
+        .starter-pill {
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .starter-pill:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* Textarea */
+        .builder-textarea {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            padding: var(--space-md);
+            resize: vertical;
+            line-height: 1.7;
+        }
+        .builder-textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(212, 160, 57, 0.15);
+        }
+        .builder-textarea::placeholder { color: var(--text-dim); }
+
+        /* Source type */
+        .source-row {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+            flex-wrap: wrap;
+        }
+        .source-chip {
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+        }
+        .source-chip:hover { border-color: var(--jade); color: var(--jade); }
+        .source-chip.selected {
+            border-color: var(--jade);
+            background: rgba(45, 138, 110, 0.1);
+            color: var(--jade);
+        }
+
+        /* Review panel */
+        .review-section {
+            margin-bottom: var(--space-lg);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+        }
+        .review-section-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+        }
+        .review-text {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text);
+        }
+        .review-meta {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: var(--space-xs);
+        }
+
+        /* Self-assessment rubric */
+        .rubric-panel {
+            margin-top: var(--space-lg);
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(155, 89, 182, 0.2);
+            background: rgba(155, 89, 182, 0.04);
+        }
+        .rubric-title {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            color: #b57edc;
+            margin-bottom: var(--space-md);
+        }
+        .rubric-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+        .rubric-item input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: #b57edc;
+            flex-shrink: 0;
+        }
+        .rubric-score {
+            margin-top: var(--space-md);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        .rubric-score strong { color: #b57edc; }
+
+        /* Feedback panel */
+        .feedback-panel {
+            margin-top: var(--space-lg);
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(212, 160, 57, 0.25);
+            background: rgba(212, 160, 57, 0.05);
+        }
+        .feedback-title {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            color: var(--gold);
+            margin-bottom: var(--space-md);
+        }
+        .feedback-item {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .feedback-icon { flex-shrink: 0; }
+        .feedback-text { color: var(--text-muted); }
+
+        .full-paragraph {
+            padding: var(--space-lg);
+            background: rgba(0,0,0,0.25);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: var(--text);
+            margin-top: var(--space-lg);
+        }
+        .full-paragraph .cer-highlight-c { color: #5fa8e8; }
+        .full-paragraph .cer-highlight-e { color: var(--jade); }
+        .full-paragraph .cer-highlight-r { color: var(--gold); }
+
+        /* Example bank */
+        .example-bank {
+            max-width: 640px;
+            margin: var(--space-2xl) auto 0;
+        }
+        .example-bank-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            transition: background 0.2s ease;
+        }
+        .example-bank-header:hover { background: rgba(255,255,255,0.04); }
+        .example-bank-title {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+        }
+        .example-bank-toggle {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            transition: transform 0.3s ease;
+        }
+        .example-bank-toggle.open { transform: rotate(180deg); }
+        .example-bank-body {
+            display: none;
+            padding: var(--space-lg);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+        .example-bank-body.open { display: block; }
+        .example-item {
+            padding: var(--space-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-md);
+            background: rgba(255,255,255,0.01);
+        }
+        .example-item:last-child { margin-bottom: 0; }
+        .example-item-theme {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: var(--space-sm);
+        }
+        .example-item-topic {
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            margin-bottom: var(--space-md);
+        }
+        .example-part {
+            margin-bottom: var(--space-sm);
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+        .example-part-label {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 2px;
+        }
+        .example-part-label.c-label { color: #5fa8e8; }
+        .example-part-label.e-label { color: var(--jade); }
+        .example-part-label.r-label { color: var(--gold); }
+
+        /* Nav buttons */
+        .step-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--space-lg);
+            gap: var(--space-md);
+        }
+        .step-nav .btn { min-width: 120px; }
+        .review-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .pieces-grid { grid-template-columns: repeat(2, 1fr); }
+            .step-card { padding: var(--space-md); }
+            .review-actions { flex-wrap: wrap; }
+        }
+
+        /* Print styles */
+        @media print {
+            body::before, body::after, .site-header, .site-footer,
+            .steps-bar, .step-nav, .hint-btn, .hint-bubble,
+            .builder-hero, .builder-actions, .example-bank,
+            .toast, .no-print { display: none !important; }
+            body { background: #fff; color: #1a1a1a; font-size: 11pt; }
+            .step-panel { display: block !important; }
+            .step-panel[data-step="0"],
+            .step-panel[data-step="1"],
+            .step-panel[data-step="2"] { display: none !important; }
+            .step-panel[data-step="3"] { display: block !important; }
+            .step-card {
+                background: #fff;
+                border: 1px solid #ddd;
+                max-width: 100%;
+            }
+            .review-section { border-color: #ddd; background: #fafafa; }
+            .feedback-panel { border-color: #ddd; background: #fffbe6; }
+            .rubric-panel { border-color: #ddd; background: #f5f0ff; }
+            .full-paragraph { background: #f9f9f9; border-color: #ddd; }
+            .full-paragraph .cer-highlight-c { color: #2962ff; }
+            .full-paragraph .cer-highlight-e { color: #2e7d32; }
+            .full-paragraph .cer-highlight-r { color: #b8860b; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <!-- Header -->
+        <header class="site-header">
+            <div class="container">
+                <nav class="nav-inner">
+                    <a href="/" class="site-logo">
+                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <span class="logo-text">AHSAS</span>
+                    </a>
+                    <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul class="nav-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/seminar.html">Seminar</a></li>
+                        <li><a href="/pieces.html">PIECES</a></li>
+                        <li><a href="/cer.html" class="active">CER</a></li>
+                        <li><a href="/source-analyzer.html">Sources</a></li>
+                        <li><a href="/timeline.html">Timeline</a></li>
+                        <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/about.html">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+
+                <div class="builder-hero">
+                    <h1>CER Builder</h1>
+                    <p class="builder-subtitle">
+                        Build a historical argument step by step. Choose a theme, write your claim, add evidence, and explain your reasoning.
+                    </p>
+                    <div class="builder-actions no-print">
+                        <span class="saved-badge" id="savedBadge">💾 Saved</span>
+                    </div>
+                </div>
+
+                <!-- Step Indicator -->
+                <div class="steps-bar">
+                    <div class="step-dot active" data-step="0">1</div>
+                    <div class="step-line"></div>
+                    <div class="step-dot" data-step="1">2</div>
+                    <div class="step-line"></div>
+                    <div class="step-dot" data-step="2">3</div>
+                    <div class="step-line"></div>
+                    <div class="step-dot" data-step="3">4</div>
+                </div>
+
+                <!-- STEP 1: PIECES Theme + Claim -->
+                <div class="step-panel active" data-step="0">
+                    <div class="step-card">
+                        <div class="step-label step-label-claim">Step 1 — Claim</div>
+                        <h2 class="step-title">What is your argument?</h2>
+
+                        <div class="step-hint">
+                            A <strong>claim</strong> is a one-sentence answer to a historical question. It should be arguable — someone could reasonably disagree with it.
+                        </div>
+
+                        <button class="hint-btn" data-hint="claim">💡 Get a Hint</button>
+                        <div class="hint-bubble" id="hintClaim"></div>
+
+                        <label class="form-label">Choose a PIECES theme (optional)</label>
+                        <div class="pieces-grid">
+                            <div class="pieces-chip" data-theme="Political">
+                                <span class="chip-icon">🏛️</span> Political
+                            </div>
+                            <div class="pieces-chip" data-theme="Innovation">
+                                <span class="chip-icon">⚙️</span> Innovation
+                            </div>
+                            <div class="pieces-chip" data-theme="Environmental">
+                                <span class="chip-icon">🌿</span> Environmental
+                            </div>
+                            <div class="pieces-chip" data-theme="Cultural">
+                                <span class="chip-icon">🎭</span> Cultural
+                            </div>
+                            <div class="pieces-chip" data-theme="Economic">
+                                <span class="chip-icon">💰</span> Economic
+                            </div>
+                            <div class="pieces-chip" data-theme="Social">
+                                <span class="chip-icon">👥</span> Social
+                            </div>
+                        </div>
+
+                        <label class="form-label">Write your claim</label>
+                        <textarea id="claimInput" class="builder-textarea" 
+                            placeholder="Example: The Silk Road's greatest impact was cultural exchange between East and West, which fundamentally transformed artistic traditions in both regions."></textarea>
+
+                        <div class="step-nav">
+                            <span></span>
+                            <button class="btn btn-primary" id="toStep2">Next: Evidence →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Evidence -->
+                <div class="step-panel" data-step="1">
+                    <div class="step-card">
+                        <div class="step-label step-label-evidence">Step 2 — Evidence</div>
+                        <h2 class="step-title">What supports your claim?</h2>
+
+                        <div class="step-hint">
+                            <strong>Evidence</strong> is specific, factual information from a source. Include dates, names, statistics, or direct quotes. Tell the reader <em>where</em> this comes from.
+                        </div>
+
+                        <button class="hint-btn" data-hint="evidence">💡 Get a Hint</button>
+                        <div class="hint-bubble" id="hintEvidence"></div>
+
+                        <label class="form-label">Source type</label>
+                        <div class="source-row">
+                            <div class="source-chip" data-source="Primary">📜 Primary</div>
+                            <div class="source-chip" data-source="Secondary">📖 Secondary</div>
+                            <div class="source-chip" data-source="Data/Stats">📊 Data/Stats</div>
+                            <div class="source-chip" data-source="Visual">🖼️ Visual</div>
+                        </div>
+
+                        <label class="form-label">Source name or citation</label>
+                        <input type="text" id="sourceInput" class="form-input" 
+                               placeholder="e.g., 'Travels of Marco Polo', Chapter 12">
+
+                        <label class="form-label mt-md">Your evidence</label>
+                        <textarea id="evidenceInput" class="builder-textarea" 
+                            placeholder="Example: According to Marco Polo's account (c. 1300), Chinese paper-making techniques spread westward along the Silk Road, reaching Samarkand by the 8th century and eventually transforming European literacy rates."></textarea>
+
+                        <div class="step-nav">
+                            <button class="btn btn-secondary" id="backToStep1">← Claim</button>
+                            <button class="btn btn-primary" id="toStep3">Next: Reasoning →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Reasoning -->
+                <div class="step-panel" data-step="2">
+                    <div class="step-card">
+                        <div class="step-label step-label-reasoning">Step 3 — Reasoning</div>
+                        <h2 class="step-title">Why does this evidence matter?</h2>
+
+                        <div class="step-hint">
+                            <strong>Reasoning</strong> explains the "so what?" — connect your evidence back to your claim. Show <em>why</em> the evidence proves your point, don't just restate it.
+                        </div>
+
+                        <button class="hint-btn" data-hint="reasoning">💡 Get a Hint</button>
+                        <div class="hint-bubble" id="hintReasoning"></div>
+
+                        <label class="form-label">Try a sentence starter</label>
+                        <div class="starter-pills">
+                            <span class="starter-pill" data-starter="This evidence demonstrates that ">This evidence demonstrates that…</span>
+                            <span class="starter-pill" data-starter="This is significant because ">This is significant because…</span>
+                            <span class="starter-pill" data-starter="This supports the claim because ">This supports the claim because…</span>
+                            <span class="starter-pill" data-starter="The connection between this evidence and the argument is ">The connection between…</span>
+                            <span class="starter-pill" data-starter="Without this development, ">Without this development…</span>
+                        </div>
+
+                        <label class="form-label">Your reasoning</label>
+                        <textarea id="reasoningInput" class="builder-textarea" 
+                            placeholder="Example: This evidence demonstrates that the Silk Road was more than a trade route — it was a conduit for intellectual exchange. The spread of paper-making from China to Europe illustrates how technological diffusion along this network had lasting cultural consequences far beyond commerce."></textarea>
+
+                        <div class="step-nav">
+                            <button class="btn btn-secondary" id="backToStep2">← Evidence</button>
+                            <button class="btn btn-primary" id="toStep4">Review My CER →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4: Review -->
+                <div class="step-panel" data-step="3">
+                    <div class="step-card">
+                        <div class="step-label step-label-review">Step 4 — Review</div>
+                        <h2 class="step-title">Your CER Paragraph</h2>
+
+                        <!-- Review sections -->
+                        <div class="review-section">
+                            <div class="review-section-label step-label-claim">Claim</div>
+                            <div class="review-text" id="reviewClaim">—</div>
+                            <div class="review-meta" id="reviewTheme"></div>
+                        </div>
+                        <div class="review-section">
+                            <div class="review-section-label step-label-evidence">Evidence</div>
+                            <div class="review-text" id="reviewEvidence">—</div>
+                            <div class="review-meta" id="reviewSource"></div>
+                        </div>
+                        <div class="review-section">
+                            <div class="review-section-label step-label-reasoning">Reasoning</div>
+                            <div class="review-text" id="reviewReasoning">—</div>
+                        </div>
+
+                        <!-- Self-Assessment Rubric -->
+                        <div class="rubric-panel">
+                            <div class="rubric-title">📝 Self-Assessment Checklist</div>
+                            <div class="rubric-item"><input type="checkbox" class="rubric-check"> My claim takes a clear, arguable position</div>
+                            <div class="rubric-item"><input type="checkbox" class="rubric-check"> My claim addresses a specific historical question</div>
+                            <div class="rubric-item"><input type="checkbox" class="rubric-check"> My evidence includes specific facts (dates, names, data)</div>
+                            <div class="rubric-item"><input type="checkbox" class="rubric-check"> My evidence comes from a credible, identified source</div>
+                            <div class="rubric-item"><input type="checkbox" class="rubric-check"> My reasoning explains <em>why</em> the evidence supports the claim</div>
+                            <div class="rubric-item"><input type="checkbox" class="rubric-check"> My reasoning goes beyond restating the evidence</div>
+                            <div class="rubric-item"><input type="checkbox" class="rubric-check"> My reasoning connects to a PIECES theme or broader significance</div>
+                            <div class="rubric-score" id="rubricScore">0 / 7 checked</div>
+                        </div>
+
+                        <!-- Feedback -->
+                        <div class="feedback-panel" id="feedbackPanel">
+                            <div class="feedback-title">💡 Automated Suggestions</div>
+                            <div id="feedbackItems"></div>
+                        </div>
+
+                        <!-- Combined paragraph -->
+                        <div class="full-paragraph" id="fullParagraph"></div>
+
+                        <div class="step-nav">
+                            <button class="btn btn-secondary" id="backToStep3">← Edit</button>
+                            <div class="review-actions">
+                                <button class="btn btn-secondary" id="btnCopyCER">📋 Copy</button>
+                                <button class="btn btn-secondary" id="btnPrintCER">🖨️ Print</button>
+                                <button class="btn btn-jade" id="btnStartOver">🔄 New CER</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example CER Bank -->
+                <div class="example-bank no-print">
+                    <div class="example-bank-header" id="exampleToggle">
+                        <span class="example-bank-title">📚 Example CER Paragraphs</span>
+                        <span class="example-bank-toggle" id="exampleArrow">▼</span>
+                    </div>
+                    <div class="example-bank-body" id="exampleBody">
+
+                        <div class="example-item">
+                            <div class="example-item-theme">🏛️ Political + 💰 Economic — Mongol Empire</div>
+                            <div class="example-item-topic">How did the Pax Mongolica reshape Eurasian trade?</div>
+                            <div class="example-part">
+                                <div class="example-part-label c-label">Claim</div>
+                                The Mongol Empire's enforcement of the Pax Mongolica fundamentally restructured Eurasian economic systems by securing overland trade routes, which accelerated cultural exchange between East Asia and the Islamic world.
+                            </div>
+                            <div class="example-part">
+                                <div class="example-part-label e-label">Evidence</div>
+                                Marco Polo's account (c. 1298) describes Mongol relay stations (yam) positioned every 25 miles, which reduced travel time between Beijing and Tabriz from over a year to approximately six months. Trade volume along the Silk Road increased by an estimated 40% during the Pax Mongolica (1250–1350).
+                            </div>
+                            <div class="example-part">
+                                <div class="example-part-label r-label">Reasoning</div>
+                                This infrastructure demonstrates how political stability enabled economic transformation — by guaranteeing merchant safety, the Mongols lowered the cost and risk of long-distance trade. The resulting increase in commercial activity facilitated cultural exchange, as merchants carried not only goods but religious ideas, scientific knowledge, and artistic traditions across civilizational boundaries.
+                            </div>
+                        </div>
+
+                        <div class="example-item">
+                            <div class="example-item-theme">🎭 Cultural + ⚙️ Innovation — Tang Dynasty</div>
+                            <div class="example-item-topic">Why was the Tang Dynasty a golden age of cultural innovation?</div>
+                            <div class="example-part">
+                                <div class="example-part-label c-label">Claim</div>
+                                The Tang Dynasty's openness to foreign cultures catalyzed an unprecedented era of artistic and technological innovation that permanently influenced East Asian civilization.
+                            </div>
+                            <div class="example-part">
+                                <div class="example-part-label e-label">Evidence</div>
+                                During the Tang period (618–907 CE), Chang'an hosted communities from Persia, India, Arabia, and Central Asia. Tang-era woodblock printing (c. 868 CE Diamond Sutra) represents the world's earliest dated printed book, while Tang sancai pottery incorporated Persian glazing techniques into Chinese ceramic traditions.
+                            </div>
+                            <div class="example-part">
+                                <div class="example-part-label r-label">Reasoning</div>
+                                This evidence reveals how cultural cosmopolitanism drove innovation — the Tang court's deliberate embrace of foreign expertise created conditions where cross-cultural synthesis flourished. The fusion of Persian glazing with Chinese ceramics illustrates that innovation rarely emerges in isolation; rather, it accelerates when diverse traditions intersect, suggesting that cultural openness was the key mechanism behind Tang-era achievements.
+                            </div>
+                        </div>
+
+                        <div class="example-item">
+                            <div class="example-item-theme">👥 Social + 🌿 Environmental — Meiji Japan</div>
+                            <div class="example-item-topic">How did industrialization transform Japanese society?</div>
+                            <div class="example-part">
+                                <div class="example-part-label c-label">Claim</div>
+                                Japan's rapid industrialization during the Meiji period (1868–1912) created deep social stratification between urban industrial workers and rural agricultural communities, fundamentally reshaping traditional social hierarchies.
+                            </div>
+                            <div class="example-part">
+                                <div class="example-part-label e-label">Evidence</div>
+                                By 1900, Japan's urban population had grown from 15% to 40% as workers migrated to factory cities like Osaka and Tokyo. The Ashio Copper Mine pollution incident (1891) poisoned the Watarase River, destroying farmland for 400 km² and displacing thousands of farming families — one of Asia's first major industrial environmental disasters.
+                            </div>
+                            <div class="example-part">
+                                <div class="example-part-label r-label">Reasoning</div>
+                                This evidence demonstrates that Meiji industrialization did not simply modernize Japan — it created winners and losers along geographic and class lines. The Ashio incident is significant because it reveals the hidden environmental and social costs of rapid development: while urban elites prospered, rural communities bore the burden of pollution. This pattern — economic progress at the expense of marginalized groups — became a defining tension of modernizing Asian societies.
+                            </div>
+                        </div>
+
+                        <div class="example-item">
+                            <div class="example-item-theme">🏛️ Political — Indian Independence</div>
+                            <div class="example-item-topic">Was nonviolent resistance effective in ending British colonial rule?</div>
+                            <div class="example-part">
+                                <div class="example-part-label c-label">Claim</div>
+                                Gandhi's strategy of nonviolent civil disobedience was the primary catalyst for Indian independence because it undermined the moral legitimacy of British colonial authority on the global stage.
+                            </div>
+                            <div class="example-part">
+                                <div class="example-part-label e-label">Evidence</div>
+                                The 1930 Salt March saw Gandhi and 78 followers walk 240 miles to Dandi, attracting international press coverage. Over 60,000 Indians were arrested for making their own salt. Global newspapers, including the New York Times and London Daily Herald, published front-page coverage that framed British enforcement as disproportionate and oppressive.
+                            </div>
+                            <div class="example-part">
+                                <div class="example-part-label r-label">Reasoning</div>
+                                This evidence is significant because it shows that nonviolence was not merely a moral stance — it was a calculated political strategy. By provoking a harsh British response in front of the global media, Gandhi transformed a domestic grievance into an international embarrassment. The mass arrests demonstrated that Britain could not maintain control without visible coercion, which contradicted its self-image as a civilizing force. This erosion of legitimacy, rather than military defeat, ultimately made colonial rule unsustainable.
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="site-footer no-print">
+            <div class="container">
+                <div class="footer-inner">
+                    <p class="footer-copyright">© 2026 AHSAS · An independent educational resource.</p>
+                    <div class="footer-links">
+                        <a href="/about.html">About</a>
+                        <a href="/about.html#privacy">Privacy</a>
+                        <a href="/about.html#license">License</a>
+                        <a href="/about.html#conduct">Code of Conduct</a>
+                    </div>
+                    <div class="footer-netlify">
+                        <a href="https://www.netlify.com" target="_blank" rel="noopener">
+                            <img src="https://www.netlify.com/v3/img/components/netlify-color-bg.svg" alt="Powered by Netlify">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/src/js/progress.js"></script>
+    <script src="/src/js/nav.js"></script>
+    <script>
+    (function() {
+        const STORAGE_KEY = 'ahsas-cer-builder';
+
+        // State
+        let currentStep = 0;
+        let selectedTheme = '';
+        let selectedSource = '';
+
+        // Elements
+        const dots = document.querySelectorAll('.step-dot');
+        const lines = document.querySelectorAll('.step-line');
+        const panels = document.querySelectorAll('.step-panel');
+        const chips = document.querySelectorAll('.pieces-chip');
+        const sourceChips = document.querySelectorAll('.source-chip');
+        const starterPills = document.querySelectorAll('.starter-pill');
+
+        // ===== localStorage: Save & Resume =====
+        function saveState() {
+            const state = {
+                claim: document.getElementById('claimInput').value,
+                evidence: document.getElementById('evidenceInput').value,
+                source: document.getElementById('sourceInput').value,
+                reasoning: document.getElementById('reasoningInput').value,
+                theme: selectedTheme,
+                sourceType: selectedSource,
+                step: currentStep,
+                ts: Date.now()
+            };
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+            // Flash saved badge
+            const badge = document.getElementById('savedBadge');
+            badge.classList.add('visible');
+            setTimeout(() => badge.classList.remove('visible'), 1500);
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const s = JSON.parse(raw);
+                // Restore inputs
+                if (s.claim) document.getElementById('claimInput').value = s.claim;
+                if (s.evidence) document.getElementById('evidenceInput').value = s.evidence;
+                if (s.source) document.getElementById('sourceInput').value = s.source;
+                if (s.reasoning) document.getElementById('reasoningInput').value = s.reasoning;
+                // Restore theme
+                if (s.theme) {
+                    selectedTheme = s.theme;
+                    chips.forEach(c => {
+                        if (c.dataset.theme === s.theme) c.classList.add('selected');
+                    });
+                }
+                // Restore source type
+                if (s.sourceType) {
+                    selectedSource = s.sourceType;
+                    sourceChips.forEach(c => {
+                        if (c.dataset.source === s.sourceType) c.classList.add('selected');
+                    });
+                }
+                // Restore step
+                if (s.step && s.step > 0) goToStep(s.step);
+            } catch(e) {}
+        }
+
+        function clearState() {
+            try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+        }
+
+        // Auto-save on input changes
+        ['claimInput', 'evidenceInput', 'sourceInput', 'reasoningInput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', debounce(saveState, 800));
+        });
+
+        function debounce(fn, ms) {
+            let t; return function() { clearTimeout(t); t = setTimeout(fn, ms); };
+        }
+
+        // ===== Navigation =====
+        function goToStep(n) {
+            currentStep = n;
+            dots.forEach((d, i) => {
+                d.classList.remove('active', 'done');
+                if (i < n) d.classList.add('done');
+                else if (i === n) d.classList.add('active');
+            });
+            lines.forEach((l, i) => { l.classList.toggle('done', i < n); });
+            panels.forEach((p, i) => { p.classList.toggle('active', i === n); });
+            if (n === 3) populateReview();
+            saveState();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // PIECES chip selection
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                selectedTheme = chip.dataset.theme;
+                saveState();
+            });
+        });
+
+        // Source chip selection
+        sourceChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                sourceChips.forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                selectedSource = chip.dataset.source;
+                saveState();
+            });
+        });
+
+        // Sentence starters
+        starterPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                const ta = document.getElementById('reasoningInput');
+                if (!ta.value.trim()) {
+                    ta.value = pill.dataset.starter;
+                    ta.focus();
+                    ta.setSelectionRange(ta.value.length, ta.value.length);
+                }
+            });
+        });
+
+        // Navigation buttons
+        document.getElementById('toStep2').addEventListener('click', () => {
+            const claim = document.getElementById('claimInput').value.trim();
+            if (!claim) { shake(document.getElementById('claimInput')); return; }
+            goToStep(1);
+        });
+        document.getElementById('toStep3').addEventListener('click', () => {
+            const evidence = document.getElementById('evidenceInput').value.trim();
+            if (!evidence) { shake(document.getElementById('evidenceInput')); return; }
+            goToStep(2);
+        });
+        document.getElementById('toStep4').addEventListener('click', () => {
+            const reasoning = document.getElementById('reasoningInput').value.trim();
+            if (!reasoning) { shake(document.getElementById('reasoningInput')); return; }
+            goToStep(3);
+        });
+        document.getElementById('backToStep1').addEventListener('click', () => goToStep(0));
+        document.getElementById('backToStep2').addEventListener('click', () => goToStep(1));
+        document.getElementById('backToStep3').addEventListener('click', () => goToStep(2));
+
+        // Start over
+        document.getElementById('btnStartOver').addEventListener('click', () => {
+            document.getElementById('claimInput').value = '';
+            document.getElementById('evidenceInput').value = '';
+            document.getElementById('sourceInput').value = '';
+            document.getElementById('reasoningInput').value = '';
+            chips.forEach(c => c.classList.remove('selected'));
+            sourceChips.forEach(c => c.classList.remove('selected'));
+            selectedTheme = '';
+            selectedSource = '';
+            clearState();
+            goToStep(0);
+        });
+
+        // Copy
+        document.getElementById('btnCopyCER').addEventListener('click', () => {
+            const claim = document.getElementById('claimInput').value.trim();
+            const evidence = document.getElementById('evidenceInput').value.trim();
+            const reasoning = document.getElementById('reasoningInput').value.trim();
+            navigator.clipboard.writeText(`${claim} ${evidence} ${reasoning}`)
+                .then(() => showToast('Copied to clipboard!'));
+        });
+
+        // Print
+        document.getElementById('btnPrintCER').addEventListener('click', () => {
+            window.print();
+        });
+
+        // ===== AI Hint Mode =====
+        const hints = {
+            claim: [
+                "Does your claim answer a specific question? Try starting with: 'The most significant impact of [event] was…'",
+                "A strong claim is arguable — someone could disagree. Ask yourself: would a historian debate this?",
+                "Try connecting your claim to a PIECES theme. E.g., 'The [Political/Economic/Social] consequences of X were…'",
+                "Avoid vague words like 'important' or 'impactful.' Replace with specifics: 'restructured,' 'accelerated,' 'undermined.'",
+                "Your claim should be one clear sentence — not a question, not a fact. It's YOUR interpretation."
+            ],
+            evidence: [
+                "Include at least one specific date, number, or name. Vague evidence weakens your argument.",
+                "Ask: Could someone verify this? If your evidence is too general ('trade increased'), dig deeper for specifics.",
+                "Try to include WHO, WHAT, WHEN. E.g., 'According to [source] (date), [specific fact].'",
+                "Primary sources (diaries, treaties, artwork) are often more compelling than general statements.",
+                "Does your evidence actually support your specific claim, or is it just related to the topic? Make sure it's targeted."
+            ],
+            reasoning: [
+                "Don't just restate the evidence. Explain WHY it matters. Use: 'This is significant because…'",
+                "Connect to the bigger picture. How does this evidence reveal a broader historical pattern?",
+                "Try the 'So What?' test: read your evidence, then ask 'So what?' Your reasoning should answer that question.",
+                "Reference your PIECES theme explicitly: 'This demonstrates [theme] because…'",
+                "Strong reasoning often acknowledges complexity: 'While X, this evidence shows Y, which ultimately led to Z.'"
+            ]
+        };
+
+        let hintIndex = { claim: 0, evidence: 0, reasoning: 0 };
+
+        document.querySelectorAll('.hint-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.dataset.hint;
+                const bubble = document.getElementById('hint' + type.charAt(0).toUpperCase() + type.slice(1));
+                const pool = hints[type];
+                bubble.textContent = '💡 ' + pool[hintIndex[type] % pool.length];
+                bubble.classList.add('visible');
+                hintIndex[type]++;
+                btn.textContent = '💡 Another Hint';
+            });
+        });
+
+        // ===== Self-Assessment Rubric =====
+        document.querySelectorAll('.rubric-check').forEach(cb => {
+            cb.addEventListener('change', () => {
+                const checked = document.querySelectorAll('.rubric-check:checked').length;
+                const total = document.querySelectorAll('.rubric-check').length;
+                const scoreEl = document.getElementById('rubricScore');
+                scoreEl.innerHTML = `<strong>${checked} / ${total}</strong> checked`;
+                if (checked === total) {
+                    scoreEl.innerHTML += ' — 🎉 Excellent self-assessment!';
+                }
+            });
+        });
+
+        // ===== Example Bank Toggle =====
+        document.getElementById('exampleToggle').addEventListener('click', () => {
+            const body = document.getElementById('exampleBody');
+            const arrow = document.getElementById('exampleArrow');
+            body.classList.toggle('open');
+            arrow.classList.toggle('open');
+        });
+
+        // ===== Populate Review =====
+        function populateReview() {
+            const claim = document.getElementById('claimInput').value.trim();
+            const evidence = document.getElementById('evidenceInput').value.trim();
+            const source = document.getElementById('sourceInput').value.trim();
+            const reasoning = document.getElementById('reasoningInput').value.trim();
+
+            document.getElementById('reviewClaim').textContent = claim;
+            document.getElementById('reviewEvidence').textContent = evidence;
+            document.getElementById('reviewReasoning').textContent = reasoning;
+            document.getElementById('reviewTheme').textContent = selectedTheme ? `PIECES theme: ${selectedTheme}` : '';
+            document.getElementById('reviewSource').textContent = 
+                (selectedSource ? `${selectedSource} source` : '') + 
+                (source ? ` — ${source}` : '');
+
+            const para = document.getElementById('fullParagraph');
+            para.innerHTML = 
+                `<span class="cer-highlight-c">${esc(claim)}</span> ` +
+                `<span class="cer-highlight-e">${esc(evidence)}</span> ` +
+                `<span class="cer-highlight-r">${esc(reasoning)}</span>`;
+
+            generateFeedback(claim, evidence, reasoning);
+
+            // Reset rubric
+            document.querySelectorAll('.rubric-check').forEach(cb => cb.checked = false);
+            document.getElementById('rubricScore').innerHTML = '0 / 7 checked';
+
+            // Record progress
+            if (window.ahsasProgress) {
+                const topic = claim.split(/[\.\,]/)[0].substring(0, 50);
+                window.ahsasProgress.recordCompletion('cer', topic || 'CER Paragraph');
+            }
+        }
+
+        function generateFeedback(claim, evidence, reasoning) {
+            const items = [];
+
+            if (claim.length < 30) {
+                items.push({ icon: '⚠️', text: 'Your claim seems short. Strong claims are specific and arguable — try expanding it.' });
+            } else {
+                items.push({ icon: '✅', text: 'Claim is a good length. Make sure someone could reasonably disagree with it.' });
+            }
+            if (claim.endsWith('?')) {
+                items.push({ icon: '💡', text: 'Your claim looks like a question. Rewrite it as a statement.' });
+            }
+
+            const hasDate = /\b\d{2,4}\b/.test(evidence);
+            const hasName = /[A-Z][a-z]+/.test(evidence);
+            if (hasDate) {
+                items.push({ icon: '✅', text: 'Good — your evidence includes specific dates or numbers.' });
+            } else {
+                items.push({ icon: '💡', text: 'Try adding specific dates, statistics, or numbers to strengthen your evidence.' });
+            }
+            if (hasName) {
+                items.push({ icon: '✅', text: 'Good — your evidence references specific names or places.' });
+            } else {
+                items.push({ icon: '💡', text: 'Consider naming specific people, places, or documents in your evidence.' });
+            }
+            if (!selectedSource) {
+                items.push({ icon: '💡', text: 'Select a source type to show you understand where your evidence comes from.' });
+            }
+
+            const connectingWords = ['because', 'therefore', 'demonstrates', 'significant', 'shows that', 'proves', 'illustrates', 'suggests'];
+            const hasConnector = connectingWords.some(w => reasoning.toLowerCase().includes(w));
+            if (hasConnector) {
+                items.push({ icon: '✅', text: 'Strong — your reasoning uses analytical language to connect evidence to the claim.' });
+            } else {
+                items.push({ icon: '💡', text: 'Use words like "because," "demonstrates," or "is significant because" to make the connection explicit.' });
+            }
+            if (reasoning.length < 50) {
+                items.push({ icon: '⚠️', text: 'Your reasoning is brief. Explain more about WHY the evidence supports your specific claim.' });
+            }
+
+            const words = (claim + ' ' + evidence + ' ' + reasoning).split(/\s+/).length;
+            items.push({ icon: 'ℹ️', text: `Total word count: ${words}. A strong CER paragraph is typically 80–150 words.` });
+
+            document.getElementById('feedbackItems').innerHTML = items.map(item => 
+                `<div class="feedback-item">
+                    <span class="feedback-icon">${item.icon}</span>
+                    <span class="feedback-text">${item.text}</span>
+                </div>`
+            ).join('');
+        }
+
+        function esc(s) { 
+            const d = document.createElement('div'); 
+            d.textContent = s; 
+            return d.innerHTML; 
+        }
+
+        function shake(el) {
+            el.style.borderColor = 'var(--vermillion)';
+            el.animate([
+                { transform: 'translateX(-4px)' },
+                { transform: 'translateX(4px)' },
+                { transform: 'translateX(-4px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 300 });
+            setTimeout(() => { el.style.borderColor = ''; }, 1500);
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 2500);
+        }
+
+        // Load saved state on page load
+        loadState();
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CER — Claims, Evidence & Reasoning — AHSAS</title>
+    <meta name="description" content="Master the CER framework for historical writing — crafting arguable claims, selecting evidence strategically, and building reasoning that connects to PIECES themes.">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <style>
+        .cer-intro {
+            max-width: 640px;
+            margin: 0 auto var(--space-2xl);
+            text-align: center;
+        }
+        .cer-intro p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        /* CER Visual Flow */
+        .cer-flow {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            margin: var(--space-xl) auto;
+            max-width: 500px;
+        }
+        .cer-flow-step {
+            flex: 1;
+            text-align: center;
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            position: relative;
+        }
+        .cer-flow-step .flow-letter {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .cer-flow-step .flow-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+        .cer-flow-step.claim { background: rgba(74, 144, 217, 0.35); }
+        .cer-flow-step.claim .flow-letter { color: #4a90d9; }
+        .cer-flow-step.claim .flow-label { color: #4a90d9; }
+        .cer-flow-step.evidence { background: rgba(46, 204, 113, 0.35); }
+        .cer-flow-step.evidence .flow-letter { color: #2ecc71; }
+        .cer-flow-step.evidence .flow-label { color: #2ecc71; }
+        .cer-flow-step.reasoning { background: rgba(212, 160, 57, 0.35); }
+        .cer-flow-step.reasoning .flow-letter { color: var(--gold); }
+        .cer-flow-step.reasoning .flow-label { color: var(--gold); }
+        .cer-flow-arrow {
+            display: flex;
+            align-items: center;
+            color: var(--text-dim);
+            font-size: 1.2rem;
+        }
+
+        /* CER Section Cards */
+        .cer-grid {
+            max-width: 800px;
+            margin: 0 auto var(--space-2xl);
+            display: grid;
+            gap: var(--space-xl);
+        }
+        .cer-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            position: relative;
+            z-index: 1;
+        }
+        .cer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+        }
+        .cer-card.claim-card::before { background: #4a90d9; }
+        .cer-card.evidence-card::before { background: #2ecc71; }
+        .cer-card.reasoning-card::before { background: var(--gold); }
+
+        .cer-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        .cer-card h2 .cer-badge {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        .claim-card .cer-badge { background: rgba(74, 144, 217, 0.15); color: #4a90d9; }
+        .evidence-card .cer-badge { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .reasoning-card .cer-badge { background: var(--gold-glow); color: var(--gold); }
+
+        .cer-card > p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            margin-bottom: var(--space-md);
+        }
+
+        .cer-sub {
+            margin-bottom: var(--space-md);
+        }
+        .cer-sub h3 {
+            font-size: 0.95rem;
+            margin-bottom: var(--space-sm);
+        }
+        .cer-sub p, .cer-sub li {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+        .cer-sub ul {
+            list-style: none;
+            padding: 0;
+        }
+        .cer-sub li {
+            padding-left: 1.2rem;
+            position: relative;
+            margin-bottom: var(--space-xs);
+        }
+        .cer-sub li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            opacity: 0.4;
+        }
+
+        /* Example boxes */
+        .cer-example {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            margin-top: var(--space-sm);
+        }
+        .cer-example-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        .cer-example p {
+            font-size: 0.85rem !important;
+            line-height: 1.7 !important;
+        }
+        .cer-example .weak {
+            color: var(--vermillion);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .cer-example .strong {
+            color: var(--text);
+            font-style: italic;
+        }
+        .cer-example .tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 4px;
+            font-style: normal;
+        }
+        .cer-example .tag-weak { background: rgba(199, 62, 58, 0.15); color: var(--vermillion); }
+        .cer-example .tag-strong { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+
+        /* PIECES connection */
+        .pieces-connection {
+            max-width: 700px;
+            margin: 0 auto var(--space-2xl);
+        }
+        .pieces-connection h2 {
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
+        .pieces-connection > p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+        .connection-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            position: relative;
+            z-index: 1;
+        }
+        .connection-card p {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.8;
+        }
+        .connection-card .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin: var(--space-md) 0;
+            flex-wrap: wrap;
+        }
+        .flow-diagram .step {
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .flow-diagram .step-pieces { background: rgba(155, 89, 182, 0.15); color: #9b59b6; }
+        .flow-diagram .step-c { background: rgba(74, 144, 217, 0.15); color: #4a90d9; }
+        .flow-diagram .step-e { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .flow-diagram .step-r { background: var(--gold-glow); color: var(--gold); }
+        .flow-diagram .arrow { color: var(--text-dim); }
+
+        /* Sentence starters */
+        .starters {
+            margin-top: var(--space-lg);
+        }
+        .starters h3 {
+            font-size: 0.95rem;
+            margin-bottom: var(--space-md);
+        }
+        .starters-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-sm);
+        }
+        .starter-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm) var(--space-md);
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .starters-grid { grid-template-columns: 1fr; }
+            .cer-flow { flex-direction: column; align-items: center; }
+            .cer-flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <header class="site-header">
+            <div class="container">
+                <nav class="nav-inner">
+                    <a href="/" class="site-logo">
+                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <span class="logo-text">AHSAS</span>
+                    </a>
+                    <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul class="nav-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/seminar.html">Seminar</a></li>
+                        <li><a href="/pieces.html">PIECES</a></li>
+                        <li><a href="/cer.html" class="active">CER</a></li>
+                        <li><a href="/source-analyzer.html">Sources</a></li>
+                        <li><a href="/timeline.html">Timeline</a></li>
+                        <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/about.html">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+
+                <div class="cer-intro animate-in">
+                    <h1>Claims, Evidence & Reasoning</h1>
+                    <p class="text-muted mt-sm" style="font-size:1.05rem;">The Foundation of Historical Argumentation</p>
+                    <p class="mt-md">
+                        CER is a framework for building strong historical arguments. Every analytical 
+                        paragraph starts with a <strong>Claim</strong>, supports it with <strong>Evidence</strong>, 
+                        and explains the connection through <strong>Reasoning</strong>.
+                    </p>
+
+                    <div class="cer-flow">
+                        <div class="cer-flow-step claim">
+                            <span class="flow-letter">C</span>
+                            <span class="flow-label">Claim</span>
+                        </div>
+                        <div class="cer-flow-arrow">→</div>
+                        <div class="cer-flow-step evidence">
+                            <span class="flow-letter">E</span>
+                            <span class="flow-label">Evidence</span>
+                        </div>
+                        <div class="cer-flow-arrow">→</div>
+                        <div class="cer-flow-step reasoning">
+                            <span class="flow-letter">R</span>
+                            <span class="flow-label">Reasoning</span>
+                        </div>
+                    </div>
+
+                    <a href="/cer-builder.html" class="card-link" style="display:block;margin-top:var(--space-lg);">
+                        <div style="padding:var(--space-md) var(--space-lg);background:rgba(212,160,57,0.18);border:1px solid rgba(212,160,57,0.35);border-radius:var(--radius-md);text-align:center;backdrop-filter:blur(8px);">
+                            <strong style="color:var(--gold);">✍️ Try the CER Builder</strong>
+                            <span style="display:block;font-size:0.82rem;color:var(--text-muted);margin-top:4px;">Build your own CER paragraph step by step →</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- CER Deep Dive Cards -->
+                <div class="cer-grid">
+
+                    <!-- CLAIMS -->
+                    <div class="cer-card claim-card animate-in delay-1">
+                        <h2>📝 Claims <span class="cer-badge">What you argue</span></h2>
+                        <p>
+                            A <strong>claim</strong> is an arguable statement that directly answers a historical 
+                            question. It is <em>not</em> a fact — it's your interpretation that must be 
+                            defended with evidence and reasoning.
+                        </p>
+
+                        <div class="cer-sub">
+                            <h3>What makes a strong claim?</h3>
+                            <ul>
+                                <li>Directly answers the question — no restating or summarizing</li>
+                                <li>Takes a clear position that someone could disagree with</li>
+                                <li>Specific enough to be proven with evidence, broad enough to develop</li>
+                                <li>Uses PIECES themes for analytical precision</li>
+                            </ul>
+                        </div>
+
+                        <div class="cer-example">
+                            <div class="cer-example-label">Example</div>
+                            <p><span class="tag tag-weak">✗ Weak</span> <span class="weak">"The Mongol Empire was important for trade."</span></p>
+                            <p><span class="tag tag-strong">✓ Strong</span> <span class="strong">"The Mongol Empire's enforcement of the Pax Mongolica fundamentally restructured Eurasian economic systems (ECN) by securing overland trade routes, which in turn accelerated cultural exchange (CDI) between East Asia and the Islamic world."</span></p>
+                        </div>
+                    </div>
+
+                    <!-- EVIDENCE -->
+                    <div class="cer-card evidence-card animate-in delay-2">
+                        <h2>📚 Evidence <span class="cer-badge">What you use to prove it</span></h2>
+                        <p>
+                            <strong>Evidence</strong> is the specific historical facts, data, examples, or sources 
+                            you use to support your claim. Evidence must be <em>relevant</em>, <em>specific</em>, 
+                            and <em>accurate</em>.
+                        </p>
+
+                        <div class="cer-sub">
+                            <h3>Types of evidence in history</h3>
+                            <ul>
+                                <li><strong>Primary sources:</strong> Texts, artifacts, art, laws, treaties from the period</li>
+                                <li><strong>Statistical data:</strong> Population figures, trade volumes, economic indicators</li>
+                                <li><strong>Specific events:</strong> Battles, treaties, reforms, inventions — with dates</li>
+                                <li><strong>Scholarly interpretation:</strong> Historian's analysis or historiographical debate</li>
+                            </ul>
+                        </div>
+
+                        <div class="cer-sub">
+                            <h3>Evidence selection by PIECES theme</h3>
+                            <ul>
+                                <li><strong>GOV:</strong> Treaties, constitutions, decrees, election records</li>
+                                <li><strong>TEC:</strong> Inventions, patents, infrastructure records, scientific texts</li>
+                                <li><strong>ENV:</strong> Geographic data, climate records, agricultural output, disease records</li>
+                                <li><strong>CDI:</strong> Religious texts, artwork, philosophy, literary works</li>
+                                <li><strong>ECN:</strong> Trade ledgers, tax records, GDP data, labor statistics</li>
+                                <li><strong>SIO:</strong> Census data, legal codes on social status, letters, diaries</li>
+                            </ul>
+                        </div>
+
+                        <div class="cer-example">
+                            <div class="cer-example-label">Example</div>
+                            <p><span class="tag tag-weak">✗ Vague</span> <span class="weak">"Trade increased along the Silk Road."</span></p>
+                            <p><span class="tag tag-strong">✓ Specific</span> <span class="strong">"Marco Polo's account (c.1298) describes Mongol relay stations (yam) positioned every 25 miles, which reduced travel time between Beijing and Tabriz from over a year to approximately six months."</span></p>
+                        </div>
+                    </div>
+
+                    <!-- REASONING -->
+                    <div class="cer-card reasoning-card animate-in delay-3">
+                        <h2>🔗 Reasoning <span class="cer-badge">Why it matters</span></h2>
+                        <p>
+                            <strong>Reasoning</strong> is the logical explanation that connects your evidence 
+                            to your claim. This is where most students struggle — they present evidence but 
+                            never explain <em>why</em> it proves their point.
+                        </p>
+
+                        <div class="cer-sub">
+                            <h3>Strong reasoning does three things</h3>
+                            <ul>
+                                <li><strong>Explains:</strong> Why does this evidence support the claim?</li>
+                                <li><strong>Analyzes:</strong> What PIECES theme does it connect to?</li>
+                                <li><strong>Extends:</strong> What broader historical significance does it reveal?</li>
+                            </ul>
+                        </div>
+
+                        <div class="cer-example">
+                            <div class="cer-example-label">Reasoning template</div>
+                            <p class="strong">"This evidence demonstrates [PIECES theme] because [mechanism/explanation]. This is historically significant because [broader pattern or consequence], which ultimately [connection to claim]."</p>
+                        </div>
+
+                        <div class="starters">
+                            <h3>Reasoning sentence starters</h3>
+                            <div class="starters-grid">
+                                <div class="starter-item">"This demonstrates that…"</div>
+                                <div class="starter-item">"This is significant because…"</div>
+                                <div class="starter-item">"This reveals a broader pattern of…"</div>
+                                <div class="starter-item">"As a consequence of this…"</div>
+                                <div class="starter-item">"This connects to [PIECES theme] by…"</div>
+                                <div class="starter-item">"The underlying cause was…"</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- PIECES Connection -->
+                <div class="pieces-connection animate-in">
+                    <h2>How CER + PIECES Work Together</h2>
+                    <p>
+                        PIECES provides the <em>analytical lenses</em>. CER provides the <em>argument structure</em>. 
+                        Together, they turn raw historical knowledge into rigorous, multi-dimensional analysis.
+                    </p>
+
+                    <div class="connection-card">
+                        <div class="flow-diagram">
+                            <span class="step step-pieces">PIECES lens</span>
+                            <span class="arrow">→</span>
+                            <span class="step step-c">Claim</span>
+                            <span class="arrow">→</span>
+                            <span class="step step-e">Evidence</span>
+                            <span class="arrow">→</span>
+                            <span class="step step-r">Reasoning</span>
+                        </div>
+                        <p>
+                            Start by choosing a <a href="/pieces.html">PIECES theme</a> as your analytical 
+                            lens. Use it to frame a precise <strong>claim</strong>. Select <strong>evidence</strong> 
+                            that matches the theme. Then write <strong>reasoning</strong> that explicitly 
+                            connects the evidence to the theme and explains its broader significance.
+                        </p>
+                        <div class="cer-example" style="margin-top: var(--space-md);">
+                            <div class="cer-example-label">Full CER paragraph (Silk Road + ECN/CDI)</div>
+                            <p class="strong">
+                                <strong>Claim:</strong> The Mongol Empire's Pax Mongolica restructured Eurasian 
+                                economic systems by securing overland trade.
+                                <br><br>
+                                <strong>Evidence:</strong> Marco Polo's account describes hundreds of relay 
+                                stations (yam) every 25 miles, cutting travel from Beijing to Tabriz from 
+                                a year to six months.
+                                <br><br>
+                                <strong>Reasoning:</strong> This infrastructure demonstrates how political 
+                                stability (GOV) enabled economic transformation (ECN) — by guaranteeing 
+                                merchant safety, the Mongols lowered the cost and risk of long-distance trade. 
+                                The resulting increase in commercial activity facilitated cultural exchange (CDI), 
+                                as merchants carried not only goods but religious ideas, scientific knowledge, 
+                                and artistic traditions across civilizational boundaries.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-inner">
+                    <p class="footer-copyright">© 2026 AHSAS · An independent educational resource.</p>
+                    <div class="footer-links">
+                        <a href="/about.html">About</a>
+                        <a href="/about.html#privacy">Privacy</a>
+                        <a href="/about.html#license">License</a>
+                        <a href="/about.html#conduct">Code of Conduct</a>
+                    </div>
+                    <div class="footer-netlify">
+                        <a href="https://www.netlify.com" target="_blank" rel="noopener">
+                            <img src="https://www.netlify.com/v3/img/components/netlify-color-bg.svg" alt="Powered by Netlify">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="/src/js/nav.js"></script>
+</body>
+</html>

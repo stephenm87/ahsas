@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — AHSAS</title>
+    <meta name="description" content="About AHSAS — privacy policy, license, and code of conduct for this educational tool.">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <style>
+        .about-section {
+            max-width: 640px;
+            margin: 0 auto var(--space-2xl);
+            scroll-margin-top: 80px;
+        }
+        .about-section h2 {
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid var(--border);
+        }
+        .about-section p,
+        .about-section li {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+        .about-section ul {
+            list-style: disc;
+            padding-left: var(--space-lg);
+            margin: var(--space-md) 0;
+        }
+        .about-section li {
+            margin-bottom: var(--space-sm);
+        }
+        .license-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+            white-space: pre-wrap;
+            margin-top: var(--space-md);
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <header class="site-header">
+            <div class="container">
+                <nav class="nav-inner">
+                    <a href="/" class="site-logo">
+                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <span class="logo-text">AHSAS</span>
+                    </a>
+                    <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul class="nav-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/seminar.html">Seminar</a></li>
+                        <li><a href="/pieces.html">PIECES</a></li>
+                        <li><a href="/cer.html">CER</a></li>
+                        <li><a href="/source-analyzer.html">Sources</a></li>
+                        <li><a href="/timeline.html">Timeline</a></li>
+                        <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/about.html" class="active">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+
+                <div class="text-center mb-lg animate-in">
+                    <h1>About AHSAS</h1>
+                    <p class="text-muted mt-sm">Privacy, licensing, and project information</p>
+                </div>
+
+                <!-- Privacy -->
+                <section class="about-section animate-in delay-1" id="privacy">
+                    <h2>🔒 Privacy Notice</h2>
+                    <p>AHSAS is designed with student privacy as a top priority.</p>
+                    <ul>
+                        <li><strong>Minimal data collection:</strong> We only collect first names or initials and discussion ideas. No email addresses, no accounts, no login required.</li>
+                        <li><strong>Ephemeral data:</strong> All student submissions are temporary. Data is automatically deleted within 24 hours of the activity session.</li>
+                        <li><strong>No tracking:</strong> We do not use cookies, analytics, or any tracking technology.</li>
+                        <li><strong>No data sharing:</strong> Student ideas are never sold, shared, or transmitted to any third party beyond the AI synthesis service (Google Gemini), which receives only the anonymous text content — no names, no identifiers.</li>
+                        <li><strong>Local-first:</strong> Student form drafts are saved locally in the browser only and are cleared after submission.</li>
+                        <li><strong>No persistent storage:</strong> After the teacher synthesizes the guidelines, only the final output (which contains no individual student data) can be saved. All raw submissions are ephemeral.</li>
+                    </ul>
+                </section>
+
+                <!-- License -->
+                <section class="about-section animate-in delay-2" id="license">
+                    <h2>📜 License</h2>
+                    <p>AHSAS is open-source software released under the MIT License.</p>
+                    <div class="license-block">MIT License
+
+Copyright (c) 2026 Stephen F Martinez
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</div>
+                </section>
+
+                <!-- Code of Conduct -->
+                <section class="about-section animate-in delay-3" id="conduct">
+                    <h2>📋 Code of Conduct</h2>
+                    <p>This project is committed to providing a welcoming and inclusive environment for everyone. All contributors and users are expected to:</p>
+                    <ul>
+                        <li>Use welcoming and inclusive language</li>
+                        <li>Be respectful of differing viewpoints and experiences</li>
+                        <li>Accept constructive criticism gracefully</li>
+                        <li>Focus on what is best for the classroom community</li>
+                        <li>Show empathy towards other community members</li>
+                    </ul>
+                    <p>Unacceptable behavior includes harassment, trolling, publishing others' private information, or any conduct that could reasonably be considered inappropriate in an educational setting.</p>
+                </section>
+
+                <!-- Credits -->
+                <section class="about-section" id="credits">
+                    <h2>👤 Credits</h2>
+                    <div class="footer-credits" style="display:block;margin-bottom:var(--space-md);">
+                        <div class="footer-credits-title">Non-Commercial Educational Tool</div>
+                        <p>
+                            Created by <strong>Stephen F Martinez</strong>. This is a 100% academic tool designed to support 
+                            classroom learning. It is not a commercial product and provides free pedagogical resources.
+                        </p>
+                    </div>
+                    <p>
+                        Built with <a href="https://supabase.com" target="_blank" rel="noopener">Supabase</a> for real-time data,
+                        <a href="https://ai.google.dev" target="_blank" rel="noopener">Google Gemini</a> for AI synthesis, and deployed on
+                        <a href="https://www.netlify.com" target="_blank" rel="noopener">Netlify</a>.
+                    </p>
+                </section>
+
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-inner">
+                    <p class="footer-copyright">© 2026 AHSAS. An independent educational resource.</p>
+                    <div class="footer-links">
+                        <a href="#privacy">Privacy</a>
+                        <a href="#license">License</a>
+                        <a href="#conduct">Code of Conduct</a>
+                    </div>
+                    <div class="footer-netlify">
+                        <a href="https://www.netlify.com" target="_blank" rel="noopener">
+                            <img src="https://www.netlify.com/v3/img/components/netlify-color-bg.svg" alt="Powered by Netlify">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="/src/js/nav.js"></script>
+</body>
+</html>

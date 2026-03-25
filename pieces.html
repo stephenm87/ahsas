@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIECES — AHSAS</title>
+    <meta name="description" content="Explore the PIECES framework — six thematic lenses for historical inquiry: Political, Innovation, Environmental, Cultural, Economic, and Social.">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <style>
+        /* PIECES page specific styles */
+        .pieces-intro {
+            max-width: 640px;
+            margin: 0 auto var(--space-2xl);
+            text-align: center;
+        }
+        .pieces-intro p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        .pieces-grid {
+            display: grid;
+            gap: var(--space-xl);
+            max-width: 800px;
+            margin: 0 auto var(--space-2xl);
+        }
+
+        .piece-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            position: relative;
+            z-index: 1;
+            transition: border-color var(--transition), transform var(--transition);
+            overflow: hidden;
+        }
+        .piece-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+        .piece-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+        }
+
+        .piece-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+        .piece-letter {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            flex-shrink: 0;
+        }
+        .piece-title-group {
+            flex: 1;
+        }
+        .piece-title {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+        .piece-abbrev {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+            opacity: 0.7;
+        }
+        .piece-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .piece-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            margin-bottom: var(--space-md);
+        }
+
+        .piece-questions {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+        }
+        .piece-questions-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        .piece-questions ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .piece-questions li {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.7;
+            padding-left: 1.2rem;
+            position: relative;
+            margin-bottom: var(--space-xs);
+        }
+        .piece-questions li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            opacity: 0.5;
+        }
+
+        /* Individual theme colors */
+        .piece-card.political::before { background: #4a90d9; }
+        .piece-card.political .piece-letter { background: rgba(74, 144, 217, 0.15); color: #4a90d9; }
+        .piece-card.political .piece-abbrev { color: #4a90d9; }
+
+        .piece-card.innovation::before { background: #e67e22; }
+        .piece-card.innovation .piece-letter { background: rgba(230, 126, 34, 0.15); color: #e67e22; }
+        .piece-card.innovation .piece-abbrev { color: #e67e22; }
+
+        .piece-card.environmental::before { background: #2ecc71; }
+        .piece-card.environmental .piece-letter { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .piece-card.environmental .piece-abbrev { color: #2ecc71; }
+
+        .piece-card.cultural::before { background: #9b59b6; }
+        .piece-card.cultural .piece-letter { background: rgba(155, 89, 182, 0.15); color: #9b59b6; }
+        .piece-card.cultural .piece-abbrev { color: #9b59b6; }
+
+        .piece-card.economic::before { background: var(--gold); }
+        .piece-card.economic .piece-letter { background: var(--gold-glow); color: var(--gold); }
+        .piece-card.economic .piece-abbrev { color: var(--gold); }
+
+        .piece-card.social::before { background: var(--vermillion); }
+        .piece-card.social .piece-letter { background: var(--vermillion-glow); color: var(--vermillion); }
+        .piece-card.social .piece-abbrev { color: var(--vermillion); }
+
+        /* CER callout */
+        .cer-callout {
+            max-width: 700px;
+            margin: 0 auto var(--space-2xl);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .cer-callout h2 { margin-bottom: var(--space-sm); }
+        .cer-callout p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: var(--space-md);
+        }
+        .cer-callout .btn {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <header class="site-header">
+            <div class="container">
+                <nav class="nav-inner">
+                    <a href="/" class="site-logo">
+                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <span class="logo-text">AHSAS</span>
+                    </a>
+                    <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul class="nav-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/seminar.html">Seminar</a></li>
+                        <li><a href="/pieces.html" class="active">PIECES</a></li>
+                        <li><a href="/cer.html">CER</a></li>
+                        <li><a href="/source-analyzer.html">Sources</a></li>
+                        <li><a href="/timeline.html">Timeline</a></li>
+                        <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/about.html">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+
+                <div class="pieces-intro animate-in">
+                    <h1>PIECES</h1>
+                    <p class="text-muted mt-sm" style="font-size:1.05rem;">Six Thematic Lenses for Historical Inquiry</p>
+                    <p class="mt-md">
+                        PIECES is a framework used in AP World History to analyze historical events, 
+                        processes, and societies through six interconnected themes. Each theme offers a 
+                        different lens for understanding <em>why</em> things happened and <em>how</em> 
+                        they connect across time and place.
+                    </p>
+                </div>
+
+                <!-- PIECES Cards -->
+                <div class="pieces-grid">
+
+                    <div class="piece-card political animate-in delay-1">
+                        <div class="piece-header">
+                            <div class="piece-letter">P</div>
+                            <div class="piece-title-group">
+                                <div class="piece-title">Political Systems & Governments</div>
+                                <div class="piece-abbrev">GOV</div>
+                            </div>
+                            <span class="piece-icon">🏛️</span>
+                        </div>
+                        <p class="piece-description">
+                            How societies organize power, create laws, and govern people. This includes empires, 
+                            nation-states, revolutions, diplomacy, wars, and the relationship between rulers and the ruled.
+                        </p>
+                        <div class="piece-questions">
+                            <div class="piece-questions-label">Guiding Questions</div>
+                            <ul>
+                                <li>Who holds power, and how is it maintained or challenged?</li>
+                                <li>How do political structures shape people's daily lives?</li>
+                                <li>What causes political systems to rise, evolve, or collapse?</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="piece-card innovation animate-in delay-1">
+                        <div class="piece-header">
+                            <div class="piece-letter">I</div>
+                            <div class="piece-title-group">
+                                <div class="piece-title">Innovation & Technology</div>
+                                <div class="piece-abbrev">TEC</div>
+                            </div>
+                            <span class="piece-icon">🔬</span>
+                        </div>
+                        <p class="piece-description">
+                            How new ideas, inventions, and technologies transform societies. From agricultural 
+                            innovations to the printing press to digital technology — breakthroughs that reshape 
+                            economies, warfare, communication, and daily life.
+                        </p>
+                        <div class="piece-questions">
+                            <div class="piece-questions-label">Guiding Questions</div>
+                            <ul>
+                                <li>What innovations drove major turning points in history?</li>
+                                <li>How did technology spread across cultures and regions?</li>
+                                <li>Who benefited from technological change — and who was harmed?</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="piece-card environmental animate-in delay-2">
+                        <div class="piece-header">
+                            <div class="piece-letter">E</div>
+                            <div class="piece-title-group">
+                                <div class="piece-title">Environmental & Human Interaction</div>
+                                <div class="piece-abbrev">ENV</div>
+                            </div>
+                            <span class="piece-icon">🌍</span>
+                        </div>
+                        <p class="piece-description">
+                            How humans interact with their natural environment — adapting to geography, 
+                            exploiting resources, and facing consequences like climate change, disease, and 
+                            ecological transformation. Environment shapes civilizations as much as civilizations shape it.
+                        </p>
+                        <div class="piece-questions">
+                            <div class="piece-questions-label">Guiding Questions</div>
+                            <ul>
+                                <li>How did geography and climate shape the development of societies?</li>
+                                <li>What environmental consequences resulted from human activity?</li>
+                                <li>How did disease and ecological exchange reshape global populations?</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="piece-card cultural animate-in delay-2">
+                        <div class="piece-header">
+                            <div class="piece-letter">C</div>
+                            <div class="piece-title-group">
+                                <div class="piece-title">Cultural Developments & Interactions</div>
+                                <div class="piece-abbrev">CDI</div>
+                            </div>
+                            <span class="piece-icon">🎭</span>
+                        </div>
+                        <p class="piece-description">
+                            How beliefs, art, religion, philosophy, and cultural practices develop and 
+                            spread across civilizations. Cultural exchange — through trade, conquest, or migration — 
+                            creates hybrid traditions and shapes identity.
+                        </p>
+                        <div class="piece-questions">
+                            <div class="piece-questions-label">Guiding Questions</div>
+                            <ul>
+                                <li>How do religions and belief systems spread and evolve?</li>
+                                <li>What role does art, literature, and philosophy play in shaping societies?</li>
+                                <li>How do cultural encounters lead to syncretism or conflict?</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="piece-card economic animate-in delay-3">
+                        <div class="piece-header">
+                            <div class="piece-letter">E</div>
+                            <div class="piece-title-group">
+                                <div class="piece-title">Economic Systems</div>
+                                <div class="piece-abbrev">ECN</div>
+                            </div>
+                            <span class="piece-icon">💰</span>
+                        </div>
+                        <p class="piece-description">
+                            How societies produce, distribute, and consume goods and resources. Trade 
+                            networks, labor systems, industrialization, and economic ideologies drive 
+                            both cooperation and exploitation across regions.
+                        </p>
+                        <div class="piece-questions">
+                            <div class="piece-questions-label">Guiding Questions</div>
+                            <ul>
+                                <li>How do trade networks connect distant civilizations?</li>
+                                <li>What labor systems have societies used — and at whose expense?</li>
+                                <li>How do economic changes create winners and losers?</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="piece-card social animate-in delay-3">
+                        <div class="piece-header">
+                            <div class="piece-letter">S</div>
+                            <div class="piece-title-group">
+                                <div class="piece-title">Social Interactions & Organization</div>
+                                <div class="piece-abbrev">SIO</div>
+                            </div>
+                            <span class="piece-icon">👥</span>
+                        </div>
+                        <p class="piece-description">
+                            How societies organize people through class, caste, gender, ethnicity, and family 
+                            structures. Social hierarchies determine access to power, resources, and 
+                            opportunity — and fuel movements for equality and justice.
+                        </p>
+                        <div class="piece-questions">
+                            <div class="piece-questions-label">Guiding Questions</div>
+                            <ul>
+                                <li>How do social hierarchies form and who enforces them?</li>
+                                <li>How have gender roles and family structures changed over time?</li>
+                                <li>What movements have challenged social inequality?</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- CER Callout -->
+                <div class="cer-callout animate-in">
+                    <h2>Use PIECES with CER</h2>
+                    <p>
+                        PIECES provides the analytical lenses. <strong>Claims, Evidence & Reasoning (CER)</strong> 
+                        provides the argument structure. Together they turn raw historical knowledge into 
+                        rigorous, multi-dimensional analysis.
+                    </p>
+                    <a href="/cer.html" class="btn btn-primary">Explore CER Framework →</a>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-inner">
+                    <p class="footer-copyright">© 2026 AHSAS · An independent educational resource.</p>
+                    <div class="footer-links">
+                        <a href="/about.html">About</a>
+                        <a href="/about.html#privacy">Privacy</a>
+                        <a href="/about.html#license">License</a>
+                        <a href="/about.html#conduct">Code of Conduct</a>
+                    </div>
+                    <div class="footer-netlify">
+                        <a href="https://www.netlify.com" target="_blank" rel="noopener">
+                            <img src="https://www.netlify.com/v3/img/components/netlify-color-bg.svg" alt="Powered by Netlify">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="/src/js/nav.js"></script>
+</body>
+</html>

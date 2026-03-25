@@ -1,0 +1,17 @@
+{
+  "name": "ahsas",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AHSAS — Asian History at SAS classroom tools",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

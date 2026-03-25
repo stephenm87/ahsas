@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socratic Seminar Builder — AHSAS</title>
+    <meta name="description" content="Build class discussion guidelines together. Submit your dos and don'ts, then watch AI synthesize them into shared rules.">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <!-- Header -->
+        <header class="site-header">
+            <div class="container">
+                <nav class="nav-inner">
+                    <a href="/" class="site-logo">
+                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <span class="logo-text">AHSAS</span>
+                    </a>
+                    <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul class="nav-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/seminar.html" class="active">Seminar</a></li>
+                        <li><a href="/pieces.html">PIECES</a></li>
+                        <li><a href="/cer.html">CER</a></li>
+                        <li><a href="/source-analyzer.html">Sources</a></li>
+                        <li><a href="/timeline.html">Timeline</a></li>
+                        <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/about.html">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+
+                <!-- ===== VIEW: Choose Role ===== -->
+                <div id="viewChoose" class="view animate-in">
+                    <div class="text-center view-padded">
+                        <h1>Socratic Seminar</h1>
+                        <p class="text-muted mt-sm mb-lg mx-auto-narrow">
+                            Build class discussion guidelines together — powered by your ideas.
+                        </p>
+                        <div class="btn-column">
+                            <div class="hidden" id="teacherSetup">
+                                <label class="form-label" for="topicInput" style="text-align:left;margin-bottom:var(--space-xs);">Discussion Topic (optional)</label>
+                                <input type="text" id="topicInput" class="form-input" style="margin-bottom:var(--space-md);" placeholder="e.g., Was the Meiji Restoration a revolution or reform?">
+                            </div>
+                            <button class="btn btn-primary btn-block hidden" id="btnTeacher">
+                                🏛️ I'm the Teacher — Create a Room
+                            </button>
+                            <button class="btn btn-secondary btn-block" id="btnStudent">
+                                🧑‍🎓 I'm a Student — Join a Room
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== VIEW: Student Join ===== -->
+                <div id="viewJoin" class="view hidden animate-in">
+                    <div class="card card-narrow">
+                        <h2 class="text-center mb-lg">Join a Room</h2>
+                        <div class="form-group">
+                            <label class="form-label" for="joinCode">Room Code</label>
+                            <input type="text" id="joinCode" class="form-input code-input" 
+                                   placeholder="Enter 4-character code" 
+                                   maxlength="4" 
+                                   autocomplete="off">
+                            <div id="joinError" class="form-error"></div>
+                        </div>
+                        <button class="btn btn-primary btn-block" id="btnJoinRoom">Join →</button>
+                        <button class="btn btn-secondary btn-block mt-sm" id="btnBackToChoose">← Back</button>
+                    </div>
+                </div>
+
+                <!-- ===== VIEW: Student Form ===== -->
+                <div id="viewStudentForm" class="view hidden animate-in">
+                    <div class="card card-medium">
+                        <div class="badge-wrapper">
+                            <span class="badge badge-jade">Room: <span id="formRoomCode"></span></span>
+                        </div>
+                        <div id="studentTopicDisplay" class="hidden" style="text-align:center;margin-bottom:var(--space-md);padding:var(--space-md);background:rgba(212,160,57,0.06);border:1px solid rgba(212,160,57,0.15);border-radius:var(--radius-md);">
+                            <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold);font-weight:700;margin-bottom:4px;">Discussion Topic</div>
+                            <div id="studentTopicText" style="font-size:0.95rem;font-style:italic;"></div>
+                        </div>
+                        <h2 class="text-center">Your Seminar Guidelines</h2>
+                        <p class="text-muted text-center mt-sm mb-lg text-small">
+                            We're building <strong>our class guidelines</strong> for Socratic Seminars — based on your ideas. 
+                            What makes a discussion productive and respectful? Your answers will be combined with everyone else's.
+                        </p>
+
+                        <form id="studentForm">
+                            <div class="form-group">
+                                <label class="form-label" for="studentName">Your Name</label>
+                                <input type="text" id="studentName" class="form-input" 
+                                       placeholder="First name or initials" autocomplete="off" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label text-jade">✅ What should we DO in a Socratic Seminar?</label>
+                                <textarea id="dosInput" class="form-textarea" required
+                                    placeholder="Put each idea on its own line (at least 1):&#10;Listen actively to others&#10;Use evidence from the text&#10;Build on what classmates say"></textarea>
+                                <div class="form-hint">At least 1 idea required. One per line — the more the better!</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label text-vermillion">🚫 What should we AVOID?</label>
+                                <textarea id="dontsInput" class="form-textarea" required
+                                    placeholder="Put each idea on its own line (at least 1):&#10;Don't interrupt someone speaking&#10;Don't use your phone during discussion"></textarea>
+                                <div class="form-hint">At least 1 idea required. One per line — the more the better!</div>
+                            </div>
+
+                            <div id="formError" class="form-error mb-md"></div>
+                            <button type="submit" class="btn btn-jade btn-block" id="btnSubmit">Submit My Ideas →</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ===== VIEW: Student Submitted ===== -->
+                <div id="viewSubmitted" class="view hidden animate-in">
+                    <div class="card text-center card-submitted">
+                        <div class="icon-lg">✅</div>
+                        <h2>Ideas Submitted!</h2>
+                        <p class="text-muted mt-sm">
+                            Your contributions have been recorded. Your teacher will synthesize everyone's 
+                            ideas into shared guidelines shortly.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ===== VIEW: Teacher Dashboard ===== -->
+                <div id="viewTeacher" class="view hidden animate-in">
+                    <div class="text-center mb-lg">
+                        <h1>Teacher Dashboard</h1>
+                        <p class="text-muted mt-sm">Share this room code with your students</p>
+                    </div>
+
+                    <!-- Discussion Topic Display -->
+                    <div id="teacherTopicDisplay" class="hidden" style="text-align:center;margin-bottom:var(--space-lg);padding:var(--space-md) var(--space-lg);background:rgba(212,160,57,0.06);border:1px solid rgba(212,160,57,0.15);border-radius:var(--radius-md);max-width:480px;margin-left:auto;margin-right:auto;margin-bottom:var(--space-lg);">
+                        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold);font-weight:700;margin-bottom:4px;">Discussion Topic</div>
+                        <div id="teacherTopicText" style="font-size:1.05rem;font-style:italic;"></div>
+                    </div>
+
+                    <!-- Room Code -->
+                    <div class="card room-code-display mb-lg">
+                        <div class="room-code-label">Room Code</div>
+                        <div class="room-code" id="teacherRoomCode"></div>
+                        <p class="text-muted mt-sm text-xs">
+                            Students go to this page and enter the code above
+                        </p>
+                        <div class="qr-container mt-md" id="qrContainer"></div>
+                        <button class="btn btn-secondary mt-md no-print" id="btnCopyLink">📋 Copy Join Link</button>
+                    </div>
+
+                    <!-- Discussion Timer -->
+                    <div class="card mb-lg no-print" style="text-align:center;max-width:480px;margin-left:auto;margin-right:auto;">
+                        <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:700;color:var(--text-dim);margin-bottom:var(--space-sm);">Discussion Timer</div>
+                        <div id="timerDisplay" style="font-family:var(--font-heading);font-size:2.5rem;color:var(--gold);margin-bottom:var(--space-md);letter-spacing:0.05em;">00:00</div>
+                        <div id="timerPresets" style="display:flex;gap:var(--space-xs);justify-content:center;flex-wrap:wrap;margin-bottom:var(--space-md);">
+                            <button class="btn btn-secondary" data-minutes="10" style="min-width:auto;padding:6px 16px;font-size:0.8rem;">10 min</button>
+                            <button class="btn btn-secondary" data-minutes="15" style="min-width:auto;padding:6px 16px;font-size:0.8rem;">15 min</button>
+                            <button class="btn btn-secondary" data-minutes="20" style="min-width:auto;padding:6px 16px;font-size:0.8rem;">20 min</button>
+                            <button class="btn btn-secondary" data-minutes="30" style="min-width:auto;padding:6px 16px;font-size:0.8rem;">30 min</button>
+                        </div>
+                        <div style="display:flex;gap:var(--space-sm);justify-content:center;">
+                            <button class="btn btn-jade" id="btnTimerStart" disabled style="min-width:auto;padding:6px 20px;">▶ Start</button>
+                            <button class="btn btn-secondary" id="btnTimerPause" disabled style="min-width:auto;padding:6px 20px;">⏸ Pause</button>
+                            <button class="btn btn-secondary" id="btnTimerReset" disabled style="min-width:auto;padding:6px 20px;">↺ Reset</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Counter -->
+                    <div class="live-counter mb-lg no-print">
+                        <div class="live-dot"></div>
+                        <span><strong id="submissionCount">0</strong> students have submitted</span>
+                    </div>
+
+                    <!-- Submissions Preview -->
+                    <div id="submissionsPreview" class="mb-lg no-print"></div>
+
+                    <!-- Synthesize Button -->
+                    <div class="text-center mb-lg no-print">
+                        <button class="btn btn-gold" id="btnSynthesize" disabled>
+                            ✨ Synthesize with AI
+                        </button>
+                        <p class="text-dim mt-sm text-xxs">
+                            AI will merge, polish, and rank all student ideas
+                        </p>
+                    </div>
+
+                    <!-- Synthesis Results -->
+                    <div id="synthResults" class="synth-section hidden">
+                        <div class="text-center mb-lg">
+                            <h2>Our Socratic Seminar Guidelines</h2>
+                            <p class="text-muted mt-sm text-xs">
+                                Synthesized from <span id="resultStudentCount"></span> students — <span id="resultDate"></span>
+                            </p>
+                        </div>
+                        <div id="synthCards"></div>
+                        <div class="btn-row mt-xl no-print">
+                            <button class="btn btn-secondary" id="btnPrint">🖨️ Print Guidelines</button>
+                            <button class="btn btn-secondary" id="btnCopyText">📋 Copy as Text</button>
+                        </div>
+                        <div class="text-center mt-lg no-print">
+                            <button class="btn btn-secondary" id="btnLeaveRoom" style="opacity:0.6;font-size:0.8rem;">Leave Room</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="site-footer no-print">
+            <div class="container">
+                <div class="footer-inner">
+                    <p class="footer-disclaimer">
+                        This site is an independent educational resource and is not affiliated with or endorsed by
+                        Shanghai American School or any other educational organization.
+                    </p>
+                    <div class="footer-credits">
+                        <div class="footer-credits-title">Non-Commercial Educational Tool</div>
+                        <p>
+                            Created by <strong>Stephen F Martinez</strong>. This is a 100% academic tool
+                            designed to support classroom learning. It is not a commercial product and
+                            provides free pedagogical resources.
+                        </p>
+                    </div>
+                    <p class="footer-copyright">© 2026 AHSAS. An independent educational resource.</p>
+                    <div class="footer-links">
+                        <a href="/about.html#privacy">Privacy</a>
+                        <a href="/about.html#license">License</a>
+                        <a href="/about.html#conduct">Code of Conduct</a>
+                    </div>
+                    <div class="footer-netlify">
+                        <a href="https://www.netlify.com" target="_blank" rel="noopener">
+                            <img src="https://www.netlify.com/v3/img/components/netlify-color-bg.svg" alt="Powered by Netlify">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/src/js/nav.js"></script>
+    <script>
+        // Teacher gate: show teacher button + setup only with ?teacher=true
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('teacher') === 'true') {
+                const btn = document.getElementById('btnTeacher');
+                const setup = document.getElementById('teacherSetup');
+                if (btn) btn.classList.remove('hidden');
+                if (setup) setup.classList.remove('hidden');
+            }
+        })();
+    </script>
+    <script type="module" src="/src/js/seminar.js"></script>
+</body>
+</html>

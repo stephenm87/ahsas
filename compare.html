@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparative Analysis — AHSAS</title>
+    <meta name="description" content="Compare two events, dynasties, or periods across all six PIECES lenses. Build structured comparative arguments for essays and exams.">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <style>
+        /* ===== Compare Tool Styles ===== */
+        .compare-hero {
+            text-align: center;
+            padding: var(--space-xl) 0;
+        }
+        .compare-hero h1 { margin-bottom: var(--space-sm); }
+        .compare-hero p {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            max-width: 580px;
+            margin: 0 auto;
+        }
+
+        /* Selector row */
+        .selector-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: var(--space-md);
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .selector-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+        }
+
+        .selector-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            margin-bottom: var(--space-sm);
+        }
+
+        .selector-select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            cursor: pointer;
+            min-height: 44px;
+        }
+        .selector-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-glow);
+        }
+        .selector-select option {
+            background: var(--bg-surface);
+            color: var(--text);
+        }
+
+        .vs-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--vermillion);
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(199, 62, 58, 0.3);
+        }
+
+        /* Selected unit info */
+        .unit-info {
+            margin-top: var(--space-sm);
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            display: none;
+        }
+        .unit-info.visible { display: block; }
+        .unit-info-period {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* PIECES comparison grid */
+        .pieces-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .pieces-row {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            animation: fadeUp 0.3s var(--ease) both;
+        }
+
+        .pieces-row-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background var(--transition);
+        }
+        .pieces-row-header:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .pieces-row-icon {
+            font-size: 1.2rem;
+        }
+
+        .pieces-row-label {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 0.95rem;
+            flex: 1;
+        }
+
+        .pieces-row-arrow {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            transition: transform 0.25s ease;
+        }
+        .pieces-row.open .pieces-row-arrow {
+            transform: rotate(180deg);
+        }
+
+        .pieces-row-body {
+            display: none;
+            padding: var(--space-md);
+        }
+        .pieces-row.open .pieces-row-body {
+            display: block;
+        }
+
+        .comparison-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+        }
+
+        .comparison-col {
+            position: relative;
+        }
+
+        .comparison-col-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: var(--space-sm);
+            padding-bottom: var(--space-xs);
+            border-bottom: 2px solid var(--border);
+        }
+        .col-a .comparison-col-label { color: var(--jade); border-color: rgba(45, 138, 110, 0.3); }
+        .col-b .comparison-col-label { color: var(--gold); border-color: rgba(212, 160, 57, 0.3); }
+
+        .comparison-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: var(--space-sm);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        .comparison-textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-glow);
+        }
+        .comparison-textarea::placeholder {
+            color: var(--text-dim);
+            font-size: 0.82rem;
+        }
+
+        /* Guiding questions */
+        .guiding-questions {
+            margin-top: var(--space-sm);
+            padding: var(--space-sm);
+            background: rgba(212, 160, 57, 0.06);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(212, 160, 57, 0.12);
+        }
+        .guiding-questions summary {
+            font-size: 0.75rem;
+            color: var(--gold);
+            font-weight: 600;
+            cursor: pointer;
+            list-style: none;
+        }
+        .guiding-questions ul {
+            margin: var(--space-sm) 0 0;
+            padding-left: var(--space-md);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* Synthesis section */
+        .synthesis-section {
+            margin-bottom: var(--space-xl);
+        }
+        .synthesis-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+        }
+        .synthesis-label {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+        }
+        .synthesis-textarea {
+            width: 100%;
+            min-height: 140px;
+            padding: var(--space-md);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            line-height: 1.7;
+            resize: vertical;
+        }
+        .synthesis-textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-glow);
+        }
+        .synthesis-textarea::placeholder {
+            color: var(--text-dim);
+        }
+
+        /* Export bar */
+        .export-bar {
+            display: flex;
+            gap: var(--space-md);
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: var(--space-xl);
+        }
+
+        /* Placeholder state */
+        .placeholder-state {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-dim);
+        }
+        .placeholder-state .icon-lg {
+            font-size: 3rem;
+            margin-bottom: var(--space-md);
+        }
+
+        /* Key events sidebar */
+        .key-events-hint {
+            margin-top: var(--space-sm);
+            padding: var(--space-sm);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+        .key-events-hint summary {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            cursor: pointer;
+            list-style: none;
+        }
+        .key-events-hint ul {
+            margin: var(--space-sm) 0 0;
+            padding-left: 0;
+            list-style: none;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .key-events-hint li {
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .key-events-hint li:last-child { border-bottom: none; }
+        .key-events-date {
+            color: var(--gold);
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .selector-row {
+                grid-template-columns: 1fr;
+            }
+            .vs-badge {
+                margin: 0 auto;
+            }
+            .comparison-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="site-header">
+            <div class="container">
+                <nav class="nav-inner">
+                    <a href="/" class="site-logo">
+                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <span class="logo-text">AHSAS</span>
+                    </a>
+                    <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul class="nav-links">
+                        <li><a href="/pieces.html">PIECES</a></li>
+                        <li><a href="/cer-builder.html">CER Builder</a></li>
+                        <li><a href="/source-analyzer.html">Source Analyzer</a></li>
+                        <li><a href="/timeline.html">Timeline</a></li>
+                        <li><a href="/compare.html" class="active">Compare</a></li>
+                        <li><a href="/seminar.html">Seminar</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <div class="compare-hero animate-in">
+                    <h1>⚖️ Comparative Analysis</h1>
+                    <p>Select two units, dynasties, or periods and compare them across all six PIECES lenses. Build structured comparative arguments for essays and exams.</p>
+                </div>
+
+                <!-- Selectors -->
+                <div class="selector-row animate-in delay-1">
+                    <div class="selector-card">
+                        <div class="selector-label">Side A</div>
+                        <select class="selector-select" id="selectA">
+                            <option value="">Choose a unit or period...</option>
+                        </select>
+                        <div class="unit-info" id="infoA"></div>
+                    </div>
+                    <div class="vs-badge">VS</div>
+                    <div class="selector-card">
+                        <div class="selector-label">Side B</div>
+                        <select class="selector-select" id="selectB">
+                            <option value="">Choose a unit or period...</option>
+                        </select>
+                        <div class="unit-info" id="infoB"></div>
+                    </div>
+                </div>
+
+                <!-- PIECES grid (hidden until both selected) -->
+                <div id="comparisonArea">
+                    <div class="placeholder-state" id="placeholder">
+                        <div class="icon-lg">⚖️</div>
+                        <p>Select two units above to begin your comparative analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-inner">
+                    <p class="footer-copyright">© 2026 AHSAS · An independent educational resource.</p>
+                    <div class="footer-links">
+                        <a href="/about.html">About</a>
+                        <a href="/about.html#privacy">Privacy</a>
+                        <a href="/about.html#license">License</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/src/data/curriculum.js"></script>
+    <script src="/src/js/progress.js"></script>
+    <script src="/src/js/nav.js"></script>
+    <script>
+    (function() {
+        const data = window.AHSAS_CURRICULUM;
+        if (!data) return;
+        const themes = data.piecesThemes;
+        const STORAGE_KEY = 'ahsas-compare';
+
+        // Populate selectors
+        const selectA = document.getElementById('selectA');
+        const selectB = document.getElementById('selectB');
+
+        data.units.forEach(unit => {
+            if (unit.keyEvents.length === 0) return;
+            const optA = new Option(`${unit.icon} ${unit.title}`, unit.id);
+            const optB = new Option(`${unit.icon} ${unit.title}`, unit.id);
+            selectA.appendChild(optA);
+            selectB.appendChild(optB);
+        });
+
+        // Guiding questions per PIECES theme
+        const guidingQuestions = {
+            political: [
+                'How was power structured and distributed?',
+                'What role did the government play in society?',
+                'How were leaders chosen or legitimized?',
+                'What was the relationship between central and local authority?'
+            ],
+            innovation: [
+                'What key technologies or innovations emerged?',
+                'How did new ideas or inventions spread?',
+                'What impact did innovation have on daily life?',
+                'Were innovations adopted from outside or developed domestically?'
+            ],
+            environmental: [
+                'How did geography shape development and decisions?',
+                'What natural resources were most important?',
+                'Were there environmental challenges or disasters?',
+                'How did people adapt to or modify their environment?'
+            ],
+            cultural: [
+                'What belief systems or philosophies were dominant?',
+                'How was art, literature, or music used?',
+                'What cultural exchanges occurred with other civilizations?',
+                'How did cultural identity change or persist?'
+            ],
+            economic: [
+                'What was the economic base — agriculture, trade, industry?',
+                'How was wealth distributed across social classes?',
+                'What trade networks connected this to the wider world?',
+                'How did economic policies affect the population?'
+            ],
+            social: [
+                'How was society stratified by class, gender, or ethnicity?',
+                'What was daily life like for ordinary people?',
+                'How did social mobility work — or not?',
+                'Were there significant social movements or protests?'
+            ]
+        };
+
+        function getUnit(id) {
+            return data.units.find(u => u.id === id);
+        }
+
+        function formatDate(d) {
+            if (d === null || d === undefined) return '';
+            if (d < 0) return Math.abs(d) + ' BCE';
+            return d + ' CE';
+        }
+
+        function showUnitInfo(unit, infoId) {
+            const el = document.getElementById(infoId);
+            if (!unit) { el.classList.remove('visible'); return; }
+            el.innerHTML = `<span class="unit-info-period">${unit.dateRange || unit.period}</span> · ${unit.keyEvents.length} key events · ${unit.keyFigures.length} key figures`;
+            el.classList.add('visible');
+        }
+
+        function buildKeyEventsList(unit) {
+            if (!unit || unit.keyEvents.length === 0) return '';
+            const items = unit.keyEvents.slice(0, 8).map(e =>
+                `<li><span class="key-events-date">${formatDate(e.date)}</span>${e.title}</li>`
+            ).join('');
+            return `<details class="key-events-hint"><summary>📋 Key events reference</summary><ul>${items}</ul></details>`;
+        }
+
+        function buildComparison() {
+            const unitA = getUnit(selectA.value);
+            const unitB = getUnit(selectB.value);
+            const area = document.getElementById('comparisonArea');
+
+            if (!unitA || !unitB) {
+                area.innerHTML = `<div class="placeholder-state" id="placeholder">
+                    <div class="icon-lg">⚖️</div>
+                    <p>Select two units above to begin your comparative analysis.</p>
+                </div>`;
+                return;
+            }
+
+            // Load saved state
+            let saved = {};
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.a === unitA.id && parsed.b === unitB.id) saved = parsed.fields || {};
+                }
+            } catch(e) {}
+
+            let html = '<div class="pieces-grid">';
+
+            Object.entries(themes).forEach(([key, theme], i) => {
+                const savedA = saved[`${key}_a`] || '';
+                const savedB = saved[`${key}_b`] || '';
+                const isOpen = i === 0 ? ' open' : '';
+                const questions = guidingQuestions[key] || [];
+
+                html += `<div class="pieces-row${isOpen}" style="animation-delay:${i * 0.08}s;">
+                    <div class="pieces-row-header" onclick="this.parentElement.classList.toggle('open')">
+                        <span class="pieces-row-icon">${theme.icon}</span>
+                        <span class="pieces-row-label" style="color:${theme.color}">${theme.label}</span>
+                        <span class="pieces-row-arrow">▼</span>
+                    </div>
+                    <div class="pieces-row-body">
+                        <details class="guiding-questions">
+                            <summary>💡 Guiding Questions</summary>
+                            <ul>${questions.map(q => `<li>${q}</li>`).join('')}</ul>
+                        </details>
+                        <div class="comparison-columns" style="margin-top:var(--space-md);">
+                            <div class="comparison-col col-a">
+                                <div class="comparison-col-label">${unitA.icon} ${unitA.title}</div>
+                                <textarea class="comparison-textarea" data-field="${key}_a"
+                                    placeholder="How does ${theme.label.toLowerCase()} apply to ${unitA.title}?">${savedA}</textarea>
+                                ${buildKeyEventsList(unitA)}
+                            </div>
+                            <div class="comparison-col col-b">
+                                <div class="comparison-col-label">${unitB.icon} ${unitB.title}</div>
+                                <textarea class="comparison-textarea" data-field="${key}_b"
+                                    placeholder="How does ${theme.label.toLowerCase()} apply to ${unitB.title}?">${savedB}</textarea>
+                                ${buildKeyEventsList(unitB)}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+
+            html += '</div>';
+
+            // Synthesis section
+            const savedSynthesis = saved.synthesis || '';
+            html += `<div class="synthesis-section">
+                <div class="synthesis-card">
+                    <div class="synthesis-label">🎯 Comparative Thesis / Synthesis</div>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:var(--space-md);line-height:1.6;">
+                        Based on your PIECES comparison, write a thesis that identifies <strong>similarities</strong>, <strong>differences</strong>, and <strong>their significance</strong>.
+                        Try: "While both [A] and [B] shared [similarity], they differed in [key difference], which reveals [broader insight about Chinese history]."
+                    </p>
+                    <textarea class="synthesis-textarea" id="synthesisField"
+                        placeholder="Write your comparative thesis here...">${savedSynthesis}</textarea>
+                </div>
+            </div>`;
+
+            // Export bar
+            html += `<div class="export-bar">
+                <button class="btn btn-primary" id="btnCopyCompare">📋 Copy as Text</button>
+                <button class="btn btn-secondary" id="btnPrintCompare">🖨️ Print</button>
+                <button class="btn btn-secondary" id="btnClearCompare">🗑️ Start Over</button>
+            </div>`;
+
+            area.innerHTML = html;
+
+            // Wire up auto-save
+            const textareas = area.querySelectorAll('textarea');
+            textareas.forEach(ta => {
+                ta.addEventListener('input', debounce(saveState, 600));
+            });
+
+            // Wire up export buttons
+            document.getElementById('btnCopyCompare').addEventListener('click', copyAsText);
+            document.getElementById('btnPrintCompare').addEventListener('click', () => window.print());
+            document.getElementById('btnClearCompare').addEventListener('click', () => {
+                if (!confirm('Clear all comparison notes?')) return;
+                localStorage.removeItem(STORAGE_KEY);
+                textareas.forEach(ta => ta.value = '');
+            });
+        }
+
+        function saveState() {
+            const unitA = getUnit(selectA.value);
+            const unitB = getUnit(selectB.value);
+            if (!unitA || !unitB) return;
+
+            const fields = {};
+            document.querySelectorAll('.comparison-textarea').forEach(ta => {
+                fields[ta.dataset.field] = ta.value;
+            });
+            const synthesis = document.getElementById('synthesisField');
+            if (synthesis) fields.synthesis = synthesis.value;
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                a: unitA.id,
+                b: unitB.id,
+                fields
+            }));
+        }
+
+        function copyAsText() {
+            const unitA = getUnit(selectA.value);
+            const unitB = getUnit(selectB.value);
+            if (!unitA || !unitB) return;
+
+            const lines = [
+                `COMPARATIVE ANALYSIS: ${unitA.title} vs. ${unitB.title}`,
+                `${'='.repeat(50)}`,
+                ''
+            ];
+
+            Object.entries(themes).forEach(([key, theme]) => {
+                const a = document.querySelector(`[data-field="${key}_a"]`);
+                const b = document.querySelector(`[data-field="${key}_b"]`);
+                lines.push(`--- ${theme.icon} ${theme.label.toUpperCase()} ---`);
+                lines.push(`${unitA.title}: ${a ? a.value || '(empty)' : '(empty)'}`);
+                lines.push(`${unitB.title}: ${b ? b.value || '(empty)' : '(empty)'}`);
+                lines.push('');
+            });
+
+            const synthesis = document.getElementById('synthesisField');
+            lines.push('--- THESIS / SYNTHESIS ---');
+            lines.push(synthesis ? synthesis.value || '(empty)' : '(empty)');
+
+            navigator.clipboard.writeText(lines.join('\n')).then(() => showToast('Copied to clipboard!'));
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 2500);
+        }
+
+        function debounce(fn, ms) {
+            let timer;
+            return function() { clearTimeout(timer); timer = setTimeout(fn, ms); };
+        }
+
+        // Event listeners
+        selectA.addEventListener('change', () => {
+            showUnitInfo(getUnit(selectA.value), 'infoA');
+            buildComparison();
+        });
+        selectB.addEventListener('change', () => {
+            showUnitInfo(getUnit(selectB.value), 'infoB');
+            buildComparison();
+        });
+
+        // Load saved selection
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const saved = JSON.parse(raw);
+                if (saved.a) selectA.value = saved.a;
+                if (saved.b) selectB.value = saved.b;
+                showUnitInfo(getUnit(saved.a), 'infoA');
+                showUnitInfo(getUnit(saved.b), 'infoB');
+                buildComparison();
+            }
+        } catch(e) {}
+    })();
+    </script>
+</body>
+</html>

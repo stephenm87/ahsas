@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Mist/fog filter -->
+    <filter id="mist" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="4" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="gray"/>
+      <feComponentTransfer in="gray" result="soft">
+        <feFuncA type="linear" slope="0.15" intercept="0"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="soft" mode="screen"/>
+    </filter>
+    <!-- Subtle glow -->
+    <radialGradient id="moonGlow" cx="78%" cy="15%" r="20%">
+      <stop offset="0%" stop-color="#b8b0a0" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#b8b0a0" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Sky gradient -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12121e"/>
+      <stop offset="30%" stop-color="#1a1a2c"/>
+      <stop offset="55%" stop-color="#1e1e30"/>
+      <stop offset="75%" stop-color="#181828"/>
+      <stop offset="100%" stop-color="#0c0c16"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  
+  <!-- Moon glow -->
+  <rect width="1920" height="1080" fill="url(#moonGlow)"/>
+
+  <!-- Cloud wisps - upper atmosphere -->
+  <g opacity="0.08">
+    <ellipse cx="300" cy="200" rx="350" ry="40" fill="#6e6a80"/>
+    <ellipse cx="1500" cy="150" rx="400" ry="50" fill="#5e5a75"/>
+    <ellipse cx="800" cy="280" rx="300" ry="35" fill="#656080"/>
+    <ellipse cx="1100" cy="350" rx="250" ry="30" fill="#585575"/>
+    <ellipse cx="200" cy="380" rx="280" ry="25" fill="#605c78"/>
+  </g>
+  
+  <!-- More cloud layers - mid atmosphere -->
+  <g opacity="0.06">
+    <ellipse cx="600" cy="320" rx="400" ry="45" fill="#7a7590"/>
+    <ellipse cx="1300" cy="250" rx="350" ry="40" fill="#706b88"/>
+    <ellipse cx="960" cy="400" rx="500" ry="35" fill="#5c5875"/>
+  </g>
+
+  <!-- Far mountains - misty, faint -->
+  <g opacity="0.5">
+    <path d="M0,750 L120,620 L200,660 L350,550 L450,600 L550,520 L700,580 L850,490 L960,540 L1100,470 L1200,530 L1350,460 L1500,520 L1600,480 L1750,550 L1920,500 L1920,1080 L0,1080Z" fill="#1a1a2e"/>
+  </g>
+  
+  <!-- Mid mountains - darker, more defined -->
+  <g opacity="0.75">
+    <path d="M0,800 L80,720 L180,760 L280,680 L400,720 L500,640 L620,690 L720,620 L830,670 L960,580 L1050,640 L1150,590 L1280,650 L1400,600 L1500,660 L1600,610 L1720,670 L1820,630 L1920,680 L1920,1080 L0,1080Z" fill="#141426"/>
+  </g>
+  
+  <!-- Mist between mountain layers -->
+  <g opacity="0.04">
+    <ellipse cx="400" cy="700" rx="500" ry="60" fill="#8a8598"/>
+    <ellipse cx="1200" cy="680" rx="450" ry="50" fill="#7e7a90"/>
+    <ellipse cx="800" cy="720" rx="600" ry="40" fill="#706c84"/>
+  </g>
+
+  <!-- Near mountains - solid, prominent -->
+  <g opacity="0.9">
+    <path d="M0,860 L100,790 L200,820 L320,750 L420,780 L520,720 L660,770 L780,700 L880,740 L1000,680 L1100,720 L1200,670 L1350,730 L1450,690 L1550,740 L1650,700 L1780,760 L1880,720 L1920,750 L1920,1080 L0,1080Z" fill="#0e0e1e"/>
+  </g>
+
+  <!-- Foreground mountain ridge - darkest -->
+  <path d="M0,920 L80,870 L180,900 L300,850 L420,880 L560,830 L680,860 L800,810 L920,845 L1060,800 L1180,840 L1300,810 L1420,850 L1540,820 L1660,860 L1780,830 L1880,870 L1920,850 L1920,1080 L0,1080Z" fill="#0a0a16" opacity="0.95"/>
+  
+  <!-- Very front ridge -->
+  <path d="M0,960 L150,930 L350,950 L500,920 L700,940 L900,910 L1100,935 L1300,915 L1500,940 L1700,920 L1920,945 L1920,1080 L0,1080Z" fill="#080812"/>
+
+  <!-- Low fog/mist near mountains -->
+  <g opacity="0.03">
+    <ellipse cx="960" cy="850" rx="800" ry="80" fill="#9a96a8"/>
+    <ellipse cx="400" cy="880" rx="500" ry="50" fill="#8a86a0"/>
+    <ellipse cx="1400" cy="870" rx="450" ry="55" fill="#807c98"/>
+  </g>
+</svg>

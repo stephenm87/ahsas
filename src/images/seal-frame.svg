@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 280" fill="none">
+  <defs>
+    <linearGradient id="bronzeHL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c9a462"/>
+      <stop offset="30%" stop-color="#a07840"/>
+      <stop offset="50%" stop-color="#d4b87a"/>
+      <stop offset="70%" stop-color="#8b6d3f"/>
+      <stop offset="100%" stop-color="#a07840"/>
+    </linearGradient>
+    <linearGradient id="bronzeShadow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6b5030"/>
+      <stop offset="50%" stop-color="#4a3520"/>
+      <stop offset="100%" stop-color="#6b5030"/>
+    </linearGradient>
+    <filter id="emboss">
+      <feDropShadow dx="1.5" dy="1.5" stdDeviation="1" flood-color="#d4b87a" flood-opacity="0.4"/>
+      <feDropShadow dx="-0.5" dy="-0.5" stdDeviation="0.5" flood-color="#2a1a08" flood-opacity="0.6"/>
+    </filter>
+    <filter id="glow">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#c9a462" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- ========= MAIN FLOWING BORDER ========= -->
+  <!-- Shadow layer (darker, offset) for 3D depth -->
+  <path d="
+    M55 22 C70 14, 90 26, 110 18 C130 10, 150 28, 170 18 C190 10, 210 26, 225 22
+    L225 22 C240 22, 258 40, 258 55
+    C258 55, 266 75, 258 95 C252 115, 266 135, 258 155 C252 175, 266 195, 258 215
+    C258 230, 240 258, 225 258
+    C210 266, 190 250, 170 262 C150 270, 130 252, 110 262 C90 270, 70 254, 55 258
+    C40 258, 22 240, 22 225
+    C14 210, 28 190, 18 170 C10 150, 28 130, 18 110 C10 90, 26 70, 22 55
+    C22 40, 40 22, 55 22 Z
+  " fill="url(#bronzeShadow)" stroke="none" opacity="0.7" transform="translate(1,2)"/>
+
+  <!-- Main frame body -->
+  <path d="
+    M55 22 C70 14, 90 26, 110 18 C130 10, 150 28, 170 18 C190 10, 210 26, 225 22
+    L225 22 C240 22, 258 40, 258 55
+    C258 55, 266 75, 258 95 C252 115, 266 135, 258 155 C252 175, 266 195, 258 215
+    C258 230, 240 258, 225 258
+    C210 266, 190 250, 170 262 C150 270, 130 252, 110 262 C90 270, 70 254, 55 258
+    C40 258, 22 240, 22 225
+    C14 210, 28 190, 18 170 C10 150, 28 130, 18 110 C10 90, 26 70, 22 55
+    C22 40, 40 22, 55 22 Z
+  " fill="url(#bronzeHL)" stroke="#5a4228" stroke-width="1.5" filter="url(#emboss)"/>
+
+  <!-- Inner cutout (transparent window for red panel) -->
+  <path d="
+    M70 48 C85 42, 100 50, 120 44 C140 38, 160 50, 180 44
+    C195 42, 210 48, 218 48
+    C228 48, 232 52, 232 62
+    C232 62, 238 82, 232 100 C228 118, 238 138, 232 155
+    C228 172, 238 188, 232 205
+    C232 218, 228 228, 218 232
+    C205 232, 195 238, 180 236 C160 242, 140 232, 120 236
+    C100 242, 85 236, 70 232
+    C52 232, 48 228, 48 218
+    C42 205, 52 188, 48 170 C42 152, 52 135, 48 118
+    C42 100, 52 82, 48 62
+    C48 52, 52 48, 70 48 Z
+  " fill="#1a1520" stroke="rgba(160,130,80,0.4)" stroke-width="1"/>
+
+  <!-- ========= SCALE TEXTURE on frame ========= -->
+  <!-- Top scales -->
+  <ellipse cx="80" cy="24" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="100" cy="20" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="120" cy="22" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="140" cy="18" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="160" cy="22" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="180" cy="18" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="200" cy="22" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+
+  <!-- Bottom scales -->
+  <ellipse cx="80" cy="256" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="100" cy="260" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="120" cy="258" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="140" cy="262" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="160" cy="258" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="180" cy="262" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="200" cy="258" rx="10" ry="6" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+
+  <!-- Left scales -->
+  <ellipse cx="24" cy="80" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="20" cy="100" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="22" cy="120" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="18" cy="140" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="22" cy="160" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="18" cy="180" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="22" cy="200" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+
+  <!-- Right scales -->
+  <ellipse cx="256" cy="80" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="260" cy="100" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="258" cy="120" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="262" cy="140" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="258" cy="160" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="262" cy="180" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+  <ellipse cx="258" cy="200" rx="6" ry="10" fill="none" stroke="rgba(90,66,40,0.5)" stroke-width="0.8"/>
+
+  <!-- ========= CORNER FLOURISHES ========= -->
+  <!-- Top-left curl -->
+  <path d="M55 22 C42 12, 18 14, 10 28 C4 38, 14 44, 22 36" stroke="url(#bronzeHL)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#emboss)"/>
+  <path d="M22 55 C12 42, 10 22, 24 12 C34 4, 42 14, 34 24" stroke="url(#bronzeHL)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#emboss)"/>
+
+  <!-- Top-right curl -->
+  <path d="M225 22 C238 12, 262 14, 270 28 C276 38, 266 44, 258 36" stroke="url(#bronzeHL)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#emboss)"/>
+  <path d="M258 55 C268 42, 270 22, 256 12 C246 4, 238 14, 246 24" stroke="url(#bronzeHL)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#emboss)"/>
+
+  <!-- Bottom-left curl -->
+  <path d="M55 258 C42 268, 18 266, 10 252 C4 242, 14 236, 22 244" stroke="url(#bronzeHL)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#emboss)"/>
+  <path d="M22 225 C12 238, 10 258, 24 268 C34 276, 42 266, 34 256" stroke="url(#bronzeHL)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#emboss)"/>
+
+  <!-- Bottom-right curl -->
+  <path d="M225 258 C238 268, 262 266, 270 252 C276 242, 266 236, 258 244" stroke="url(#bronzeHL)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#emboss)"/>
+  <path d="M258 225 C268 238, 270 258, 256 268 C246 276, 238 266, 246 256" stroke="url(#bronzeHL)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#emboss)"/>
+
+  <!-- Highlight shimmer on top edge -->
+  <path d="M70 20 C90 14, 110 22, 130 16 C150 22, 170 14, 190 20 C210 24, 216 22, 220 22" 
+        stroke="rgba(212,184,122,0.35)" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>
