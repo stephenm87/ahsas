@@ -17,7 +17,7 @@ const AHSAS_SOURCES = [
     creator: 'Anonymous, compiled over centuries',
     date: '~4th century BCE – 1st century CE',
     snippet: 'A compendium of mythic geography describing mountains, rivers, flora, fauna, and peoples of the known and imagined world — revealing how ancient Chinese understood their physical environment.',
-    url: 'https://www.britannica.com/topic/Shanhaijing',
+    url: 'https://afe.easia.columbia.edu/ps/cup/classic_of_odes_king_wen.pdf',
     pieces: ['environmental', 'cultural'],
     mlaCitation: 'Classic of Mountains and Seas (Shan Hai Jing). Translated by Anne Birrell, Penguin Classics, 1999.',
     analysisPrompts: [
@@ -162,7 +162,7 @@ const AHSAS_SOURCES = [
     creator: 'Xuanzang',
     date: '646 CE',
     snippet: 'The Buddhist monk Xuanzang traveled 10,000 miles to India and back, documenting the peoples, governments, and religions of Central and South Asia. His account is the most detailed record of 7th-century Silk Road societies.',
-    url: 'https://www.britannica.com/biography/Xuanzang',
+    url: 'https://idp.bl.uk/discover/learning/buddhism-on-the-silk-roads/articles/buddhism-on-the-ground/buddhist-texts-the-diamond-sutra/',
     pieces: ['cultural', 'economic'],
     mlaCitation: 'Xuanzang. Great Tang Records on the Western Regions. Translated by Li Rongxi, Numata Center for Buddhist Translation, 1996.',
     analysisPrompts: [
@@ -230,7 +230,7 @@ const AHSAS_SOURCES = [
     creator: 'Li Bai',
     date: '~730 CE',
     snippet: '"Before my bed, bright moonlight — I wonder, is it frost upon the ground? I lift my head to gaze at the moon, then bow my head, remembering home."',
-    url: 'https://www.britannica.com/biography/Li-Bai',
+    url: 'https://afe.easia.columbia.edu/ps/cup/libo_fighting.pdf',
     pieces: ['cultural'],
     mlaCitation: 'Li Bai. "Quiet Night Thought." Selected Poems of Li Po, translated by David Hinton, New Directions, 1996.',
     analysisPrompts: [
@@ -251,7 +251,7 @@ const AHSAS_SOURCES = [
     creator: 'Zheng He\'s navigators',
     date: '~1430 CE',
     snippet: 'A strip map of the routes taken by Zheng He\'s treasure fleet across Southeast Asia, the Indian Ocean, and East Africa. The map documents ports, currents, star positions, and compass bearings.',
-    url: 'https://www.britannica.com/biography/Zheng-He',
+    url: 'https://afe.easia.columbia.edu/special/china_1000ce_mingvoyages.htm',
     pieces: ['innovation', 'economic'],
     mlaCitation: '"Zheng He." Encyclopædia Britannica, 2026.',
     analysisPrompts: [
@@ -268,7 +268,7 @@ const AHSAS_SOURCES = [
     creator: 'Matteo Ricci, S.J.',
     date: '1583–1610',
     snippet: '"The Chinese language has no alphabet but uses symbols for each word... The empire is so vast that the governors of provinces are like kings in Europe."',
-    url: 'https://www.britannica.com/biography/Matteo-Ricci',
+    url: 'https://afe.easia.columbia.edu/ps/cup/empress_xu_inner_quarters.pdf',
     pieces: ['cultural', 'political'],
     mlaCitation: 'Ricci, Matteo. China in the Sixteenth Century: The Journals of Matteo Ricci, 1583–1610. Translated by Louis J. Gallagher, Random House, 1953.',
     analysisPrompts: [
@@ -302,7 +302,7 @@ const AHSAS_SOURCES = [
     creator: 'Kuai Xiang (lead architect)',
     date: '1406–1420',
     snippet: 'The imperial palace complex in Beijing: 980 buildings across 180 acres, organized along a central axis reflecting Confucian cosmology — the emperor at the center, facing south, mediating between heaven and earth.',
-    url: 'https://www.britannica.com/topic/Forbidden-City',
+    url: 'https://afe.easia.columbia.edu/ps/cup/empress_xu_inner_quarters.pdf',
     pieces: ['political', 'cultural'],
     mlaCitation: '"Forbidden City." UNESCO World Heritage List. Accessed 2026.',
     analysisPrompts: [
@@ -323,7 +323,7 @@ const AHSAS_SOURCES = [
     creator: 'Marco Polo / Rustichello da Pisa',
     date: '~1300',
     snippet: '"I have not told half of what I saw." Polo describes Kublai Khan\'s court, paper money, the Grand Canal, coal use, and the sheer scale of Chinese cities — astonishing to European readers.',
-    url: 'https://www.britannica.com/biography/Marco-Polo',
+    url: 'https://afe.easia.columbia.edu/ps/china/attractions_song_capital.pdf',
     pieces: ['economic', 'cultural'],
     mlaCitation: 'Polo, Marco. The Travels of Marco Polo. Translated by Ronald Latham, Penguin Classics, 1958.',
     analysisPrompts: [
@@ -374,7 +374,7 @@ const AHSAS_SOURCES = [
     creator: 'Elliott, Mark C.',
     date: '2001',
     snippet: 'The Eight Banners were the Qing military-administrative system: Manchu, Mongol, and Han Chinese units organized under colored flags. They maintained Manchu identity while integrating conquered populations — a dual governance model.',
-    url: 'https://www.britannica.com/topic/Eight-Banners',
+    url: 'https://afe.easia.columbia.edu/ps/cup/qing_sacred_edict.pdf',
     pieces: ['political', 'social'],
     mlaCitation: 'Elliott, Mark C. The Manchu Way: The Eight Banners and Ethnic Identity in Late Imperial China. Stanford UP, 2001.',
     analysisPrompts: [
@@ -535,7 +535,7 @@ const AHSAS_SOURCES = [
     creator: 'Student protesters',
     date: '1919',
     snippet: '"China\'s territory may be conquered, but it cannot be given away. The Chinese people may be massacred, but they will not surrender." Students demanded rejection of the Versailles Treaty terms giving Shandong to Japan.',
-    url: 'https://www.britannica.com/event/May-Fourth-Movement',
+    url: 'https://afe.easia.columbia.edu/special/china_1750_mayfourth.htm',
     pieces: ['political', 'cultural'],
     mlaCitation: '"May Fourth Movement." Encyclopedia of Modern China, Charles Scribner\'s Sons, 2009.',
     analysisPrompts: [
@@ -552,7 +552,7 @@ const AHSAS_SOURCES = [
     creator: 'Lu Xun',
     date: '1918',
     snippet: '"I opened a history book... on every page were written the words \'virtue\' and \'morality\' but between the lines I could read only two words: \'eat people.\'" Lu Xun\'s allegory attacked Confucian hierarchy as a system of oppression.',
-    url: 'https://www.britannica.com/biography/Lu-Xun',
+    url: 'https://afe.easia.columbia.edu/special/china_1900_literature.htm',
     pieces: ['cultural', 'social'],
     mlaCitation: 'Lu Xun. "A Madman\'s Diary." The Real Story of Ah-Q and Other Tales of China, translated by Julia Lovell, Penguin Classics, 2009.',
     analysisPrompts: [
@@ -607,7 +607,7 @@ const AHSAS_SOURCES = [
     creator: 'Various historians',
     date: 'Modern reconstruction',
     snippet: 'The 6,000-mile retreat from Jiangxi to Yan\'an across 18 mountain ranges, 24 rivers, and 12 provinces. Of ~100,000 who set out, fewer than 8,000 arrived. The March became the founding myth of the CCP.',
-    url: 'https://www.britannica.com/event/Long-March',
+    url: 'https://afe.easia.columbia.edu/special/china_1900_mao_march.htm',
     pieces: ['political', 'environmental'],
     mlaCitation: '"Long March." Encyclopædia Britannica, 2026.',
     analysisPrompts: [
@@ -645,7 +645,7 @@ const AHSAS_SOURCES = [
     creator: 'Peng Dehuai',
     date: '1959',
     snippet: '"Putting politics in command is no substitute for economic principles." Defense Minister Peng criticized the Great Leap Forward\'s devastating failures at the Lushan Conference — and was purged for his honesty.',
-    url: 'https://www.britannica.com/biography/Peng-Dehuai',
+    url: 'https://afe.easia.columbia.edu/special/china_1900_mao_early.htm',
     pieces: ['political', 'economic'],
     mlaCitation: '"Peng Dehuai, Letter to Mao Zedong, 1959." Translated in Roderick MacFarquhar, The Origins of the Cultural Revolution, vol. 2, Columbia UP, 1983.',
     analysisPrompts: [
