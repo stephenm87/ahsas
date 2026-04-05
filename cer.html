@@ -67,6 +67,21 @@
             font-size: 1.2rem;
         }
 
+        /* CER Flow Sequential Animation */
+        .cer-flow-step, .cer-flow-arrow {
+            opacity: 0;
+            transform: translateY(12px);
+            animation: cerFlowIn 0.5s var(--ease) forwards;
+        }
+        .cer-flow .cer-flow-step:nth-child(1) { animation-delay: 0.3s; }
+        .cer-flow .cer-flow-arrow:nth-child(2) { animation-delay: 0.6s; }
+        .cer-flow .cer-flow-step:nth-child(3) { animation-delay: 0.9s; }
+        .cer-flow .cer-flow-arrow:nth-child(4) { animation-delay: 1.2s; }
+        .cer-flow .cer-flow-step:nth-child(5) { animation-delay: 1.5s; }
+        @keyframes cerFlowIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* CER Section Cards */
         .cer-grid {
             max-width: 800px;
@@ -285,9 +300,11 @@
                         <li><a href="/seminar.html">Seminar</a></li>
                         <li><a href="/pieces.html">PIECES</a></li>
                         <li><a href="/cer.html" class="active">CER</a></li>
-                        <li><a href="/source-analyzer.html">Sources</a></li>
+                        <li><a href="/source-analyzer.html">Analyzer</a></li>
+                        <li><a href="/sources.html">Library</a></li>
                         <li><a href="/timeline.html">Timeline</a></li>
                         <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/research.html">Research</a></li>
                         <li><a href="/about.html">About</a></li>
                     </ul>
                 </nav>

@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Studio — AHSAS</title>
+    <meta name="description" content="Inquiry-based research project scaffold. Build research questions, gather evidence, and let your thesis emerge from the investigation.">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <style>
+        .studio-intro {
+            max-width: 640px;
+            margin: 0 auto var(--space-xl);
+            text-align: center;
+        }
+        .studio-intro p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+        .studio-principle {
+            max-width: 640px;
+            margin: 0 auto var(--space-xl);
+            padding: var(--space-md) var(--space-lg);
+            background: rgba(212,160,57,0.08);
+            border: 1px solid rgba(212,160,57,0.2);
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .studio-principle strong {
+            color: var(--gold);
+        }
+
+        /* Progress tracker */
+        .step-tracker {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .step-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 2px solid var(--border);
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all var(--transition);
+            position: relative;
+        }
+        .step-dot.active {
+            border-color: var(--vermillion);
+            color: var(--vermillion);
+            background: var(--vermillion-glow);
+        }
+        .step-dot.completed {
+            border-color: var(--jade);
+            color: var(--jade);
+            background: rgba(45,138,110,0.15);
+        }
+        .step-dot.locked {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .step-connector {
+            width: 20px;
+            height: 2px;
+            align-self: center;
+            background: var(--border);
+        }
+        .step-connector.completed {
+            background: var(--jade);
+        }
+
+        /* Step cards */
+        .step-card {
+            display: none;
+            max-width: 700px;
+            margin: 0 auto var(--space-lg);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            position: relative;
+        }
+        .step-card.active {
+            display: block;
+        }
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--vermillion);
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+        }
+
+        .step-number {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            color: var(--vermillion);
+            margin-bottom: var(--space-xs);
+        }
+        .step-title {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+        .step-description {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.7;
+            margin-bottom: var(--space-lg);
+        }
+        .step-skill {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+        }
+
+        /* Form elements */
+        .field-group {
+            margin-bottom: var(--space-lg);
+        }
+        .field-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            margin-bottom: var(--space-xs);
+            display: block;
+        }
+        .field-hint {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            margin-bottom: var(--space-sm);
+            line-height: 1.5;
+        }
+
+        textarea.studio-input,
+        input.studio-input {
+            width: 100%;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        textarea.studio-input:focus,
+        input.studio-input:focus {
+            outline: none;
+            border-color: var(--vermillion);
+        }
+
+        /* Question quality checklist */
+        .quality-check {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+        .quality-check label {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-sm);
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: var(--space-xs);
+            cursor: pointer;
+        }
+        .quality-check input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--jade);
+            flex-shrink: 0;
+        }
+
+        /* Sub-question rows */
+        .subq-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        .subq-row {
+            display: flex;
+            gap: var(--space-sm);
+            align-items: flex-start;
+        }
+        .subq-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(199,62,58,0.15);
+            color: var(--vermillion);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+        .subq-fields {
+            flex: 1;
+        }
+        .subq-fields textarea {
+            margin-bottom: var(--space-xs);
+        }
+        .subq-pieces-select {
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.78rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Evidence matrix */
+        .matrix-container {
+            overflow-x: auto;
+        }
+        .evidence-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .evidence-matrix th {
+            background: rgba(255,255,255,0.04);
+            padding: var(--space-sm);
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+        .evidence-matrix td {
+            padding: var(--space-sm);
+            border: 1px solid var(--border);
+            vertical-align: top;
+        }
+        .evidence-matrix textarea {
+            width: 100%;
+            min-width: 120px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.82rem;
+            resize: vertical;
+            min-height: 60px;
+            box-sizing: border-box;
+        }
+        .evidence-matrix textarea:focus {
+            outline: 1px solid var(--vermillion);
+        }
+
+        /* Thesis feedback */
+        .thesis-feedback {
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            margin-top: var(--space-md);
+            font-size: 0.84rem;
+            line-height: 1.6;
+            display: none;
+        }
+        .thesis-feedback.pass {
+            background: rgba(45,138,110,0.1);
+            border: 1px solid rgba(45,138,110,0.3);
+            color: var(--jade);
+            display: block;
+        }
+        .thesis-feedback.needs-work {
+            background: rgba(212,160,57,0.1);
+            border: 1px solid rgba(212,160,57,0.3);
+            color: var(--gold);
+            display: block;
+        }
+
+        /* Step buttons */
+        .step-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--space-xl);
+            gap: var(--space-sm);
+        }
+        .step-nav .btn {
+            font-size: 0.82rem;
+        }
+
+        /* Outline builder */
+        .outline-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+        .outline-section-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+        }
+        .outline-section-label.intro { color: #4a90d9; }
+        .outline-section-label.body { color: var(--vermillion); }
+        .outline-section-label.conclusion { color: var(--jade); }
+
+        /* Thick vs thin comparison */
+        .question-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        @media (max-width: 600px) {
+            .question-compare { grid-template-columns: 1fr; }
+        }
+        .question-compare-col {
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.84rem;
+            line-height: 1.6;
+        }
+        .question-compare-col.thin {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.2);
+        }
+        .question-compare-col.thick {
+            background: rgba(45,138,110,0.08);
+            border: 1px solid rgba(45,138,110,0.2);
+        }
+        .question-compare-col h4 {
+            font-size: 0.82rem;
+            margin-bottom: var(--space-sm);
+        }
+        .question-compare-col.thin h4 { color: #ef4444; }
+        .question-compare-col.thick h4 { color: var(--jade); }
+        .question-compare-col ul {
+            padding-left: 1rem;
+            margin: 0;
+        }
+        .question-compare-col li {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin-bottom: 4px;
+        }
+
+        /* Save/load */
+        .save-indicator {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: var(--space-sm);
+        }
+
+        /* ===== Question Feedback Engine ===== */
+        .feedback-engine {
+            margin-top: var(--space-lg);
+            border: 1px solid rgba(212,160,57,0.25);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        .feedback-engine-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-sm) var(--space-md);
+            background: rgba(212,160,57,0.08);
+            border-bottom: 1px solid rgba(212,160,57,0.15);
+        }
+        .feedback-engine-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .feedback-btn {
+            padding: 5px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font-body);
+        }
+        .feedback-btn:hover {
+            background: rgba(212,160,57,0.15);
+        }
+        .feedback-engine-body {
+            padding: var(--space-md);
+        }
+        .feedback-result {
+            display: none;
+        }
+        .feedback-result.visible { display: block; }
+
+        .feedback-item {
+            display: flex;
+            gap: var(--space-sm);
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            align-items: flex-start;
+        }
+        .feedback-item:last-child { border-bottom: none; }
+        .feedback-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .feedback-text {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .feedback-text strong {
+            color: var(--text);
+        }
+        .feedback-suggestion {
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            background: rgba(45,138,110,0.06);
+            border: 1px solid rgba(45,138,110,0.15);
+            border-radius: var(--radius-sm);
+        }
+        .feedback-suggestion-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            color: var(--jade);
+            margin-bottom: var(--space-sm);
+        }
+        .feedback-suggestion p {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: var(--space-xs);
+        }
+        .feedback-starters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: var(--space-sm);
+        }
+        .starter-chip {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.03);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font-body);
+        }
+        .starter-chip:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(212,160,57,0.08);
+        }
+        .feedback-placeholder {
+            text-align: center;
+            padding: var(--space-md);
+            color: var(--text-dim);
+            font-size: 0.84rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <header class="site-header">
+            <div class="container">
+                <nav class="nav-inner">
+                    <a href="/" class="site-logo">
+                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <span class="logo-text">AHSAS</span>
+                    </a>
+                    <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul class="nav-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/seminar.html">Seminar</a></li>
+                        <li><a href="/pieces.html">PIECES</a></li>
+                        <li><a href="/cer.html">CER</a></li>
+                        <li><a href="/source-analyzer.html">Analyzer</a></li>
+                        <li><a href="/sources.html">Library</a></li>
+                        <li><a href="/timeline.html">Timeline</a></li>
+                        <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/research.html" class="active">Research</a></li>
+                        <li><a href="/about.html">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+
+                <div class="studio-intro animate-in">
+                    <h1>🔬 Research Studio</h1>
+                    <p class="mt-sm" style="font-size:1.05rem;color:var(--text-dim);">Inquiry-Based Research Project Builder</p>
+                    <p class="mt-md">
+                        Great research starts with great questions — not answers. This studio guides you 
+                        through a step-by-step inquiry process: explore a topic, craft research questions, 
+                        gather evidence, and let your thesis emerge from the investigation.
+                    </p>
+                </div>
+
+                <div class="studio-principle animate-in delay-1">
+                    <strong>The Inquiry Principle:</strong> You cannot write a thesis until you've done the research. 
+                    Steps 1–5 build the foundation. Only then does Step 6 ask you to form an argument.
+                </div>
+
+                <!-- Step tracker -->
+                <div class="step-tracker animate-in delay-1" id="stepTracker"></div>
+
+                <!-- Step 1: Topic Exploration -->
+                <div class="step-card active" id="step1">
+                    <div class="step-number">Step 1 of 7</div>
+                    <h2 class="step-title">🗺️ Topic Exploration</h2>
+                    <div class="step-skill">Skill: Curiosity & Topic Selection</div>
+                    <p class="step-description">
+                        Browse the AHSAS timeline, source library, and PIECES themes. What interests you? 
+                        What puzzles you? What story from Chinese history do you want to investigate further?
+                    </p>
+
+                    <div class="field-group">
+                        <label class="field-label">Broad area of interest</label>
+                        <p class="field-hint">What topic, period, or theme catches your attention? Write freely — don't worry about narrowing down yet.</p>
+                        <textarea class="studio-input" id="topicArea" rows="3" placeholder="e.g., I'm curious about how the Silk Road changed Chinese society, or why the Cultural Revolution happened..."></textarea>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Why does this interest you?</label>
+                        <textarea class="studio-input" id="topicWhy" rows="2" placeholder="What draws you to this topic? What do you want to understand?"></textarea>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Initial questions (brainstorm)</label>
+                        <p class="field-hint">List 3–5 questions that come to mind. Don't judge them yet — just let them flow.</p>
+                        <textarea class="studio-input" id="topicQuestions" rows="4" placeholder="- Why did...?&#10;- How did...?&#10;- What was the impact of...?&#10;- To what extent did...?"></textarea>
+                    </div>
+
+                    <div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;">
+                        <a href="/timeline.html" target="_blank" class="btn btn-secondary btn-sm">Browse Timeline ↗</a>
+                        <a href="/sources.html" target="_blank" class="btn btn-secondary btn-sm">Browse Sources ↗</a>
+                        <a href="/pieces.html" target="_blank" class="btn btn-secondary btn-sm">Explore PIECES ↗</a>
+                    </div>
+
+                    <div class="step-nav">
+                        <span></span>
+                        <button class="btn btn-primary" onclick="goToStep(2)">Next: Question Workshop →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Question Workshop -->
+                <div class="step-card" id="step2">
+                    <div class="step-number">Step 2 of 7</div>
+                    <h2 class="step-title">❓ Question Workshop</h2>
+                    <div class="step-skill">Skill: Questioning & Critical Thinking</div>
+                    <p class="step-description">
+                        Not all questions are equal. A strong research question is open-ended, specific enough to research, 
+                        and leads to analysis rather than simple description.
+                    </p>
+
+                    <div class="question-compare">
+                        <div class="question-compare-col thin">
+                            <h4>❌ Thin Questions</h4>
+                            <ul>
+                                <li>Can be answered with a fact or date</li>
+                                <li>"When did the Taiping Rebellion start?"</li>
+                                <li>"Who led the Long March?"</li>
+                                <li>"What was the Treaty of Nanjing?"</li>
+                            </ul>
+                        </div>
+                        <div class="question-compare-col thick">
+                            <h4>✅ Thick Questions</h4>
+                            <ul>
+                                <li>Require analysis, comparison, or evaluation</li>
+                                <li>"To what extent was the Taiping Rebellion a product of Qing misgovernance?"</li>
+                                <li>"How did the Long March transform the CCP's identity?"</li>
+                                <li>"Why did China's response to the Opium Wars differ from Japan's?"</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Your Research Question</label>
+                        <p class="field-hint">Craft a single, focused research question. It should be open-ended, arguable, and historically grounded.</p>
+                        <textarea class="studio-input" id="researchQuestion" rows="3" placeholder="To what extent did... / How did... / Why did... / What was the significance of..."></textarea>
+                    </div>
+
+                    <div class="quality-check">
+                        <div class="field-label" style="margin-bottom:var(--space-sm);">Question Quality Checklist</div>
+                        <label><input type="checkbox" class="rq-check"> It is open-ended (cannot be answered with yes/no or a single fact)</label>
+                        <label><input type="checkbox" class="rq-check"> It is specific enough to research within the scope of this project</label>
+                        <label><input type="checkbox" class="rq-check"> It requires analysis, not just description</label>
+                        <label><input type="checkbox" class="rq-check"> It connects to at least one PIECES theme</label>
+                        <label><input type="checkbox" class="rq-check"> It is genuinely interesting to me</label>
+                    <div class="feedback-engine" id="questionFeedback">
+                        <div class="feedback-engine-header">
+                            <span class="feedback-engine-label">🤔 Question Coach</span>
+                            <button class="feedback-btn" onclick="analyzeQuestion()">Get Feedback</button>
+                        </div>
+                        <div class="feedback-engine-body">
+                            <div class="feedback-placeholder" id="feedbackPlaceholder">
+                                Type your research question above, then click <strong>Get Feedback</strong> for guided coaching.
+                            </div>
+                            <div class="feedback-result" id="feedbackResult"></div>
+                        </div>
+                    </div>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+                        <button class="btn btn-primary" onclick="goToStep(3)">Next: Sub-Questions →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Sub-Question Mapping -->
+                <div class="step-card" id="step3">
+                    <div class="step-number">Step 3 of 7</div>
+                    <h2 class="step-title">🔀 Sub-Question Mapping</h2>
+                    <div class="step-skill">Skill: Decomposition & Analytical Framing</div>
+                    <p class="step-description">
+                        Break your research question into 3–5 smaller sub-questions. Each sub-question should 
+                        address a different angle of your topic. Map each to a PIECES lens to ensure multi-dimensional analysis.
+                    </p>
+
+                    <div class="subq-list" id="subqList">
+                        <div class="subq-row">
+                            <div class="subq-number">1</div>
+                            <div class="subq-fields">
+                                <textarea class="studio-input" rows="2" placeholder="Sub-question 1..." data-subq="1"></textarea>
+                                <select class="subq-pieces-select" data-subq-piece="1">
+                                    <option value="">PIECES lens...</option>
+                                    <option value="political">🏛️ Political</option>
+                                    <option value="innovation">🔬 Innovation</option>
+                                    <option value="environmental">🌍 Environmental</option>
+                                    <option value="cultural">🎭 Cultural</option>
+                                    <option value="economic">💰 Economic</option>
+                                    <option value="social">👥 Social</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="subq-row">
+                            <div class="subq-number">2</div>
+                            <div class="subq-fields">
+                                <textarea class="studio-input" rows="2" placeholder="Sub-question 2..." data-subq="2"></textarea>
+                                <select class="subq-pieces-select" data-subq-piece="2">
+                                    <option value="">PIECES lens...</option>
+                                    <option value="political">🏛️ Political</option>
+                                    <option value="innovation">🔬 Innovation</option>
+                                    <option value="environmental">🌍 Environmental</option>
+                                    <option value="cultural">🎭 Cultural</option>
+                                    <option value="economic">💰 Economic</option>
+                                    <option value="social">👥 Social</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="subq-row">
+                            <div class="subq-number">3</div>
+                            <div class="subq-fields">
+                                <textarea class="studio-input" rows="2" placeholder="Sub-question 3..." data-subq="3"></textarea>
+                                <select class="subq-pieces-select" data-subq-piece="3">
+                                    <option value="">PIECES lens...</option>
+                                    <option value="political">🏛️ Political</option>
+                                    <option value="innovation">🔬 Innovation</option>
+                                    <option value="environmental">🌍 Environmental</option>
+                                    <option value="cultural">🎭 Cultural</option>
+                                    <option value="economic">💰 Economic</option>
+                                    <option value="social">👥 Social</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary btn-sm" style="margin-top:var(--space-sm);" onclick="addSubQuestion()">+ Add Sub-Question</button>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+                        <button class="btn btn-primary" onclick="goToStep(4)">Next: Source Hunt →</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Source Hunt -->
+                <div class="step-card" id="step4">
+                    <div class="step-number">Step 4 of 7</div>
+                    <h2 class="step-title">🔍 Source Hunt</h2>
+                    <div class="step-skill">Skill: Source Evaluation & Evidence Gathering</div>
+                    <p class="step-description">
+                        For each sub-question, identify at least 2 sources that help answer it. Use the AHSAS Source Library 
+                        or find your own. For each source, note whether it <strong>confirms</strong>, <strong>complicates</strong>, 
+                        or <strong>contradicts</strong> what you expected.
+                    </p>
+
+                    <div id="sourceHuntArea"></div>
+
+                    <div style="margin-top:var(--space-md);">
+                        <a href="/sources.html" target="_blank" class="btn btn-secondary btn-sm">Open Source Library ↗</a>
+                    </div>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+                        <button class="btn btn-primary" onclick="goToStep(5)">Next: Evidence Matrix →</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Evidence Matrix -->
+                <div class="step-card" id="step5">
+                    <div class="step-number">Step 5 of 7</div>
+                    <h2 class="step-title">📊 Evidence Matrix</h2>
+                    <div class="step-skill">Skill: Synthesis & Pattern Recognition</div>
+                    <p class="step-description">
+                        Organize your findings in a matrix: sub-question × source × key finding. Look for patterns, 
+                        contradictions, and connections. What is the evidence telling you?
+                    </p>
+
+                    <div class="matrix-container" id="matrixContainer">
+                        <p class="field-hint">Complete Steps 3 and 4 first — the matrix will auto-populate with your sub-questions.</p>
+                    </div>
+
+                    <div class="field-group" style="margin-top:var(--space-lg);">
+                        <label class="field-label">Emerging Patterns</label>
+                        <p class="field-hint">What patterns do you see across your evidence? What surprised you? What contradictions emerged?</p>
+                        <textarea class="studio-input" id="emergingPatterns" rows="4" placeholder="I notice that... The evidence suggests... Surprisingly..."></textarea>
+                    </div>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" onclick="goToStep(4)">← Back</button>
+                        <button class="btn btn-primary" onclick="goToStep(6)">Next: Emerging Thesis →</button>
+                    </div>
+                </div>
+
+                <!-- Step 6: Emerging Thesis -->
+                <div class="step-card" id="step6">
+                    <div class="step-number">Step 6 of 7</div>
+                    <h2 class="step-title">💡 Emerging Thesis</h2>
+                    <div class="step-skill">Skill: Thesis Construction from Evidence</div>
+                    <p class="step-description">
+                        Based on everything you've learned, draft an arguable thesis statement. Your thesis should 
+                        <strong>answer your research question</strong> and be supported by the evidence you gathered.
+                        Remember: a thesis is not a fact — it's an argument that others could disagree with.
+                    </p>
+
+                    <div class="field-group">
+                        <label class="field-label">Your Research Question (from Step 2)</label>
+                        <div id="rqReminder" style="padding:var(--space-sm) var(--space-md);background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);font-size:0.88rem;font-style:italic;margin-bottom:var(--space-md);">(will populate from Step 2)</div>
+                    </div>
+
+                    <div class="field-group">
+                        <label class="field-label">Your Thesis Statement</label>
+                        <p class="field-hint">Write a clear, arguable claim that answers your RQ. It should take a position that can be supported with evidence.</p>
+                        <textarea class="studio-input" id="thesisStatement" rows="4" placeholder="[Topic] was primarily shaped by [factor], because [reason 1] and [reason 2], although [counterpoint]..."></textarea>
+                    </div>
+
+                    <div class="quality-check">
+                        <div class="field-label" style="margin-bottom:var(--space-sm);">Thesis Checklist</div>
+                        <label><input type="checkbox" class="thesis-check"> It directly answers the research question</label>
+                        <label><input type="checkbox" class="thesis-check"> It is arguable (someone could disagree)</label>
+                        <label><input type="checkbox" class="thesis-check"> It is specific (not vague or overly broad)</label>
+                        <label><input type="checkbox" class="thesis-check"> It is supported by my evidence</label>
+                        <label><input type="checkbox" class="thesis-check"> It acknowledges complexity (not one-sided)</label>
+                    </div>
+
+                    <div class="thesis-feedback" id="thesisFeedback"></div>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" onclick="goToStep(5)">← Back</button>
+                        <button class="btn btn-primary" onclick="goToStep(7)">Next: Outline Builder →</button>
+                    </div>
+                </div>
+
+                <!-- Step 7: Outline Builder -->
+                <div class="step-card" id="step7">
+                    <div class="step-number">Step 7 of 7</div>
+                    <h2 class="step-title">📝 Outline Builder</h2>
+                    <div class="step-skill">Skill: Essay Architecture & CER Integration</div>
+                    <p class="step-description">
+                        Structure your research paper. Each body paragraph addresses one sub-question 
+                        using the CER framework: Claim → Evidence → Reasoning.
+                    </p>
+
+                    <div class="outline-section">
+                        <div class="outline-section-label intro">Introduction</div>
+                        <div class="field-group">
+                            <label class="field-label">Hook / Context</label>
+                            <textarea class="studio-input" rows="2" id="outlineHook" placeholder="Engage the reader with a compelling opening..."></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Background</label>
+                            <textarea class="studio-input" rows="2" id="outlineBg" placeholder="What context does the reader need?"></textarea>
+                        </div>
+                        <div class="field-group" style="margin-bottom:0;">
+                            <label class="field-label">Thesis (from Step 6)</label>
+                            <div id="thesisReminder" style="padding:var(--space-sm) var(--space-md);background:rgba(45,138,110,0.08);border:1px solid rgba(45,138,110,0.2);border-radius:var(--radius-sm);color:var(--text-muted);font-size:0.88rem;font-style:italic;">(will populate from Step 6)</div>
+                        </div>
+                    </div>
+
+                    <div id="bodyParagraphs"></div>
+
+                    <div class="outline-section">
+                        <div class="outline-section-label conclusion">Conclusion</div>
+                        <div class="field-group">
+                            <label class="field-label">Restate thesis (in new words)</label>
+                            <textarea class="studio-input" rows="2" id="outlineRestate" placeholder="Rephrase your thesis to reflect the full weight of your argument..."></textarea>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Significance / So what?</label>
+                            <textarea class="studio-input" rows="2" id="outlineSignificance" placeholder="Why does this matter? What are the broader implications?"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="step-nav">
+                        <button class="btn btn-secondary" onclick="goToStep(6)">← Back</button>
+                        <button class="btn btn-primary" onclick="exportOutline()">📋 Export Outline</button>
+                    </div>
+                </div>
+
+                <div class="save-indicator" id="saveIndicator"></div>
+
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-inner">
+                    <p class="footer-copyright">© 2026 AHSAS · An independent educational resource.</p>
+                    <div class="footer-links">
+                        <a href="/about.html">About</a>
+                        <a href="/about.html#privacy">Privacy</a>
+                        <a href="/about.html#license">License</a>
+                        <a href="/about.html#conduct">Code of Conduct</a>
+                    </div>
+                    <div class="footer-netlify">
+                        <a href="https://www.netlify.com" target="_blank" rel="noopener">
+                            <img src="https://www.netlify.com/v3/img/components/netlify-color-bg.svg" alt="Powered by Netlify">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="/src/js/nav.js"></script>
+    <script>
+    const TOTAL_STEPS = 7;
+    let currentStep = 1;
+    let completedSteps = new Set();
+    const STORAGE_KEY = 'ahsas_research_studio';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadState();
+        renderTracker();
+        buildSourceHunt();
+        buildMatrix();
+        buildBodyParagraphs();
+        setupAutoSave();
+    });
+
+    function renderTracker() {
+        const tracker = document.getElementById('stepTracker');
+        let html = '';
+        for (let i = 1; i <= TOTAL_STEPS; i++) {
+            const isActive = i === currentStep;
+            const isCompleted = completedSteps.has(i);
+            const isLocked = i === 6 && !completedSteps.has(5);
+            let cls = 'step-dot';
+            if (isActive) cls += ' active';
+            if (isCompleted) cls += ' completed';
+            if (isLocked) cls += ' locked';
+            html += `<div class="${cls}" onclick="${isLocked ? '' : 'goToStep(' + i + ')'}" title="Step ${i}">${isCompleted ? '✓' : i}</div>`;
+            if (i < TOTAL_STEPS) html += `<div class="step-connector${isCompleted ? ' completed' : ''}"></div>`;
+        }
+        tracker.innerHTML = html;
+    }
+
+    function goToStep(n) {
+        // Enforce inquiry sequence: cannot go to step 6 without completing 1-5
+        if (n === 6) {
+            const prereqs = [1,2,3,4,5];
+            // We allow navigation but show a warning
+        }
+
+        // Mark current step as completed if moving forward
+        if (n > currentStep) {
+            completedSteps.add(currentStep);
+        }
+
+        document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+        const stepEl = document.getElementById('step' + n);
+        if (stepEl) {
+            stepEl.classList.add('active');
+            currentStep = n;
+        }
+
+        // Populate dynamic content
+        if (n === 4) buildSourceHunt();
+        if (n === 5) buildMatrix();
+        if (n === 6) {
+            const rq = document.getElementById('researchQuestion');
+            document.getElementById('rqReminder').textContent = rq ? rq.value || '(complete Step 2 first)' : '';
+        }
+        if (n === 7) {
+            const thesis = document.getElementById('thesisStatement');
+            document.getElementById('thesisReminder').textContent = thesis ? thesis.value || '(complete Step 6 first)' : '';
+            buildBodyParagraphs();
+        }
+
+        renderTracker();
+        saveState();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function getSubQuestions() {
+        const textareas = document.querySelectorAll('[data-subq]');
+        const sqs = [];
+        textareas.forEach(ta => {
+            if (ta.value.trim()) {
+                const num = ta.getAttribute('data-subq');
+                const pieceEl = document.querySelector(`[data-subq-piece="${num}"]`);
+                sqs.push({
+                    num: num,
+                    text: ta.value.trim(),
+                    piece: pieceEl ? pieceEl.value : ''
+                });
+            }
+        });
+        return sqs;
+    }
+
+    let subqCount = 3;
+    function addSubQuestion() {
+        subqCount++;
+        const list = document.getElementById('subqList');
+        const row = document.createElement('div');
+        row.className = 'subq-row';
+        row.innerHTML = `
+            <div class="subq-number">${subqCount}</div>
+            <div class="subq-fields">
+                <textarea class="studio-input" rows="2" placeholder="Sub-question ${subqCount}..." data-subq="${subqCount}"></textarea>
+                <select class="subq-pieces-select" data-subq-piece="${subqCount}">
+                    <option value="">PIECES lens...</option>
+                    <option value="political">🏛️ Political</option>
+                    <option value="innovation">🔬 Innovation</option>
+                    <option value="environmental">🌍 Environmental</option>
+                    <option value="cultural">🎭 Cultural</option>
+                    <option value="economic">💰 Economic</option>
+                    <option value="social">👥 Social</option>
+                </select>
+            </div>
+        `;
+        list.appendChild(row);
+    }
+
+    function buildSourceHunt() {
+        const area = document.getElementById('sourceHuntArea');
+        if (!area) return;
+        const sqs = getSubQuestions();
+        if (sqs.length === 0) {
+            area.innerHTML = '<p class="field-hint">Complete Step 3 first — your sub-questions will appear here.</p>';
+            return;
+        }
+        area.innerHTML = sqs.map(sq => `
+            <div class="field-group" style="background:rgba(255,255,255,0.02);padding:var(--space-md);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                <label class="field-label">SQ${sq.num}: ${sq.text}</label>
+                <div style="margin-bottom:var(--space-sm);">
+                    <input class="studio-input" placeholder="Source 1 — title or citation" data-hunt="${sq.num}-1" style="margin-bottom:6px;">
+                    <select style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:0.78rem;" data-hunt-rel="${sq.num}-1">
+                        <option value="">Relationship...</option>
+                        <option value="confirms">✅ Confirms</option>
+                        <option value="complicates">⚠️ Complicates</option>
+                        <option value="contradicts">❌ Contradicts</option>
+                    </select>
+                </div>
+                <div>
+                    <input class="studio-input" placeholder="Source 2 — title or citation" data-hunt="${sq.num}-2" style="margin-bottom:6px;">
+                    <select style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:0.78rem;" data-hunt-rel="${sq.num}-2">
+                        <option value="">Relationship...</option>
+                        <option value="confirms">✅ Confirms</option>
+                        <option value="complicates">⚠️ Complicates</option>
+                        <option value="contradicts">❌ Contradicts</option>
+                    </select>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function buildMatrix() {
+        const container = document.getElementById('matrixContainer');
+        if (!container) return;
+        const sqs = getSubQuestions();
+        if (sqs.length === 0) {
+            container.innerHTML = '<p class="field-hint">Complete Steps 3 and 4 first — the matrix will auto-populate.</p>';
+            return;
+        }
+        let html = '<table class="evidence-matrix"><thead><tr><th>Sub-Question</th><th>Source 1</th><th>Key Finding</th><th>Source 2</th><th>Key Finding</th></tr></thead><tbody>';
+        sqs.forEach(sq => {
+            html += `<tr>
+                <td style="font-weight:600;font-size:0.8rem;">SQ${sq.num}: ${sq.text.substring(0, 60)}${sq.text.length > 60 ? '...' : ''}</td>
+                <td><textarea data-matrix-src="${sq.num}-1" placeholder="Source..."></textarea></td>
+                <td><textarea data-matrix-finding="${sq.num}-1" placeholder="Key finding..."></textarea></td>
+                <td><textarea data-matrix-src="${sq.num}-2" placeholder="Source..."></textarea></td>
+                <td><textarea data-matrix-finding="${sq.num}-2" placeholder="Key finding..."></textarea></td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function buildBodyParagraphs() {
+        const container = document.getElementById('bodyParagraphs');
+        if (!container) return;
+        const sqs = getSubQuestions();
+        if (sqs.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+        container.innerHTML = sqs.map((sq, i) => `
+            <div class="outline-section">
+                <div class="outline-section-label body">Body Paragraph ${i + 1} — SQ${sq.num}</div>
+                <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:var(--space-md);font-style:italic;">${sq.text}</p>
+                <div class="field-group">
+                    <label class="field-label">Claim</label>
+                    <textarea class="studio-input" rows="2" placeholder="What argument will this paragraph make?" data-outline-claim="${sq.num}"></textarea>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Evidence</label>
+                    <textarea class="studio-input" rows="2" placeholder="What specific evidence supports this claim?" data-outline-evidence="${sq.num}"></textarea>
+                </div>
+                <div class="field-group" style="margin-bottom:0;">
+                    <label class="field-label">Reasoning</label>
+                    <textarea class="studio-input" rows="2" placeholder="How does this evidence support the claim? Why does it matter?" data-outline-reasoning="${sq.num}"></textarea>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function exportOutline() {
+        const rq = document.getElementById('researchQuestion')?.value || '';
+        const thesis = document.getElementById('thesisStatement')?.value || '';
+        const hook = document.getElementById('outlineHook')?.value || '';
+        const bg = document.getElementById('outlineBg')?.value || '';
+        const restate = document.getElementById('outlineRestate')?.value || '';
+        const significance = document.getElementById('outlineSignificance')?.value || '';
+        const sqs = getSubQuestions();
+
+        let text = '# Research Paper Outline\n\n';
+        text += `## Research Question\n${rq}\n\n`;
+        text += `## Thesis\n${thesis}\n\n`;
+        text += `---\n\n## Introduction\n**Hook:** ${hook}\n\n**Background:** ${bg}\n\n**Thesis:** ${thesis}\n\n`;
+
+        sqs.forEach((sq, i) => {
+            const claim = document.querySelector(`[data-outline-claim="${sq.num}"]`)?.value || '';
+            const evidence = document.querySelector(`[data-outline-evidence="${sq.num}"]`)?.value || '';
+            const reasoning = document.querySelector(`[data-outline-reasoning="${sq.num}"]`)?.value || '';
+            text += `## Body Paragraph ${i + 1}: ${sq.text}\n`;
+            text += `- **Claim:** ${claim}\n`;
+            text += `- **Evidence:** ${evidence}\n`;
+            text += `- **Reasoning:** ${reasoning}\n\n`;
+        });
+
+        text += `## Conclusion\n**Restate Thesis:** ${restate}\n\n**Significance:** ${significance}\n`;
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(text).then(() => {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.textContent = '✅ Outline copied to clipboard!';
+            indicator.style.color = 'var(--jade)';
+            setTimeout(() => { indicator.textContent = ''; }, 3000);
+        }).catch(() => {
+            // Fallback: download as file
+            const blob = new Blob([text], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'research-outline.md';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    // Auto-save to localStorage
+    function setupAutoSave() {
+        document.addEventListener('input', debounce(saveState, 1000));
+        document.addEventListener('change', debounce(saveState, 500));
+    }
+
+    function saveState() {
+        const state = {
+            currentStep,
+            completedSteps: [...completedSteps],
+            fields: {}
+        };
+        document.querySelectorAll('.studio-input, [data-subq], [data-subq-piece], [data-hunt], [data-hunt-rel], [data-matrix-src], [data-matrix-finding], [data-outline-claim], [data-outline-evidence], [data-outline-reasoning]').forEach(el => {
+            const key = el.id || el.getAttribute('data-subq') || el.getAttribute('data-subq-piece') || el.getAttribute('data-hunt') || el.getAttribute('data-hunt-rel') || el.getAttribute('data-matrix-src') || el.getAttribute('data-matrix-finding') || el.getAttribute('data-outline-claim') || el.getAttribute('data-outline-evidence') || el.getAttribute('data-outline-reasoning');
+            if (key) state.fields[key] = el.value;
+        });
+        // Save checkboxes
+        state.rqChecks = [...document.querySelectorAll('.rq-check')].map(c => c.checked);
+        state.thesisChecks = [...document.querySelectorAll('.thesis-check')].map(c => c.checked);
+        state.subqCount = subqCount;
+
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            const indicator = document.getElementById('saveIndicator');
+            indicator.textContent = 'Auto-saved';
+            setTimeout(() => { indicator.textContent = ''; }, 2000);
+        } catch (e) {}
+    }
+
+    function loadState() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            const state = JSON.parse(raw);
+            currentStep = state.currentStep || 1;
+            completedSteps = new Set(state.completedSteps || []);
+            subqCount = state.subqCount || 3;
+
+            // Add extra subq rows if needed
+            while (document.querySelectorAll('.subq-row').length < subqCount) {
+                addSubQuestion();
+            }
+
+            // Restore fields
+            if (state.fields) {
+                Object.entries(state.fields).forEach(([key, val]) => {
+                    const el = document.getElementById(key) ||
+                               document.querySelector(`[data-subq="${key}"]`) ||
+                               document.querySelector(`[data-subq-piece="${key}"]`) ||
+                               document.querySelector(`[data-hunt="${key}"]`) ||
+                               document.querySelector(`[data-hunt-rel="${key}"]`) ||
+                               document.querySelector(`[data-matrix-src="${key}"]`) ||
+                               document.querySelector(`[data-matrix-finding="${key}"]`) ||
+                               document.querySelector(`[data-outline-claim="${key}"]`) ||
+                               document.querySelector(`[data-outline-evidence="${key}"]`) ||
+                               document.querySelector(`[data-outline-reasoning="${key}"]`);
+                    if (el) el.value = val;
+                });
+            }
+
+            // Restore checkboxes
+            if (state.rqChecks) {
+                document.querySelectorAll('.rq-check').forEach((c, i) => { c.checked = state.rqChecks[i] || false; });
+            }
+            if (state.thesisChecks) {
+                document.querySelectorAll('.thesis-check').forEach((c, i) => { c.checked = state.thesisChecks[i] || false; });
+            }
+
+            // Show correct step
+            document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+            const stepEl = document.getElementById('step' + currentStep);
+            if (stepEl) stepEl.classList.add('active');
+        } catch (e) {}
+    }
+
+    function debounce(fn, ms) {
+        let t;
+        return function(...args) {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), ms);
+        };
+    }
+
+    // ===== QUESTION FEEDBACK ENGINE =====
+    function analyzeQuestion() {
+        const q = (document.getElementById('researchQuestion').value || '').trim();
+        const placeholder = document.getElementById('feedbackPlaceholder');
+        const result = document.getElementById('feedbackResult');
+        
+        if (!q || q.length < 10) {
+            placeholder.style.display = 'block';
+            result.classList.remove('visible');
+            placeholder.innerHTML = '⚠️ Type a research question above first (at least a full sentence).';
+            return;
+        }
+
+        placeholder.style.display = 'none';
+        const feedback = [];
+        const lower = q.toLowerCase();
+        const words = q.split(/\s+/);
+        let overallStrength = 0;
+
+        // 1. Check if it's a yes/no (closed) question
+        const closedStarters = ['did ', 'does ', 'do ', 'is ', 'are ', 'was ', 'were ', 'can ', 'could ', 'would ', 'will ', 'should ', 'has ', 'have '];
+        const isClosedEnded = closedStarters.some(s => lower.startsWith(s));
+        if (isClosedEnded) {
+            feedback.push({
+                icon: '🔴',
+                text: '<strong>Closed-ended question detected.</strong> Your question starts with a word that invites a yes/no answer. Try reframing: instead of "Did X happen?", ask "To what extent did X happen?" or "How did X shape Y?"'
+            });
+        } else {
+            overallStrength++;
+        }
+
+        // 2. Check for analytical depth
+        const analyticalStarters = ['to what extent', 'how did', 'why did', 'in what ways', 'how effective', 'what was the significance', 'how far', 'what role did', 'how successfully', 'to what degree'];
+        const hasAnalytical = analyticalStarters.some(s => lower.includes(s));
+        const descriptiveStarters = ['what is ', 'what are ', 'what was ', 'what were ', 'who was ', 'who were ', 'where did ', 'when did ', 'list '];
+        const isDescriptive = descriptiveStarters.some(s => lower.startsWith(s));
+        
+        if (isDescriptive) {
+            feedback.push({
+                icon: '🟡',
+                text: '<strong>This may be descriptive rather than analytical.</strong> Questions starting with "What was..." often lead to summary, not analysis. Consider: what about this topic requires <em>explanation</em> or <em>evaluation</em>? Push yourself to ask <em>why</em> or <em>how</em> something happened, not just <em>what</em> happened.'
+            });
+        } else if (hasAnalytical) {
+            feedback.push({
+                icon: '🟢',
+                text: '<strong>Strong analytical framing!</strong> Your question invites explanation and evaluation, not just description. This is the kind of question that leads to a real argument.'
+            });
+            overallStrength++;
+        }
+
+        // 3. Check specificity (too short = too broad; reasonable length = good)
+        if (words.length < 8) {
+            feedback.push({
+                icon: '🟡',
+                text: '<strong>Your question might be too broad.</strong> Short questions often cover too much ground. Can you narrow the scope? Consider adding a specific time period, event, comparison, or PIECES lens. Ask yourself: could you realistically research this in a few weeks?'
+            });
+        } else if (words.length > 30) {
+            feedback.push({
+                icon: '🟡',
+                text: '<strong>Your question might be too complex.</strong> Very long questions sometimes contain multiple questions in one. Try breaking it into a main research question and separate sub-questions.'
+            });
+        } else {
+            overallStrength++;
+        }
+
+        // 4. Check for PIECES connection
+        const piecesKeywords = {
+            political: ['government', 'power', 'ruler', 'emperor', 'dynasty', 'state', 'political', 'policy', 'reform', 'revolution', 'war', 'military', 'authority', 'governance', 'legitimacy', 'mandate'],
+            innovation: ['technology', 'innovation', 'invention', 'printing', 'gunpowder', 'compass', 'paper', 'science', 'engineering', 'innovation'],
+            environmental: ['geography', 'river', 'land', 'climate', 'flood', 'environment', 'famine', 'drought', 'natural', 'resources', 'terrain'],
+            cultural: ['culture', 'religion', 'confuci', 'buddhis', 'daois', 'art', 'literature', 'philosophy', 'belief', 'tradition', 'identity', 'values', 'education'],
+            economic: ['trade', 'economic', 'commerce', 'silk road', 'merchants', 'taxes', 'wealth', 'poverty', 'agriculture', 'industry', 'tribute', 'market'],
+            social: ['social', 'class', 'peasant', 'women', 'gender', 'family', 'society', 'rebellion', 'inequality', 'population', 'labor', 'community']
+        };
+        
+        const connected = [];
+        for (const [theme, keywords] of Object.entries(piecesKeywords)) {
+            if (keywords.some(k => lower.includes(k))) connected.push(theme);
+        }
+        
+        if (connected.length === 0) {
+            feedback.push({
+                icon: '🟡',
+                text: '<strong>No clear PIECES connection found.</strong> Strong research questions connect to at least one PIECES theme (Political, Innovation, Environmental, Cultural, Economic, Social). Think about: which dimension of history does your question explore?'
+            });
+        } else {
+            const themeLabels = { political: '🏛️ Political', innovation: '🔬 Innovation', environmental: '🌍 Environmental', cultural: '🎭 Cultural', economic: '💰 Economic', social: '👥 Social' };
+            const tags = connected.map(c => themeLabels[c]).join(', ');
+            feedback.push({
+                icon: '🟢',
+                text: `<strong>PIECES connection detected:</strong> ${tags}. Your question engages with clear thematic dimensions — this will help structure your analysis.`
+            });
+            overallStrength++;
+        }
+
+        // 5. Check for historical specificity
+        const hasDate = /\d{3,4}/.test(q);
+        const hasPeriod = ['dynasty', 'era', 'period', 'century', 'reign', 'tang', 'song', 'ming', 'qing', 'han', 'yuan', 'warring states', 'republic', 'mao', 'cultural revolution', 'great leap', 'opium', 'taiping', 'boxer', 'long march', 'civil war'].some(p => lower.includes(p));
+        
+        if (!hasDate && !hasPeriod) {
+            feedback.push({
+                icon: '🟡',
+                text: '<strong>Consider adding historical specificity.</strong> Which dynasty, era, or time period are you focusing on? Grounding your question in a specific historical context will make it more researchable and your argument more precise.'
+            });
+        } else {
+            overallStrength++;
+        }
+
+        // 6. Check for comparison (bonus)
+        const hasComparison = ['compar', 'differ', 'similar', 'contrast', 'vs', 'versus', 'while', 'whereas', 'unlike', 'both'].some(c => lower.includes(c));
+        if (hasComparison) {
+            feedback.push({
+                icon: '🟢',
+                text: '<strong>Comparative angle detected!</strong> Comparing two cases, periods, or responses often leads to the richest analysis. Make sure both sides of your comparison are clearly defined.'
+            });
+            overallStrength++;
+        }
+
+        // Build suggestions based on weaknesses
+        let suggestion = '';
+        if (overallStrength < 3) {
+            suggestion = `<div class="feedback-suggestion">
+                <div class="feedback-suggestion-label">💡 Try Reshaping Your Question</div>
+                <p>Strong research questions often follow patterns like these. Click one to use it as a starting point:</p>
+                <div class="feedback-starters">
+                    <button class="starter-chip" onclick="useStarter('To what extent did ')">To what extent did...</button>
+                    <button class="starter-chip" onclick="useStarter('How did [X] shape ')">How did [X] shape...</button>
+                    <button class="starter-chip" onclick="useStarter('Why did [X] respond differently to [Y] than [Z]?')">Why did [X] respond differently...</button>
+                    <button class="starter-chip" onclick="useStarter('In what ways did [event] transform ')">In what ways did [event] transform...</button>
+                    <button class="starter-chip" onclick="useStarter('What was the significance of ')">What was the significance of...</button>
+                    <button class="starter-chip" onclick="useStarter('How effectively did ')">How effectively did...</button>
+                </div>
+            </div>`;
+        } else if (overallStrength >= 4) {
+            suggestion = `<div class="feedback-suggestion">
+                <div class="feedback-suggestion-label">🎯 Looking Strong</div>
+                <p>Your question has good analytical depth, specificity, and thematic grounding. Before moving on, ask yourself one final check: <em>could reasonable people disagree with the answer to this question?</em> If yes, you have an arguable research question.</p>
+            </div>`;
+        } else {
+            suggestion = `<div class="feedback-suggestion">
+                <div class="feedback-suggestion-label">💡 Almost There — Consider These Refinements</div>
+                <p>Your question has potential but could be sharpened. Try asking yourself:</p>
+                <p>• <strong>Scope:</strong> Can I realistically research this in the time I have?</p>
+                <p>• <strong>Arguability:</strong> Could someone write a different answer than mine?</p>
+                <p>• <strong>Evidence:</strong> What kind of sources would help me answer this?</p>
+            </div>`;
+        }
+
+        // Render
+        let html = '';
+        feedback.forEach(f => {
+            html += `<div class="feedback-item">
+                <span class="feedback-icon">${f.icon}</span>
+                <div class="feedback-text">${f.text}</div>
+            </div>`;
+        });
+        html += suggestion;
+
+        result.innerHTML = html;
+        result.classList.add('visible');
+    }
+
+    function useStarter(text) {
+        const textarea = document.getElementById('researchQuestion');
+        if (textarea) {
+            textarea.value = text;
+            textarea.focus();
+            textarea.setSelectionRange(text.length, text.length);
+            saveState();
+        }
+    }
+    </script>
+</body>
+</html>

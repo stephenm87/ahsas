@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Source Library — AHSAS</title>
+    <meta name="description" content="Browse curated primary and secondary sources for Chinese history. Filter by unit, type, and PIECES theme.">
+    <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <style>
+        .library-intro {
+            max-width: 640px;
+            margin: 0 auto var(--space-xl);
+            text-align: center;
+        }
+        .library-intro p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        /* Filter bar */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            justify-content: center;
+            margin-bottom: var(--space-xl);
+            padding: var(--space-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .filter-bar select {
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            min-width: 140px;
+        }
+        .filter-bar select:focus {
+            outline: none;
+            border-color: var(--vermillion);
+        }
+        .filter-count {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        /* Source grid */
+        .source-grid {
+            display: grid;
+            gap: var(--space-lg);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Source card */
+        .source-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            position: relative;
+            cursor: pointer;
+            transition: border-color var(--transition), transform var(--transition);
+            overflow: hidden;
+        }
+        .source-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--vermillion);
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+        }
+        .source-card.type-secondary::before {
+            background: var(--jade);
+        }
+        .source-card:hover {
+            border-color: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+        }
+
+        .source-header {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+        .source-type-badge {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .source-type-badge.primary {
+            background: var(--vermillion-glow);
+            color: var(--vermillion);
+        }
+        .source-type-badge.secondary {
+            background: rgba(45,138,110,0.15);
+            color: var(--jade);
+        }
+        .source-format-badge {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.06);
+            color: var(--text-dim);
+            flex-shrink: 0;
+        }
+
+        .source-title {
+            font-family: var(--font-heading);
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .source-meta {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+        .source-creator { font-style: italic; }
+        .source-date { font-weight: 600; }
+
+        .source-snippet {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.7;
+            margin-bottom: var(--space-md);
+        }
+
+        .source-pieces {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: var(--space-sm);
+        }
+        .pieces-tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .pieces-tag.political { background: rgba(74,144,217,0.15); color: #4a90d9; }
+        .pieces-tag.innovation { background: rgba(230,126,34,0.15); color: #e67e22; }
+        .pieces-tag.environmental { background: rgba(46,204,113,0.15); color: #2ecc71; }
+        .pieces-tag.cultural { background: rgba(155,89,182,0.15); color: #9b59b6; }
+        .pieces-tag.economic { background: var(--gold-glow); color: var(--gold); }
+        .pieces-tag.social { background: var(--vermillion-glow); color: var(--vermillion); }
+
+        /* Expanded detail */
+        .source-detail {
+            display: none;
+            margin-top: var(--space-md);
+            padding-top: var(--space-md);
+            border-top: 1px solid var(--border);
+        }
+        .source-card.expanded .source-detail {
+            display: block;
+        }
+
+        .source-citation {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            padding-left: 2rem;
+            text-indent: -2rem;
+            margin-bottom: var(--space-md);
+            background: rgba(255,255,255,0.03);
+            padding: var(--space-sm) var(--space-md);
+            padding-left: calc(var(--space-md) + 2rem);
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--gold);
+        }
+        .citation-label {
+            font-family: var(--font-body);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            color: var(--gold);
+            display: block;
+            margin-bottom: 4px;
+            text-indent: 0;
+        }
+
+        .source-prompts {
+            margin-bottom: var(--space-md);
+        }
+        .source-prompts-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+        .source-prompts ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .source-prompts li {
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            line-height: 1.6;
+            padding-left: 1.2rem;
+            position: relative;
+            margin-bottom: 4px;
+        }
+        .source-prompts li::before {
+            content: '?';
+            position: absolute;
+            left: 0;
+            color: var(--vermillion);
+            font-weight: 700;
+        }
+
+        .source-actions {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+        .source-actions .btn {
+            font-size: 0.78rem;
+            padding: 6px 14px;
+            min-height: 32px;
+        }
+
+        .no-results {
+            text-align: center;
+            color: var(--text-dim);
+            padding: var(--space-2xl) 0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .filter-bar {
+                flex-direction: column;
+            }
+            .filter-bar select {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <header class="site-header">
+            <div class="container">
+                <nav class="nav-inner">
+                    <a href="/" class="site-logo">
+                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <span class="logo-text">AHSAS</span>
+                    </a>
+                    <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
+                    <button class="nav-toggle" aria-label="Toggle navigation">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <ul class="nav-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/seminar.html">Seminar</a></li>
+                        <li><a href="/pieces.html">PIECES</a></li>
+                        <li><a href="/cer.html">CER</a></li>
+                        <li><a href="/source-analyzer.html">Analyzer</a></li>
+                        <li><a href="/sources.html" class="active">Library</a></li>
+                        <li><a href="/timeline.html">Timeline</a></li>
+                        <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/research.html">Research</a></li>
+                        <li><a href="/about.html">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+
+                <div class="library-intro animate-in">
+                    <h1>📚 Source Library</h1>
+                    <p class="mt-sm" style="font-size:1.05rem;color:var(--text-dim);">Curated Primary & Secondary Sources</p>
+                    <p class="mt-md">
+                        Browse over 40 curated historical sources — primary texts, visual materials, maps, 
+                        and scholarly analyses — organized by unit and tagged with PIECES themes. 
+                        Click any source to view its MLA citation and analysis prompts.
+                    </p>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-bar animate-in delay-1">
+                    <select id="filterUnit">
+                        <option value="all">All Units</option>
+                    </select>
+                    <select id="filterType">
+                        <option value="all">All Types</option>
+                        <option value="primary">Primary Sources</option>
+                        <option value="secondary">Secondary Sources</option>
+                    </select>
+                    <select id="filterPieces">
+                        <option value="all">All PIECES</option>
+                        <option value="political">🏛️ Political</option>
+                        <option value="innovation">🔬 Innovation</option>
+                        <option value="environmental">🌍 Environmental</option>
+                        <option value="cultural">🎭 Cultural</option>
+                        <option value="economic">💰 Economic</option>
+                        <option value="social">👥 Social</option>
+                    </select>
+                </div>
+
+                <div class="filter-count animate-in delay-1" id="filterCount"></div>
+
+                <!-- Source Grid -->
+                <div class="source-grid" id="sourceGrid"></div>
+
+            </div>
+        </main>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="footer-inner">
+                    <p class="footer-copyright">© 2026 AHSAS · An independent educational resource.</p>
+                    <div class="footer-links">
+                        <a href="/about.html">About</a>
+                        <a href="/about.html#privacy">Privacy</a>
+                        <a href="/about.html#license">License</a>
+                        <a href="/about.html#conduct">Code of Conduct</a>
+                    </div>
+                    <div class="footer-netlify">
+                        <a href="https://www.netlify.com" target="_blank" rel="noopener">
+                            <img src="https://www.netlify.com/v3/img/components/netlify-color-bg.svg" alt="Powered by Netlify">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+    <div class="toast" id="toast"></div>
+    <script type="module" src="/src/js/nav.js"></script>
+    <script type="module" src="/src/data/sources.js"></script>
+    <script type="module" src="/src/data/curriculum.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ===== Back to Top =====
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backBtn.classList.toggle('visible', window.scrollY > 500);
+        });
+        backBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Wait for data to load
+        const waitForData = setInterval(() => {
+            if (!window.AHSAS_SOURCES || !window.AHSAS_CURRICULUM) return;
+            clearInterval(waitForData);
+            initLibrary();
+        }, 50);
+
+        function initLibrary() {
+            const sources = window.AHSAS_SOURCES;
+            const curriculum = window.AHSAS_CURRICULUM;
+            const grid = document.getElementById('sourceGrid');
+            const filterUnit = document.getElementById('filterUnit');
+            const filterType = document.getElementById('filterType');
+            const filterPieces = document.getElementById('filterPieces');
+            const filterCount = document.getElementById('filterCount');
+
+            // Populate unit filter
+            curriculum.units.forEach(u => {
+                if (u.id === 'research-project') return;
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = `${u.icon} ${u.number}. ${u.title}`;
+                filterUnit.appendChild(opt);
+            });
+
+            function getUnitInfo(unitId) {
+                return curriculum.units.find(u => u.id === unitId) || { title: unitId, icon: '📄', color: '#888' };
+            }
+
+            function renderSources() {
+                const unitVal = filterUnit.value;
+                const typeVal = filterType.value;
+                const piecesVal = filterPieces.value;
+
+                const filtered = sources.filter(s => {
+                    if (unitVal !== 'all' && s.unit !== unitVal) return false;
+                    if (typeVal !== 'all' && s.type !== typeVal) return false;
+                    if (piecesVal !== 'all' && !s.pieces.includes(piecesVal)) return false;
+                    return true;
+                });
+
+                filterCount.textContent = `Showing ${filtered.length} of ${sources.length} sources`;
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<div class="no-results">No sources match your filters. Try broadening your search.</div>';
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(s => {
+                    const unit = getUnitInfo(s.unit);
+                    const piecesHtml = s.pieces.map(p => {
+                        const theme = curriculum.piecesThemes[p];
+                        return `<span class="pieces-tag ${p}">${theme ? theme.icon : ''} ${theme ? theme.label : p}</span>`;
+                    }).join('');
+
+                    const promptsHtml = s.analysisPrompts ? s.analysisPrompts.map(p => `<li>${p}</li>`).join('') : '';
+
+                    return `
+                        <div class="source-card type-${s.type}" data-id="${s.id}" onclick="toggleSource(this)">
+                            <div class="source-meta">
+                                <span class="source-type-badge ${s.type}">${s.type}</span>
+                                <span class="source-format-badge">${s.format}</span>
+                                <span style="color:${unit.color};font-weight:600;">${unit.icon} Unit ${unit.number}</span>
+                            </div>
+                            <div class="source-header">
+                                <span class="source-title">${s.title}</span>
+                            </div>
+                            <div class="source-meta">
+                                <span class="source-creator">${s.creator}</span>
+                                <span>·</span>
+                                <span class="source-date">${s.date}</span>
+                            </div>
+                            <p class="source-snippet">${s.snippet}</p>
+                            <div class="source-pieces">${piecesHtml}</div>
+                            <div class="source-detail">
+                                <div class="source-citation">
+                                    <span class="citation-label">MLA Citation</span>
+                                    ${s.mlaCitation}
+                                </div>
+                                ${promptsHtml ? `
+                                <div class="source-prompts">
+                                    <div class="source-prompts-label">Analysis Prompts</div>
+                                    <ul>${promptsHtml}</ul>
+                                </div>` : ''}
+                                <div class="source-actions">
+                                    ${s.url ? `<a href="${s.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" onclick="event.stopPropagation();">📄 Read Source ↗</a>` : ''}
+                                    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); copyCitation(this, \`${s.mlaCitation.replace(/`/g, "'").replace(/\\/g, "\\\\")}\`);">📋 Copy Citation</button>
+                                    <a href="/source-analyzer.html" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">Use in Analyzer →</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            filterUnit.addEventListener('change', renderSources);
+            filterType.addEventListener('change', renderSources);
+            filterPieces.addEventListener('change', renderSources);
+
+            renderSources();
+        }
+    });
+
+    function toggleSource(card) {
+        card.classList.toggle('expanded');
+    }
+
+    function copyCitation(btn, citation) {
+        // Strip HTML tags for plain text copy
+        const temp = document.createElement('div');
+        temp.innerHTML = citation;
+        const text = temp.textContent || temp.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Citation copied to clipboard!');
+        });
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('visible');
+        setTimeout(() => t.classList.remove('visible'), 2500);
+    }
+    </script>
+</body>
+</html>
