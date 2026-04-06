@@ -50,39 +50,57 @@
             margin-right: auto;
         }
         .step-dot {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 700;
-            border: 2px solid var(--border);
-            color: var(--text-dim);
+            border: 2.5px solid rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.5);
+            background: rgba(0,0,0,0.35);
             cursor: pointer;
-            transition: all var(--transition);
+            transition: all 0.3s ease;
             position: relative;
+            backdrop-filter: blur(4px);
+        }
+        .step-dot:hover:not(.locked) {
+            border-color: rgba(255,255,255,0.6);
+            color: #fff;
+            transform: scale(1.1);
         }
         .step-dot.active {
+            width: 46px;
+            height: 46px;
+            font-size: 1rem;
             border-color: var(--vermillion);
-            color: var(--vermillion);
-            background: var(--vermillion-glow);
+            color: #fff;
+            background: var(--vermillion);
+            box-shadow: 0 0 0 4px rgba(199,62,58,0.3), 0 0 20px rgba(199,62,58,0.4);
+            animation: activePulse 2s ease-in-out infinite;
+            z-index: 2;
+        }
+        @keyframes activePulse {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(199,62,58,0.3), 0 0 20px rgba(199,62,58,0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(199,62,58,0.15), 0 0 28px rgba(199,62,58,0.25); }
         }
         .step-dot.completed {
             border-color: var(--jade);
-            color: var(--jade);
-            background: rgba(45,138,110,0.15);
+            color: #fff;
+            background: var(--jade);
         }
         .step-dot.locked {
-            opacity: 0.35;
+            opacity: 0.3;
             cursor: not-allowed;
         }
         .step-connector {
             width: 20px;
-            height: 2px;
+            height: 2.5px;
             align-self: center;
-            background: var(--border);
+            background: rgba(255,255,255,0.15);
+            border-radius: 2px;
         }
         .step-connector.completed {
             background: var(--jade);
@@ -184,7 +202,7 @@
 
         /* Question quality checklist */
         .quality-check {
-            background: rgba(255,255,255,0.03);
+            background: var(--subtle-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             padding: var(--space-md);
@@ -258,7 +276,7 @@
             font-size: 0.82rem;
         }
         .evidence-matrix th {
-            background: rgba(255,255,255,0.04);
+            background: var(--subtle-bg);
             padding: var(--space-sm);
             text-align: left;
             font-weight: 600;
@@ -324,7 +342,7 @@
 
         /* Outline builder */
         .outline-section {
-            background: rgba(255,255,255,0.03);
+            background: var(--subtle-bg);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             padding: var(--space-md);
@@ -438,7 +456,7 @@
             display: flex;
             gap: var(--space-sm);
             padding: var(--space-sm) 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid var(--subtle-border);
             align-items: flex-start;
         }
         .feedback-item:last-child { border-bottom: none; }
@@ -487,7 +505,7 @@
             border-radius: 999px;
             font-size: 0.75rem;
             border: 1px solid var(--border);
-            background: rgba(255,255,255,0.03);
+            background: var(--subtle-bg);
             color: var(--text-muted);
             cursor: pointer;
             transition: all var(--transition);
@@ -504,6 +522,223 @@
             color: var(--text-dim);
             font-size: 0.84rem;
         }
+
+        /* ===== Export Toolbar ===== */
+        .export-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: var(--space-lg);
+            padding: var(--space-md);
+            background: var(--subtle-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+        }
+        .export-toolbar .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font-body);
+            white-space: nowrap;
+        }
+        .export-toolbar .export-btn:hover {
+            border-color: var(--jade);
+            color: var(--jade);
+            background: rgba(45,138,110,0.08);
+        }
+        .export-toolbar .export-btn .btn-icon {
+            font-size: 1rem;
+        }
+
+        /* ===== Argument Flowchart ===== */
+        .outline-flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            margin-bottom: var(--space-lg);
+            padding: var(--space-md) 0;
+        }
+        .flow-node {
+            width: 100%;
+            max-width: 500px;
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            position: relative;
+            text-align: center;
+        }
+        .flow-node .flow-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .flow-node .flow-content {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            max-height: 3em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .flow-node.intro { border-color: #4a90d9; }
+        .flow-node.intro .flow-label { color: #4a90d9; }
+        .flow-node.body { border-color: var(--vermillion); }
+        .flow-node.body .flow-label { color: var(--vermillion); }
+        .flow-node.conclusion { border-color: var(--jade); }
+        .flow-node.conclusion .flow-label { color: var(--jade); }
+        .flow-arrow {
+            width: 2px;
+            height: 24px;
+            background: var(--border);
+            position: relative;
+        }
+        .flow-arrow::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid var(--border);
+        }
+
+        /* ===== Preview Modal ===== */
+        .preview-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            justify-content: center;
+            align-items: flex-start;
+            padding: var(--space-xl);
+            overflow-y: auto;
+        }
+        .preview-overlay.open { display: flex; }
+        .preview-doc {
+            width: 100%;
+            max-width: 740px;
+            background: #fff;
+            color: #1a1a1a;
+            border-radius: var(--radius-lg);
+            padding: 48px 56px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8;
+            position: relative;
+            margin: var(--space-xl) auto;
+        }
+        .preview-doc .preview-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            transition: all 0.15s;
+        }
+        .preview-doc .preview-close:hover {
+            background: #e5e7eb;
+            color: #111;
+        }
+        .preview-doc h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #111;
+            border: none;
+        }
+        .preview-doc .preview-rq {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .preview-doc h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 28px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .preview-doc h2.intro-h { color: #2563eb; }
+        .preview-doc h2.body-h  { color: #c7403a; }
+        .preview-doc h2.conclusion-h { color: #16a34a; }
+        .preview-doc .preview-field {
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+        }
+        .preview-doc .preview-field .pf-label {
+            font-weight: 700;
+            color: #444;
+            font-family: system-ui, sans-serif;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .preview-doc .preview-field .pf-value {
+            color: #1a1a1a;
+        }
+        .preview-doc .empty {
+            color: #aab;
+            font-style: italic;
+        }
+        .preview-doc .preview-sq-label {
+            font-size: 0.78rem;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        /* ===== Print Stylesheet ===== */
+        @media print {
+            body * { visibility: hidden; }
+            .preview-overlay, .preview-overlay * { visibility: visible !important; }
+            .preview-overlay {
+                display: flex !important;
+                position: static;
+                background: none;
+                padding: 0;
+            }
+            .preview-doc {
+                box-shadow: none;
+                border-radius: 0;
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            .preview-close { display: none !important; }
+            .site-header, .site-footer, .step-tracker, .studio-intro, .studio-principle,
+            .step-card, .save-indicator { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -513,7 +748,7 @@
             <div class="container">
                 <nav class="nav-inner">
                     <a href="/" class="site-logo">
-                        <div class="logo-seal"><span class="logo-seal-en">AHSAS</span><span class="logo-seal-cn">亚洲歷史</span></div>
+                        <div class="logo-seal"><img src="/icons/logo.png" alt="AHSAS 亚洲歷史" width="38" height="38"></div>
                         <span class="logo-text">AHSAS</span>
                     </a>
                     <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
@@ -522,15 +757,14 @@
                     </button>
                     <ul class="nav-links">
                         <li><a href="/">Home</a></li>
-                        <li><a href="/seminar.html">Seminar</a></li>
                         <li><a href="/pieces.html">PIECES</a></li>
                         <li><a href="/cer.html">CER</a></li>
                         <li><a href="/source-analyzer.html">Analyzer</a></li>
                         <li><a href="/sources.html">Library</a></li>
                         <li><a href="/timeline.html">Timeline</a></li>
                         <li><a href="/compare.html">Compare</a></li>
+                        <li><a href="/seminar.html">Seminar</a></li>
                         <li><a href="/research.html" class="active">Research</a></li>
-                        <li><a href="/about.html">About</a></li>
                     </ul>
                 </nav>
             </div>
@@ -640,6 +874,8 @@
                         <label><input type="checkbox" class="rq-check"> It requires analysis, not just description</label>
                         <label><input type="checkbox" class="rq-check"> It connects to at least one PIECES theme</label>
                         <label><input type="checkbox" class="rq-check"> It is genuinely interesting to me</label>
+                    </div>
+
                     <div class="feedback-engine" id="questionFeedback">
                         <div class="feedback-engine-header">
                             <span class="feedback-engine-label">🤔 Question Coach</span>
@@ -736,7 +972,7 @@
                         or <strong>contradicts</strong> what you expected.
                     </p>
 
-                    <div id="sourceHuntArea"></div>
+                    <div id="sourceHuntArea" style="display:flex;flex-direction:column;gap:var(--space-md);"></div>
 
                     <div style="margin-top:var(--space-md);">
                         <a href="/sources.html" target="_blank" class="btn btn-secondary btn-sm">Open Source Library ↗</a>
@@ -758,9 +994,7 @@
                         contradictions, and connections. What is the evidence telling you?
                     </p>
 
-                    <div class="matrix-container" id="matrixContainer">
-                        <p class="field-hint">Complete Steps 3 and 4 first — the matrix will auto-populate with your sub-questions.</p>
-                    </div>
+                    <div id="matrixContainer"></div>
 
                     <div class="field-group" style="margin-top:var(--space-lg);">
                         <label class="field-label">Emerging Patterns</label>
@@ -787,7 +1021,7 @@
 
                     <div class="field-group">
                         <label class="field-label">Your Research Question (from Step 2)</label>
-                        <div id="rqReminder" style="padding:var(--space-sm) var(--space-md);background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);font-size:0.88rem;font-style:italic;margin-bottom:var(--space-md);">(will populate from Step 2)</div>
+                        <div id="rqReminder" style="padding:var(--space-sm) var(--space-md);background:var(--subtle-bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-muted);font-size:0.88rem;font-style:italic;margin-bottom:var(--space-md);">(will populate from Step 2)</div>
                     </div>
 
                     <div class="field-group">
@@ -805,7 +1039,17 @@
                         <label><input type="checkbox" class="thesis-check"> It acknowledges complexity (not one-sided)</label>
                     </div>
 
-                    <div class="thesis-feedback" id="thesisFeedback"></div>
+                    <button class="btn btn-secondary" onclick="analyzeThesis()" style="margin-bottom:var(--space-lg);display:flex;align-items:center;gap:0.5rem;width:100%;justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Thesis Coach Feedback
+                    </button>
+
+                    <div class="feedback-placeholder" id="thesisFeedbackPlaceholder">
+                        <span style="font-size:1.5rem;display:block;margin-bottom:var(--space-sm);">⚖️</span>
+                        <p>Draft your thesis and click "Thesis Coach Feedback" to check its arguability and complexity.</p>
+                    </div>
+                    
+                    <div class="feedback-results" id="thesisFeedbackResult"></div>
 
                     <div class="step-nav">
                         <button class="btn btn-secondary" onclick="goToStep(5)">← Back</button>
@@ -853,9 +1097,29 @@
                         </div>
                     </div>
 
+                    <!-- Argument Flowchart -->
+                    <div class="field-label" style="margin-bottom:var(--space-sm);margin-top:var(--space-lg);">🗺️ Argument Flow</div>
+                    <div class="outline-flowchart" id="outlineFlowchart"></div>
+
+                    <!-- Export Toolbar -->
+                    <div class="export-toolbar">
+                        <button class="export-btn" onclick="openPreview()">
+                            <span class="btn-icon">📄</span> Preview
+                        </button>
+                        <button class="export-btn" onclick="copyOutline()">
+                            <span class="btn-icon">📋</span> Copy
+                        </button>
+                        <button class="export-btn" onclick="printOutline()">
+                            <span class="btn-icon">🖨️</span> Print / PDF
+                        </button>
+                        <button class="export-btn" onclick="downloadDoc()">
+                            <span class="btn-icon">⬇️</span> Download .doc
+                        </button>
+                    </div>
+
                     <div class="step-nav">
                         <button class="btn btn-secondary" onclick="goToStep(6)">← Back</button>
-                        <button class="btn btn-primary" onclick="exportOutline()">📋 Export Outline</button>
+                        <button class="btn btn-primary" onclick="openPreview()">📄 Preview & Export</button>
                     </div>
                 </div>
 
@@ -869,19 +1133,26 @@
                 <div class="footer-inner">
                     <p class="footer-copyright">© 2026 AHSAS · An independent educational resource.</p>
                     <div class="footer-links">
-                        <a href="/about.html">About</a>
                         <a href="/about.html#privacy">Privacy</a>
                         <a href="/about.html#license">License</a>
                         <a href="/about.html#conduct">Code of Conduct</a>
                     </div>
                     <div class="footer-netlify">
                         <a href="https://www.netlify.com" target="_blank" rel="noopener">
-                            <img src="https://www.netlify.com/v3/img/components/netlify-color-bg.svg" alt="Powered by Netlify">
+                            <img src="/images/netlify-badge.svg" alt="Powered by Netlify">
                         </a>
                     </div>
                 </div>
             </div>
         </footer>
+    </div>
+
+    <!-- Preview Modal Overlay -->
+    <div class="preview-overlay" id="previewOverlay">
+        <div class="preview-doc" id="previewDoc">
+            <button class="preview-close" onclick="closePreview()">✕</button>
+            <div id="previewContent"></div>
+        </div>
     </div>
 
     <script type="module" src="/src/js/nav.js"></script>
@@ -898,6 +1169,21 @@
         buildMatrix();
         buildBodyParagraphs();
         setupAutoSave();
+        
+        // Expose functions to window if called via inline onclick handlers
+        window.goToStep = goToStep;
+        window.addSubQuestion = addSubQuestion;
+        window.analyzeQuestion = analyzeQuestion;
+        window.analyzeThesis = analyzeThesis;
+        window.useStarter = useStarter;
+        window.openPreview = openPreview;
+        window.closePreview = closePreview;
+        window.copyOutline = copyOutline;
+        window.printOutline = printOutline;
+        window.downloadDoc = downloadDoc;
+        
+        // Build flowchart on step change
+        buildFlowchart();
     });
 
     function renderTracker() {
@@ -911,7 +1197,7 @@
             if (isActive) cls += ' active';
             if (isCompleted) cls += ' completed';
             if (isLocked) cls += ' locked';
-            html += `<div class="${cls}" onclick="${isLocked ? '' : 'goToStep(' + i + ')'}" title="Step ${i}">${isCompleted ? '✓' : i}</div>`;
+            html += `<div class="${cls}" onclick="${isLocked ? '' : 'goToStep(' + i + ')'}" title="Step ${i}">${isActive ? i : (isCompleted ? '✓' : i)}</div>`;
             if (i < TOTAL_STEPS) html += `<div class="step-connector${isCompleted ? ' completed' : ''}"></div>`;
         }
         tracker.innerHTML = html;
@@ -947,6 +1233,7 @@
             const thesis = document.getElementById('thesisStatement');
             document.getElementById('thesisReminder').textContent = thesis ? thesis.value || '(complete Step 6 first)' : '';
             buildBodyParagraphs();
+            setTimeout(buildFlowchart, 100);
         }
 
         renderTracker();
@@ -1004,25 +1291,52 @@
             return;
         }
         area.innerHTML = sqs.map(sq => `
-            <div class="field-group" style="background:rgba(255,255,255,0.02);padding:var(--space-md);border-radius:var(--radius-sm);border:1px solid var(--border);">
-                <label class="field-label">SQ${sq.num}: ${sq.text}</label>
-                <div style="margin-bottom:var(--space-sm);">
-                    <input class="studio-input" placeholder="Source 1 — title or citation" data-hunt="${sq.num}-1" style="margin-bottom:6px;">
-                    <select style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:0.78rem;" data-hunt-rel="${sq.num}-1">
-                        <option value="">Relationship...</option>
-                        <option value="confirms">✅ Confirms</option>
-                        <option value="complicates">⚠️ Complicates</option>
-                        <option value="contradicts">❌ Contradicts</option>
-                    </select>
+            <div class="field-group" style="background:var(--bg-card);padding:var(--space-md);border-radius:var(--radius-md);border:1px solid var(--border);box-shadow:var(--shadow-sm);">
+                <label class="field-label" style="font-size:1.1rem;color:var(--jade);">Sub-Question ${sq.num}: <span style="font-weight:normal;color:var(--text);">${sq.text}</span></label>
+                <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-md);">Find 2 credible sources that help answer this specific question. Evaluate their reliability.</p>
+                
+                <!-- Source 1 -->
+                <div style="background:var(--subtle-bg);padding:var(--space-md);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:var(--space-sm);">
+                    <div style="font-weight:600;font-size:0.9rem;margin-bottom:var(--space-xs);">Source 1</div>
+                    <input class="studio-input" placeholder="Title, Author, or Citation..." data-hunt="${sq.num}-1" style="margin-bottom:var(--space-xs);">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm);margin-bottom:var(--space-xs);">
+                        <select class="studio-input" style="padding:8px;" data-hunt-type="${sq.num}-1">
+                            <option value="">Source Type...</option>
+                            <option value="academic">Academic Journal / Book</option>
+                            <option value="primary">Primary Source Document</option>
+                            <option value="news">Verified News / Article</option>
+                            <option value="other">Other / Web</option>
+                        </select>
+                        <select class="studio-input" style="padding:8px;" data-hunt-rel="${sq.num}-1">
+                            <option value="">Relationship...</option>
+                            <option value="confirms">✅ Confirms my thinking</option>
+                            <option value="complicates">⚠️ Complicates things</option>
+                            <option value="contradicts">❌ Contradicts theory</option>
+                        </select>
+                    </div>
+                    <textarea class="studio-input" rows="2" placeholder="Evaluate reliability (CRAAP: Currency, Relevance, Authority, Accuracy, Purpose)..." data-hunt-eval="${sq.num}-1"></textarea>
                 </div>
-                <div>
-                    <input class="studio-input" placeholder="Source 2 — title or citation" data-hunt="${sq.num}-2" style="margin-bottom:6px;">
-                    <select style="padding:4px 8px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:0.78rem;" data-hunt-rel="${sq.num}-2">
-                        <option value="">Relationship...</option>
-                        <option value="confirms">✅ Confirms</option>
-                        <option value="complicates">⚠️ Complicates</option>
-                        <option value="contradicts">❌ Contradicts</option>
-                    </select>
+
+                <!-- Source 2 -->
+                <div style="background:var(--subtle-bg);padding:var(--space-md);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                    <div style="font-weight:600;font-size:0.9rem;margin-bottom:var(--space-xs);">Source 2</div>
+                    <input class="studio-input" placeholder="Title, Author, or Citation..." data-hunt="${sq.num}-2" style="margin-bottom:var(--space-xs);">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm);margin-bottom:var(--space-xs);">
+                        <select class="studio-input" style="padding:8px;" data-hunt-type="${sq.num}-2">
+                            <option value="">Source Type...</option>
+                            <option value="academic">Academic Journal / Book</option>
+                            <option value="primary">Primary Source Document</option>
+                            <option value="news">Verified News / Article</option>
+                            <option value="other">Other / Web</option>
+                        </select>
+                        <select class="studio-input" style="padding:8px;" data-hunt-rel="${sq.num}-2">
+                            <option value="">Relationship...</option>
+                            <option value="confirms">✅ Confirms my thinking</option>
+                            <option value="complicates">⚠️ Complicates things</option>
+                            <option value="contradicts">❌ Contradicts theory</option>
+                        </select>
+                    </div>
+                    <textarea class="studio-input" rows="2" placeholder="Evaluate reliability (OPVL: Origin, Purpose, Value, Limitations)..." data-hunt-eval="${sq.num}-2"></textarea>
                 </div>
             </div>
         `).join('');
@@ -1036,49 +1350,103 @@
             container.innerHTML = '<p class="field-hint">Complete Steps 3 and 4 first — the matrix will auto-populate.</p>';
             return;
         }
-        let html = '<table class="evidence-matrix"><thead><tr><th>Sub-Question</th><th>Source 1</th><th>Key Finding</th><th>Source 2</th><th>Key Finding</th></tr></thead><tbody>';
+        
+        let html = `<div style="display:flex;flex-direction:column;gap:var(--space-lg);">`;
         sqs.forEach(sq => {
-            html += `<tr>
-                <td style="font-weight:600;font-size:0.8rem;">SQ${sq.num}: ${sq.text.substring(0, 60)}${sq.text.length > 60 ? '...' : ''}</td>
-                <td><textarea data-matrix-src="${sq.num}-1" placeholder="Source..."></textarea></td>
-                <td><textarea data-matrix-finding="${sq.num}-1" placeholder="Key finding..."></textarea></td>
-                <td><textarea data-matrix-src="${sq.num}-2" placeholder="Source..."></textarea></td>
-                <td><textarea data-matrix-finding="${sq.num}-2" placeholder="Key finding..."></textarea></td>
-            </tr>`;
+            html += `
+            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);">
+                <div style="background:rgba(45,138,110,0.1);padding:var(--space-md);border-bottom:1px solid var(--border);">
+                    <div style="font-weight:600;color:var(--jade);margin-bottom:4px;">Sub-Question ${sq.num}</div>
+                    <div style="font-size:0.95rem;">${sq.text}</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);padding:var(--space-md);border-bottom:1px solid var(--border);">
+                    <div style="display:flex;flex-direction:column;gap:var(--space-xs);">
+                        <label class="field-label" style="font-size:0.85rem;margin-bottom:2px;">Source 1: Key Finding</label>
+                        <textarea class="studio-input" rows="3" data-matrix-finding="${sq.num}-1" placeholder="What specific fact/evidence does Source 1 provide?"></textarea>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:var(--space-xs);">
+                        <label class="field-label" style="font-size:0.85rem;margin-bottom:2px;">Source 2: Key Finding</label>
+                        <textarea class="studio-input" rows="3" data-matrix-finding="${sq.num}-2" placeholder="What specific fact/evidence does Source 2 provide?"></textarea>
+                    </div>
+                </div>
+                <div style="padding:var(--space-md);background:var(--subtle-bg);">
+                    <label class="field-label" style="color:var(--jade);margin-bottom:var(--space-xs);">Synthesis: Connect the Dots</label>
+                    <textarea class="studio-input" rows="2" data-matrix-synthesis="${sq.num}" placeholder="How do these two findings relate? Do they agree, disagree, or provide different puzzle pieces?"></textarea>
+                </div>
+            </div>`;
         });
-        html += '</tbody></table>';
+        html += `</div>`;
         container.innerHTML = html;
     }
+
+    let manualParaCount = 0;
 
     function buildBodyParagraphs() {
         const container = document.getElementById('bodyParagraphs');
         if (!container) return;
         const sqs = getSubQuestions();
+        let html = '';
+
         if (sqs.length === 0) {
-            container.innerHTML = '';
-            return;
+            html += `
+            <div style="text-align:center;padding:var(--space-lg);background:var(--subtle-bg);border-radius:var(--radius);border:1px dashed var(--border);margin-bottom:var(--space-md);">
+                <p style="color:var(--text-dim);font-size:0.9rem;margin-bottom:var(--space-sm);">
+                    📝 Body paragraphs are auto-generated from your <strong>sub-questions in Step 3</strong>.
+                </p>
+                <button class="btn-secondary" onclick="goToStep(3)" style="margin-bottom:var(--space-sm);">
+                    ← Go to Step 3 to add sub-questions
+                </button>
+                <p style="color:var(--text-dim);font-size:0.8rem;margin-top:var(--space-sm);">—  or  —</p>
+            </div>`;
         }
-        container.innerHTML = sqs.map((sq, i) => `
+
+        // Render paragraphs from sub-questions
+        sqs.forEach((sq, i) => {
+            html += buildParaSection(i + 1, `SQ${sq.num}`, sq.text, sq.num);
+        });
+
+        // Render any manually-added paragraphs
+        for (let m = 1; m <= manualParaCount; m++) {
+            const idx = sqs.length + m;
+            html += buildParaSection(idx, `Manual`, '', `manual-${m}`);
+        }
+
+        html += `
+        <button class="btn-secondary" onclick="addManualParagraph()" style="width:100%;margin-top:var(--space-md);border-style:dashed;">
+            ＋ Add Body Paragraph
+        </button>`;
+
+        container.innerHTML = html;
+    }
+
+    function buildParaSection(num, label, sqText, dataKey) {
+        return `
             <div class="outline-section">
-                <div class="outline-section-label body">Body Paragraph ${i + 1} — SQ${sq.num}</div>
-                <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:var(--space-md);font-style:italic;">${sq.text}</p>
+                <div class="outline-section-label body">Body Paragraph ${num} — ${label}</div>
+                ${sqText ? `<p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:var(--space-md);font-style:italic;">${sqText}</p>` : ''}
                 <div class="field-group">
                     <label class="field-label">Claim</label>
-                    <textarea class="studio-input" rows="2" placeholder="What argument will this paragraph make?" data-outline-claim="${sq.num}"></textarea>
+                    <textarea class="studio-input" rows="2" placeholder="What argument will this paragraph make?" data-outline-claim="${dataKey}"></textarea>
                 </div>
                 <div class="field-group">
                     <label class="field-label">Evidence</label>
-                    <textarea class="studio-input" rows="2" placeholder="What specific evidence supports this claim?" data-outline-evidence="${sq.num}"></textarea>
+                    <textarea class="studio-input" rows="2" placeholder="What specific evidence supports this claim?" data-outline-evidence="${dataKey}"></textarea>
                 </div>
                 <div class="field-group" style="margin-bottom:0;">
                     <label class="field-label">Reasoning</label>
-                    <textarea class="studio-input" rows="2" placeholder="How does this evidence support the claim? Why does it matter?" data-outline-reasoning="${sq.num}"></textarea>
+                    <textarea class="studio-input" rows="2" placeholder="How does this evidence support the claim? Why does it matter?" data-outline-reasoning="${dataKey}"></textarea>
                 </div>
-            </div>
-        `).join('');
+            </div>`;
     }
 
-    function exportOutline() {
+    function addManualParagraph() {
+        manualParaCount++;
+        buildBodyParagraphs();
+        saveState();
+    }
+
+    // ===== Shared outline data helper =====
+    function getOutlineData() {
         const rq = document.getElementById('researchQuestion')?.value || '';
         const thesis = document.getElementById('thesisStatement')?.value || '';
         const hook = document.getElementById('outlineHook')?.value || '';
@@ -1086,40 +1454,202 @@
         const restate = document.getElementById('outlineRestate')?.value || '';
         const significance = document.getElementById('outlineSignificance')?.value || '';
         const sqs = getSubQuestions();
+        const bodyParas = [];
 
-        let text = '# Research Paper Outline\n\n';
-        text += `## Research Question\n${rq}\n\n`;
-        text += `## Thesis\n${thesis}\n\n`;
-        text += `---\n\n## Introduction\n**Hook:** ${hook}\n\n**Background:** ${bg}\n\n**Thesis:** ${thesis}\n\n`;
-
+        // From sub-questions
         sqs.forEach((sq, i) => {
-            const claim = document.querySelector(`[data-outline-claim="${sq.num}"]`)?.value || '';
-            const evidence = document.querySelector(`[data-outline-evidence="${sq.num}"]`)?.value || '';
-            const reasoning = document.querySelector(`[data-outline-reasoning="${sq.num}"]`)?.value || '';
-            text += `## Body Paragraph ${i + 1}: ${sq.text}\n`;
-            text += `- **Claim:** ${claim}\n`;
-            text += `- **Evidence:** ${evidence}\n`;
-            text += `- **Reasoning:** ${reasoning}\n\n`;
+            bodyParas.push({
+                num: i + 1,
+                sq: sq.text,
+                claim: document.querySelector(`[data-outline-claim="${sq.num}"]`)?.value || '',
+                evidence: document.querySelector(`[data-outline-evidence="${sq.num}"]`)?.value || '',
+                reasoning: document.querySelector(`[data-outline-reasoning="${sq.num}"]`)?.value || ''
+            });
         });
 
-        text += `## Conclusion\n**Restate Thesis:** ${restate}\n\n**Significance:** ${significance}\n`;
+        // From manually-added paragraphs
+        for (let m = 1; m <= manualParaCount; m++) {
+            const key = `manual-${m}`;
+            bodyParas.push({
+                num: sqs.length + m,
+                sq: '(manual paragraph)',
+                claim: document.querySelector(`[data-outline-claim="${key}"]`)?.value || '',
+                evidence: document.querySelector(`[data-outline-evidence="${key}"]`)?.value || '',
+                reasoning: document.querySelector(`[data-outline-reasoning="${key}"]`)?.value || ''
+            });
+        }
 
-        // Copy to clipboard
+        return { rq, thesis, hook, bg, restate, significance, bodyParas };
+    }
+
+    function toRoman(n) {
+        const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+        const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+        let r = '';
+        for (let i = 0; i < vals.length; i++) {
+            while (n >= vals[i]) { r += syms[i]; n -= vals[i]; }
+        }
+        return r;
+    }
+
+    // ===== 4. Visual Flowchart =====
+    function buildFlowchart() {
+        const fc = document.getElementById('outlineFlowchart');
+        if (!fc) return;
+        const d = getOutlineData();
+        const esc = t => t ? t.substring(0, 80) + (t.length > 80 ? '…' : '') : '<em>Not yet written</em>';
+        
+        let html = `
+            <div class="flow-node intro">
+                <div class="flow-label">Introduction</div>
+                <div class="flow-content">${esc(d.hook || d.thesis)}</div>
+            </div>
+            <div class="flow-arrow"></div>`;
+        
+        d.bodyParas.forEach((bp, i) => {
+            html += `
+            <div class="flow-node body">
+                <div class="flow-label">Body ¶${bp.num}: ${esc(bp.sq)}</div>
+                <div class="flow-content">${esc(bp.claim)}</div>
+            </div>
+            <div class="flow-arrow"></div>`;
+        });
+        
+        html += `
+            <div class="flow-node conclusion">
+                <div class="flow-label">Conclusion</div>
+                <div class="flow-content">${esc(d.restate || d.significance)}</div>
+            </div>`;
+        
+        fc.innerHTML = html;
+    }
+
+    // ===== 1. Preview Modal =====
+    function openPreview() {
+        buildFlowchart();
+        const d = getOutlineData();
+        const v = (text) => text ? text : '<span class="empty">(not yet written)</span>';
+        
+        let html = `
+            <h1>📝 Research Paper Outline</h1>
+            <div class="preview-rq"><strong>Research Question:</strong> ${v(d.rq)}</div>
+            
+            <h2 class="intro-h">I. Introduction</h2>
+            <div class="preview-field"><span class="pf-label">Hook / Context:</span> <span class="pf-value">${v(d.hook)}</span></div>
+            <div class="preview-field"><span class="pf-label">Background:</span> <span class="pf-value">${v(d.bg)}</span></div>
+            <div class="preview-field"><span class="pf-label">Thesis:</span> <span class="pf-value"><strong>${v(d.thesis)}</strong></span></div>`;
+        
+        d.bodyParas.forEach((bp, i) => {
+            const rn = toRoman(i + 2); // II, III, IV...
+            html += `
+            <h2 class="body-h">${rn}. Body Paragraph ${bp.num}</h2>
+            <div class="preview-sq-label">Sub-Question: ${v(bp.sq)}</div>
+            <div class="preview-field"><span class="pf-label">Claim:</span> <span class="pf-value">${v(bp.claim)}</span></div>
+            <div class="preview-field"><span class="pf-label">Evidence:</span> <span class="pf-value">${v(bp.evidence)}</span></div>
+            <div class="preview-field"><span class="pf-label">Reasoning:</span> <span class="pf-value">${v(bp.reasoning)}</span></div>`;
+        });
+        
+        const concNum = toRoman(d.bodyParas.length + 2);
+        html += `
+            <h2 class="conclusion-h">${concNum}. Conclusion</h2>
+            <div class="preview-field"><span class="pf-label">Restate Thesis:</span> <span class="pf-value">${v(d.restate)}</span></div>
+            <div class="preview-field"><span class="pf-label">Significance:</span> <span class="pf-value">${v(d.significance)}</span></div>`;
+        
+        document.getElementById('previewContent').innerHTML = html;
+        document.getElementById('previewOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closePreview() {
+        document.getElementById('previewOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // ===== 2. Copy to Clipboard =====
+    function copyOutline() {
+        const d = getOutlineData();
+        let text = '# Research Paper Outline\n\n';
+        text += `## Research Question\n${d.rq}\n\n`;
+        text += `## Thesis\n${d.thesis}\n\n`;
+        text += `---\n\n## Introduction\n**Hook:** ${d.hook}\n\n**Background:** ${d.bg}\n\n**Thesis:** ${d.thesis}\n\n`;
+        d.bodyParas.forEach(bp => {
+            text += `## Body Paragraph ${bp.num}: ${bp.sq}\n`;
+            text += `- **Claim:** ${bp.claim}\n`;
+            text += `- **Evidence:** ${bp.evidence}\n`;
+            text += `- **Reasoning:** ${bp.reasoning}\n\n`;
+        });
+        text += `## Conclusion\n**Restate Thesis:** ${d.restate}\n\n**Significance:** ${d.significance}\n`;
+
         navigator.clipboard.writeText(text).then(() => {
-            const indicator = document.getElementById('saveIndicator');
-            indicator.textContent = '✅ Outline copied to clipboard!';
-            indicator.style.color = 'var(--jade)';
-            setTimeout(() => { indicator.textContent = ''; }, 3000);
+            showIndicator('✅ Outline copied to clipboard!');
         }).catch(() => {
-            // Fallback: download as file
+            // Fallback: download
             const blob = new Blob([text], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'research-outline.md';
-            a.click();
+            a.href = url; a.download = 'research-outline.md'; a.click();
             URL.revokeObjectURL(url);
+            showIndicator('📥 Downloaded as research-outline.md');
         });
+    }
+
+    // ===== 3. Print / Save as PDF =====
+    function printOutline() {
+        openPreview();
+        setTimeout(() => { window.print(); }, 400);
+    }
+
+    // ===== 5. Download as .doc =====
+    function downloadDoc() {
+        const d = getOutlineData();
+        let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>Research Outline</title>
+<style>
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.8; color: #1a1a1a; max-width: 700px; margin: 0 auto; padding: 40px; }
+  h1 { font-size: 18pt; border-bottom: 2px solid #ccc; padding-bottom: 8px; }
+  h2 { font-size: 14pt; margin-top: 24px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  h2.intro { color: #2563eb; } h2.body { color: #c7403a; } h2.conclusion { color: #16a34a; }
+  .label { font-weight: bold; color: #555; font-size: 10pt; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sq { font-style: italic; color: #888; font-size: 11pt; margin-bottom: 6pt; }
+  p { margin: 6pt 0; }
+</style></head><body>
+<h1>Research Paper Outline</h1>
+<p><em>Research Question:</em> ${d.rq}</p>
+<h2 class="intro">I. Introduction</h2>
+<p><span class="label">Hook:</span> ${d.hook || '(not yet written)'}</p>
+<p><span class="label">Background:</span> ${d.bg || '(not yet written)'}</p>
+<p><span class="label">Thesis:</span> <strong>${d.thesis || '(not yet written)'}</strong></p>`;
+
+        d.bodyParas.forEach((bp, i) => {
+            const rn = toRoman(i + 2);
+            html += `<h2 class="body">${rn}. Body Paragraph ${bp.num}</h2>
+<p class="sq">Sub-Question: ${bp.sq}</p>
+<p><span class="label">Claim:</span> ${bp.claim || '(not yet written)'}</p>
+<p><span class="label">Evidence:</span> ${bp.evidence || '(not yet written)'}</p>
+<p><span class="label">Reasoning:</span> ${bp.reasoning || '(not yet written)'}</p>`;
+        });
+
+        const concNum = toRoman(d.bodyParas.length + 2);
+        html += `<h2 class="conclusion">${concNum}. Conclusion</h2>
+<p><span class="label">Restate Thesis:</span> ${d.restate || '(not yet written)'}</p>
+<p><span class="label">Significance:</span> ${d.significance || '(not yet written)'}</p>
+</body></html>`;
+
+        const blob = new Blob([html], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'research-outline.doc';
+        a.click();
+        URL.revokeObjectURL(url);
+        showIndicator('⬇️ Downloaded research-outline.doc');
+    }
+
+    function showIndicator(msg) {
+        const indicator = document.getElementById('saveIndicator');
+        indicator.textContent = msg;
+        indicator.style.color = 'var(--jade)';
+        setTimeout(() => { indicator.textContent = ''; indicator.style.color = ''; }, 3000);
     }
 
     // Auto-save to localStorage
@@ -1134,8 +1664,8 @@
             completedSteps: [...completedSteps],
             fields: {}
         };
-        document.querySelectorAll('.studio-input, [data-subq], [data-subq-piece], [data-hunt], [data-hunt-rel], [data-matrix-src], [data-matrix-finding], [data-outline-claim], [data-outline-evidence], [data-outline-reasoning]').forEach(el => {
-            const key = el.id || el.getAttribute('data-subq') || el.getAttribute('data-subq-piece') || el.getAttribute('data-hunt') || el.getAttribute('data-hunt-rel') || el.getAttribute('data-matrix-src') || el.getAttribute('data-matrix-finding') || el.getAttribute('data-outline-claim') || el.getAttribute('data-outline-evidence') || el.getAttribute('data-outline-reasoning');
+        document.querySelectorAll('.studio-input, [data-subq], [data-subq-piece], [data-hunt], [data-hunt-type], [data-hunt-rel], [data-hunt-eval], [data-matrix-finding], [data-matrix-synthesis], [data-outline-claim], [data-outline-evidence], [data-outline-reasoning]').forEach(el => {
+            const key = el.id || el.getAttribute('data-subq') || el.getAttribute('data-subq-piece') || el.getAttribute('data-hunt') || el.getAttribute('data-hunt-type') || el.getAttribute('data-hunt-rel') || el.getAttribute('data-hunt-eval') || el.getAttribute('data-matrix-finding') || el.getAttribute('data-matrix-synthesis') || el.getAttribute('data-outline-claim') || el.getAttribute('data-outline-evidence') || el.getAttribute('data-outline-reasoning');
             if (key) state.fields[key] = el.value;
         });
         // Save checkboxes
@@ -1172,9 +1702,11 @@
                                document.querySelector(`[data-subq="${key}"]`) ||
                                document.querySelector(`[data-subq-piece="${key}"]`) ||
                                document.querySelector(`[data-hunt="${key}"]`) ||
+                               document.querySelector(`[data-hunt-type="${key}"]`) ||
                                document.querySelector(`[data-hunt-rel="${key}"]`) ||
-                               document.querySelector(`[data-matrix-src="${key}"]`) ||
+                               document.querySelector(`[data-hunt-eval="${key}"]`) ||
                                document.querySelector(`[data-matrix-finding="${key}"]`) ||
+                               document.querySelector(`[data-matrix-synthesis="${key}"]`) ||
                                document.querySelector(`[data-outline-claim="${key}"]`) ||
                                document.querySelector(`[data-outline-evidence="${key}"]`) ||
                                document.querySelector(`[data-outline-reasoning="${key}"]`);
@@ -1375,6 +1907,118 @@
             textarea.setSelectionRange(text.length, text.length);
             saveState();
         }
+    }
+
+    // ===== THESIS COACH ENGINE =====
+    function analyzeThesis() {
+        const thesis = (document.getElementById('thesisStatement').value || '').trim();
+        const placeholder = document.getElementById('thesisFeedbackPlaceholder');
+        const result = document.getElementById('thesisFeedbackResult');
+        
+        if (!thesis || thesis.length < 15) {
+            placeholder.style.display = 'block';
+            result.classList.remove('visible');
+            placeholder.innerHTML = '⚠️ Draft a full thesis statement first before checking.';
+            return;
+        }
+
+        placeholder.style.display = 'none';
+        const feedback = [];
+        const lower = thesis.toLowerCase();
+        const words = thesis.split(/\\s+/);
+        let strengthPoints = 0;
+
+        // 1. Arguability (Subordinating Conjunctions indicating complexity/argument)
+        const argumentWords = ['although', 'while', 'despite', 'because', 'however', 'rather than', 'instead of', 'argues', 'demonstrates', 'ultimately', 'yet', 'even though'];
+        const hasArgument = argumentWords.some(w => lower.includes(w));
+        
+        if (hasArgument) {
+            feedback.push({
+                icon: '🟢',
+                text: '<strong>Strong arguability detected!</strong> Words like "although", "because", or "while" show you are setting up tension, acknowledging complexity, and making a distinct claim.'
+            });
+            strengthPoints += 2;
+        } else {
+            feedback.push({
+                icon: '🟡',
+                text: '<strong>Your thesis might be a statement of fact rather than an argument.</strong> A strong thesis is arguable. Try using a structure like: "Although [Counter-argument], ultimately [Your Claim] because [Reasoning]."'
+            });
+        }
+
+        // 2. Length/Depth Evaluation
+        if (words.length < 15) {
+            feedback.push({
+                icon: '🔴',
+                text: '<strong>Thesis is quite short.</strong> It likely lacks the detail needed to anchor an entire research paper. Ensure you explicitly state your main claim and at least a hint of your primary reasoning.'
+            });
+        } else if (words.length > 50) {
+            feedback.push({
+                icon: '🟡',
+                text: '<strong>Thesis is getting very long.</strong> Be careful not to write an entire paragraph. A thesis should be succinct (usually 1-2 robust sentences).'
+            });
+            strengthPoints += 1;
+        } else {
+            feedback.push({
+                icon: '🟢',
+                text: '<strong>Strong depth and length.</strong> It appears detailed enough to anchor an essay without rambling.'
+            });
+            strengthPoints += 1;
+        }
+
+        // 3. Connects to RQ (We check if it shares words with the RQ)
+        const rq = (document.getElementById('researchQuestion').value || '').toLowerCase();
+        let connectionFound = false;
+        if (rq.length > 10) {
+            const rqWords = rq.split(/\\s+/).filter(w => w.length > 4); // filter small words
+            const commonWords = rqWords.filter(w => lower.includes(w));
+            if (commonWords.length >= 1) {
+                connectionFound = true;
+                feedback.push({
+                    icon: '🟢',
+                    text: '<strong>Directly addresses the Research Question.</strong> It clearly uses relevant terminology from your central question.'
+                });
+                strengthPoints += 1;
+            }
+        }
+        
+        if (!connectionFound && rq.length > 10) {
+            feedback.push({
+                icon: '🟡',
+                text: '<strong>Does this answer your Research Question?</strong> Make sure your thesis directly responds to your core question in Step 2. Use the same key terms for clarity.'
+            });
+        }
+
+        // Generate final score suggestion
+        let suggestion = '';
+        if (strengthPoints >= 4) {
+            suggestion = `<div class="feedback-suggestion" style="border-top:2px solid var(--jade);">
+                <div class="feedback-suggestion-label" style="color:var(--jade);">🎯 Excellent Draft</div>
+                <p>Your thesis looks arguable, well-structured, and appropriately detailed. Use the Checklist above to quickly self-verify, then move on to Step 7 to build your outline!</p>
+            </div>`;
+        } else {
+            suggestion = `<div class="feedback-suggestion">
+                <div class="feedback-suggestion-label">💡 How to Strengthen This</div>
+                <p>To improve an emerging thesis, try using the standard formula to guarantee arguability:</p>
+                <div style="background:var(--subtle-bg);padding:10px;border-radius:4px;margin-top:10px;font-family:monospace;font-size:0.9rem;">
+                    "Although <strong>[Counterclaim]</strong>,<br>
+                    ultimately <strong>[Your position]</strong><br>
+                    because <strong>[Summary of strongest evidence]</strong>."
+                </div>
+            </div>`;
+        }
+
+        // Render response
+        let html = '';
+        feedback.forEach(f => {
+            html += `<div class="feedback-item">
+                <span class="feedback-icon">${f.icon}</span>
+                <div class="feedback-text">${f.text}</div>
+            </div>`;
+        });
+        html += suggestion;
+
+        result.innerHTML = html;
+        result.classList.add('visible');
     }
     </script>
 </body>
