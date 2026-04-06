@@ -49,6 +49,7 @@
             margin-top: var(--space-md);
         }
     </style>
+    <script>(function(){var t=localStorage.getItem("ahsas-theme");if(!t)t=window.matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t)})()</script>
 </head>
 <body>
     <div class="page-wrapper">
@@ -64,14 +65,19 @@
                     <button class="nav-toggle" aria-label="Toggle navigation">
                         <span></span><span></span><span></span>
                     </button>
-                    <ul class="nav-links">
+                                                            <ul class="nav-links">
                         <li><a href="/">Home</a></li>
                         <li><a href="/pieces.html">PIECES</a></li>
                         <li><a href="/cer.html">CER</a></li>
-                        <li><a href="/source-analyzer.html">Analyzer</a></li>
-                        <li><a href="/sources.html">Library</a></li>
-                        <li><a href="/timeline.html">Timeline</a></li>
-                        <li><a href="/compare.html">Compare</a></li>
+                        <li class="nav-dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">Tools ▾</a>
+                            <ul class="nav-dropdown-menu" role="menu">
+                                <li role="none"><a role="menuitem" href="/source-analyzer.html">🔍 Source Analyzer</a></li>
+                                <li role="none"><a role="menuitem" href="/sources.html">📚 Source Library</a></li>
+                                <li role="none"><a role="menuitem" href="/timeline.html">📅 Timeline</a></li>
+                                <li role="none"><a role="menuitem" href="/compare.html">⚖️ Compare</a></li>
+                            </ul>
+                        </li>
                         <li><a href="/seminar.html">Seminar</a></li>
                         <li><a href="/research.html">Research</a></li>
                     </ul>
