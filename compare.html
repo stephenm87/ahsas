@@ -201,6 +201,33 @@
             font-size: 0.82rem;
         }
 
+        /* Quality Gate Banner */
+        .quality-gate {
+            margin-top: var(--space-md);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            display: none;
+            animation: fadeUp 0.3s ease both;
+        }
+        .quality-gate.visible { display: block; }
+        .quality-gate.gate-pass {
+            background: rgba(45,138,110,0.08);
+            border: 1px solid rgba(45,138,110,0.25);
+            color: var(--jade);
+        }
+        .quality-gate.gate-warn {
+            background: rgba(212,160,57,0.08);
+            border: 1px solid rgba(212,160,57,0.25);
+            color: var(--gold);
+        }
+        .quality-gate.gate-fail {
+            background: rgba(199,62,58,0.08);
+            border: 1px solid rgba(199,62,58,0.25);
+            color: var(--vermillion);
+        }
+
         /* Guiding questions */
         .guiding-questions {
             margin-top: var(--space-sm);
@@ -405,9 +432,9 @@
             
 <!-- Bridge CTA -->
                 <div class="bridge-cta animate-in delay-3">
-                    <h4>🔬 Use these comparisons in your essay</h4>
-                    <p>Bring your comparative analysis into the Research Studio to develop a full inquiry project.</p>
-                    <a href="/research.html" class="btn btn-primary btn-sm">Open Research Studio →</a>
+                    <h4>🔬 Turn this comparison into a research project</h4>
+                    <p>Your comparative analysis can become the foundation for a full inquiry project in the Research Studio.</p>
+                    <button class="btn btn-primary btn-sm" id="btnSendToResearch" onclick="sendToResearch()">Turn into Research Project →</button>
                 </div>
 
             </div>
@@ -598,6 +625,7 @@
                     </p>
                     <textarea class="synthesis-textarea" id="synthesisField"
                         placeholder="Write your comparative thesis here...">${savedSynthesis}</textarea>
+                    <div id="gateSynthesis" class="quality-gate"></div>
                 </div>
             </div>`;
 
@@ -610,11 +638,16 @@
 
             area.innerHTML = html;
 
-            // Wire up auto-save
+            // Wire up auto-save & quality gate
             const textareas = area.querySelectorAll('textarea');
             textareas.forEach(ta => {
-                ta.addEventListener('input', debounce(saveState, 600));
+                ta.addEventListener('input', () => {
+                    debounce(saveState, 600)();
+                    if (ta.id === 'synthesisField') checkSynthesisQuality();
+                });
             });
+            // Initial check
+            setTimeout(() => checkSynthesisQuality(), 100);
 
             // Wire up export buttons
             document.getElementById('btnCopyCompare').addEventListener('click', copyAsText);
@@ -623,7 +656,45 @@
                 if (!confirm('Clear all comparison notes?')) return;
                 localStorage.removeItem(STORAGE_KEY);
                 textareas.forEach(ta => ta.value = '');
+                checkSynthesisQuality();
             });
+        }
+
+        function checkSynthesisQuality() {
+            const el = document.getElementById('synthesisField');
+            const gate = document.getElementById('gateSynthesis');
+            if (!el || !gate) return;
+
+            const val = el.value.trim();
+            const wc = val ? val.split(/\s+/).length : 0;
+            const lower = val.toLowerCase();
+
+            gate.className = 'quality-gate visible';
+
+            if (wc === 0) {
+                gate.classList.remove('visible');
+                return;
+            }
+
+            let issues = [];
+
+            if (wc < 20) {
+                issues.push({ icon: '🔴', text: `<strong>Too short.</strong> A synthetic thesis should fully address both subjects (~25 words). You have ${wc}.` });
+            }
+
+            const compWords = ['both', 'while', 'different', 'similar', 'whereas', 'however', 'differed', 'similarity', 'although', 'unlike', 'share'];
+            if (!compWords.some(w => lower.includes(w)) && wc > 5) {
+                issues.push({ icon: '🟡', text: '<strong>Use comparative language.</strong> Try using transition words like "while", "both", "whereas", or "differed" to show the relationship.' });
+            }
+
+            if (issues.length > 0) {
+                const hasRed = issues.some(i => i.icon === '🔴');
+                gate.classList.add(hasRed ? 'gate-fail' : 'gate-warn');
+                gate.innerHTML = issues.map(i => `<div style="margin-top:4px;">${i.icon} ${i.text}</div>`).join('');
+            } else {
+                gate.classList.add('gate-pass');
+                gate.innerHTML = `<div style="margin-top:4px;">✅ <strong>Strong comparative thesis.</strong> Ready for your research project. (${wc} words)</div>`;
+            }
         }
 
         function saveState() {
@@ -707,6 +778,30 @@
             }
         } catch(e) {}
     });
+
+    // ===== Cross-Tool Pipeline: Send to Research Studio =====
+    function sendToResearch() {
+        const selectA = document.getElementById('selectA');
+        const selectB = document.getElementById('selectB');
+        const synthesis = document.getElementById('synthesisField');
+        const unitA = selectA ? selectA.options[selectA.selectedIndex]?.text || '' : '';
+        const unitB = selectB ? selectB.options[selectB.selectedIndex]?.text || '' : '';
+        const comparison = unitA + ' vs. ' + unitB;
+        const handoff = {
+            comparison,
+            synthesis: synthesis ? synthesis.value || '' : '',
+            unitA: selectA ? selectA.value : '',
+            unitB: selectB ? selectB.value : '',
+            from: 'compare',
+            ts: Date.now()
+        };
+        try {
+            localStorage.setItem('ahsas_research_handoff', JSON.stringify(handoff));
+        } catch(e) {}
+        const btn = document.getElementById('btnSendToResearch');
+        if (btn) btn.textContent = '\u2713 Sent!';
+        setTimeout(() => { window.location.href = '/research.html'; }, 600);
+    }
     </script>
 </body>
 </html>

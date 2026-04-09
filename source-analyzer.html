@@ -265,6 +265,33 @@
             margin-right: auto;
         }
 
+        /* Quality Gate Banner */
+        .quality-gate {
+            margin-top: var(--space-md);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            display: none;
+            animation: fadeUp 0.3s ease both;
+        }
+        .quality-gate.visible { display: block; }
+        .quality-gate.gate-pass {
+            background: rgba(45,138,110,0.08);
+            border: 1px solid rgba(45,138,110,0.25);
+            color: var(--jade);
+        }
+        .quality-gate.gate-warn {
+            background: rgba(212,160,57,0.08);
+            border: 1px solid rgba(212,160,57,0.25);
+            color: var(--gold);
+        }
+        .quality-gate.gate-fail {
+            background: rgba(199,62,58,0.08);
+            border: 1px solid rgba(199,62,58,0.25);
+            color: var(--vermillion);
+        }
+
         /* Review panel */
         .review-section { margin-bottom: var(--space-xl); }
         .review-block {
@@ -406,10 +433,43 @@
             .eval-tab-label { font-size: 0.55rem; }
         }
 
+        /* Quality Gate Banner */
+        .quality-gate {
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: none;
+            animation: fadeUp 0.35s var(--ease) both;
+        }
+        .quality-gate.visible { display: block; }
+        .quality-gate.gate-pass { background: rgba(45,138,110,0.08); border: 1px solid rgba(45,138,110,0.25); color: var(--jade); }
+        .quality-gate.gate-fail { background: rgba(199,62,58,0.08); border: 1px solid rgba(199,62,58,0.25); color: var(--vermillion); }
+        .quality-gate.gate-warn { background: rgba(212,160,57,0.08); border: 1px solid rgba(212,160,57,0.25); color: var(--gold); }
+        .quality-gate strong { color: inherit; }
+        .gate-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; }
+        .gate-item:last-child { margin-bottom: 0; }
+        .gate-icon { flex-shrink: 0; font-size: 1rem; line-height: 1.4; }
+
+        /* Observation checklist */
+        .observe-checklist { margin-top: var(--space-md); }
+        .observe-check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+            transition: color 0.3s ease;
+        }
+        .observe-check-item.checked { color: var(--jade); }
+        .observe-check-icon { font-size: 0.9rem; width: 18px; text-align: center; }
+
         /* Print styles */
         @media print {
             .step-progress, .step-nav, .ps-toggle, .source-type-row,
-            .save-indicator, .no-print { display: none !important; }
+            .save-indicator, .no-print, .quality-gate, .observe-checklist { display: none !important; }
             .review-block {
                 background: #fff !important;
                 border: 1px solid #ddd !important;
@@ -533,8 +593,15 @@
                             <label class="form-label" for="observeNotes">Your Observations</label>
                             <textarea id="observeNotes" class="form-textarea"
                                 placeholder="Write what you observe — focus on what's literally there, not interpretation yet..."></textarea>
-                            <div class="word-count" id="wcObserveNotes">0 words</div>
+                            <div class="word-count" id="wcObserveNotes">0 words · Minimum 20 words to continue</div>
                         </div>
+                        <div class="observe-checklist" id="observeChecklist">
+                            <div class="observe-check-item" data-check="details"><span class="observe-check-icon">☐</span> Mentions specific details (names, dates, places)</div>
+                            <div class="observe-check-item" data-check="format"><span class="observe-check-icon">☐</span> Describes format or structure of the source</div>
+                            <div class="observe-check-item" data-check="tone"><span class="observe-check-icon">☐</span> Notes tone, mood, or perspective</div>
+                            <div class="observe-check-item" data-check="words"><span class="observe-check-icon">☐</span> At least 20 words written</div>
+                        </div>
+                        <div class="quality-gate" id="observeGate"></div>
                     </div>
                 </div>
 
@@ -559,6 +626,7 @@
                             <label class="form-label" for="evalFieldActive" id="evalFieldLabel">Historical Context</label>
                             <textarea id="evalFieldActive" class="form-textarea"
                                 placeholder=""></textarea>
+                            <div id="gateEval" class="quality-gate"></div>
                         </div>
 
                         <!-- Hidden storage for each eval tab's value -->
@@ -613,6 +681,7 @@
                             <label class="form-label" for="piecesExplanation">How does this source connect to the selected themes?</label>
                             <textarea id="piecesExplanation" class="form-textarea"
                                 placeholder="Explain how this source relates to the PIECES theme(s) you selected. What does it reveal about political systems, cultural exchange, economic activity, etc.?"></textarea>
+                            <div id="gatePieces" class="quality-gate"></div>
                         </div>
                     </div>
                 </div>
@@ -635,6 +704,7 @@
                             <textarea id="cerClaim" class="form-textarea"
                                 placeholder="Write an arguable claim that this source helps support. Be specific and connect to a PIECES theme."></textarea>
                             <div class="word-count" id="wcCerClaim">0 words</div>
+                            <div id="gateCerClaim" class="quality-gate"></div>
                         </div>
 
                         <div class="form-group">
@@ -642,6 +712,7 @@
                             <textarea id="cerEvidence" class="form-textarea"
                                 placeholder="Quote or cite specific details from the source. Include dates, names, numbers, or direct quotes."></textarea>
                             <div class="word-count" id="wcCerEvidence">0 words</div>
+                            <div id="gateCerEvidence" class="quality-gate"></div>
                         </div>
 
                         <div class="form-group">
@@ -649,6 +720,7 @@
                             <textarea id="cerReasoning" class="form-textarea"
                                 placeholder="Explain how your evidence proves your claim. Connect to PIECES themes and discuss broader significance."></textarea>
                             <div class="word-count" id="wcCerReasoning">0 words</div>
+                            <div id="gateCerReasoning" class="quality-gate"></div>
                         </div>
                     </div>
                 </div>
@@ -668,6 +740,7 @@
                     <div class="btn-row mt-xl no-print">
                         <button class="btn btn-primary" id="btnPrintAnalysis">🖨️ Print Analysis</button>
                         <button class="btn btn-secondary" id="btnCopyAnalysis">📋 Copy as Text</button>
+                        <button class="btn btn-primary" id="btnSendToCER">✍️ Send to CER Builder →</button>
                         <button class="btn btn-secondary btn-muted" id="btnClearAll">↺ Start New Analysis</button>
                     </div>
                 </div>

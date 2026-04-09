@@ -131,6 +131,33 @@
         .section-heading-vermillion { color: var(--vermillion); }
         .section-heading-gold { color: var(--gold); }
         .section-border-bottom { border-bottom: 1px solid var(--subtle-border); }
+        
+        /* Quality Gate Banner */
+        .quality-gate {
+            margin-top: 6px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            display: none;
+            animation: fadeUp 0.3s ease both;
+        }
+        .quality-gate.visible { display: block; }
+        .quality-gate.gate-pass {
+            background: rgba(45,138,110,0.08);
+            border: 1px solid rgba(45,138,110,0.25);
+            color: var(--jade);
+        }
+        .quality-gate.gate-warn {
+            background: rgba(212,160,57,0.08);
+            border: 1px solid rgba(212,160,57,0.25);
+            color: var(--gold);
+        }
+        .quality-gate.gate-fail {
+            background: rgba(199,62,58,0.08);
+            border: 1px solid rgba(199,62,58,0.25);
+            color: var(--vermillion);
+        }
         .section-border-top { border-top: 1px solid var(--subtle-border); }
         .total-label {
             color: var(--gold);
@@ -200,6 +227,48 @@
                         Your central hub for tracking discussion contributions and reflecting on the depth of your argumentation and collaboration skills.
                     </p>
                 </div>
+
+                <!-- Section 0: Discussion Prep (NEW) -->
+                <details class="seminar-section animate-in delay-1" open>
+                    <summary>
+                        <span>🎯 Discussion Prep</span>
+                        <span class="section-chevron">▼</span>
+                    </summary>
+                    <div class="seminar-section-body">
+                        <div class="card">
+                            <div class="card-header pb-sm mb-md flex-row justify-between align-center section-border-bottom">
+                                <h2 class="h3 margin-0"><span class="section-heading-jade">🎯</span> Discussion Prep</h2>
+                            </div>
+                            <p class="text-xs text-muted mb-md">Prepare your argument BEFORE the seminar. Students who prep make stronger contributions and earn higher marks.</p>
+
+                            <div style="margin-bottom:var(--space-md);" id="prepImportBanner"></div>
+
+                            <div style="margin-bottom:var(--space-md);">
+                                <label style="font-weight:600;font-size:0.85rem;display:block;margin-bottom:4px;color:var(--jade);">What claim will you defend?</label>
+                                <textarea id="prepClaim" class="eval-textarea" rows="2" placeholder="State the main argument you plan to make in the seminar..." style="width:100%;"></textarea>
+                                <div id="gateClaim" class="quality-gate"></div>
+                            </div>
+                            <div style="margin-bottom:var(--space-md);">
+                                <label style="font-weight:600;font-size:0.85rem;display:block;margin-bottom:4px;color:var(--jade);">What evidence will you use?</label>
+                                <textarea id="prepEvidence" class="eval-textarea" rows="2" placeholder="List specific facts, dates, or examples you'll reference..." style="width:100%;"></textarea>
+                                <div id="gateEvidence" class="quality-gate"></div>
+                            </div>
+
+                            <div style="background:var(--subtle-bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-md);margin-bottom:var(--space-md);">
+                                <label style="font-weight:600;font-size:0.85rem;display:block;margin-bottom:4px;color:var(--vermillion);">⚔️ What counter-argument might someone raise?</label>
+                                <p class="text-xs text-muted" style="margin-bottom:8px;">Anticipating disagreement is a sign of deep thinking. What would someone who DISAGREES with you say?</p>
+                                <textarea id="prepCounter" class="eval-textarea" rows="2" placeholder="Someone might argue that..." style="width:100%;"></textarea>
+                                <div id="gateCounter" class="quality-gate"></div>
+                            </div>
+                            <div style="background:var(--subtle-bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-md);">
+                                <label style="font-weight:600;font-size:0.85rem;display:block;margin-bottom:4px;color:var(--gold);">🛡️ How would you respond to that counter-argument?</label>
+                                <p class="text-xs text-muted" style="margin-bottom:8px;">This is your defense. Acknowledge the counter-argument, then explain why your position is still stronger.</p>
+                                <textarea id="prepResponse" class="eval-textarea" rows="2" placeholder="While that's a valid point, my position holds because..." style="width:100%;"></textarea>
+                                <div id="gateResponse" class="quality-gate"></div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
 
                 <!-- Section 1: Peer Tracking (default open) -->
                 <details class="seminar-section animate-in delay-1" open>

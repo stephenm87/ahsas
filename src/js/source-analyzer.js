@@ -157,6 +157,7 @@
     setupAutoSave();
     setupExport();
     setupWordCounts();
+    setupCERPipeline();
     updateQuestions();
     renderStep();
   }
@@ -170,6 +171,11 @@
     const title = params.get('title');
     const titleEl = document.getElementById('sourceTitle');
     if (titleEl && title && !titleEl.value) titleEl.value = title;
+
+    // Pre-fill source content from snippet
+    const snippet = params.get('snippet');
+    const contentEl = document.getElementById('sourceContent');
+    if (contentEl && snippet && !contentEl.value) contentEl.value = snippet;
 
     // Pre-fill source format type (text, image, map, data)
     const type = params.get('type');
@@ -196,8 +202,10 @@
     // Clean URL params without page reload
     window.history.replaceState({}, '', window.location.pathname);
 
-    // Show a toast
-    if (window.showToast) window.showToast('Source pre-filled: ' + title);
+    // Show a toast with creator info if available
+    const creator = params.get('creator');
+    const toastMsg = 'Source pre-filled: ' + title + (creator ? ' by ' + creator : '');
+    if (window.showToast) window.showToast(toastMsg);
   }
 
   // ===== Source Type =====
@@ -297,6 +305,7 @@
         activeEvalTab = parseInt(btn.dataset.tab, 10);
         renderEvalTab();
         saveState();
+        checkAnalyzerQuality('evalFieldActive');
       });
     });
   }
@@ -366,6 +375,21 @@
   function setupNavigation() {
     btnNext.addEventListener('click', () => {
       syncEvalField();
+      // Quality gate on Observe step (step 0)
+      if (currentStep === 0) {
+        const obs = val('observeNotes');
+        const wc = obs ? obs.split(/\s+/).length : 0;
+        const gate = document.getElementById('observeGate');
+        if (wc < 18) { // strict with slight tolerance
+          if (gate) {
+            gate.className = 'quality-gate gate-fail visible';
+            gate.innerHTML = '<div class="gate-item"><span class="gate-icon">🔴</span><span><strong>Observations too brief.</strong> Write at least 20 words describing what you see in the source. You have ' + wc + '.</span></div>';
+          }
+          return;
+        } else {
+          if (gate) gate.className = 'quality-gate';
+        }
+      }
       if (currentStep < TOTAL_STEPS - 1) {
         currentStep++;
         renderStep();
@@ -525,7 +549,7 @@
     container.innerHTML = html;
   }
 
-  // ===== Auto-save =====
+  // ===== Auto-save & Quality Gates =====
   function setupAutoSave() {
     FIELDS.forEach(id => {
       const el = document.getElementById(id);
@@ -533,6 +557,7 @@
       el.addEventListener('input', debounce(() => {
         saveState();
         flashSave();
+        checkAnalyzerQuality(id);
       }, 400));
     });
 
@@ -543,8 +568,18 @@
         syncEvalField();
         saveState();
         flashSave();
+        checkAnalyzerQuality('evalFieldActive');
       }, 400));
     }
+    
+    // Initial checks
+    setTimeout(() => {
+      checkAnalyzerQuality('evalFieldActive');
+      checkAnalyzerQuality('piecesExplanation');
+      checkAnalyzerQuality('cerClaim');
+      checkAnalyzerQuality('cerEvidence');
+      checkAnalyzerQuality('cerReasoning');
+    }, 500);
   }
 
   function saveState() {
@@ -700,11 +735,124 @@
       const update = () => {
         const text = ta.value.trim();
         const words = text ? text.split(/\s+/).length : 0;
-        wc.textContent = words + ' word' + (words !== 1 ? 's' : '');
+        const minLabel = taId === 'observeNotes' ? ' \u00b7 Minimum 20 words to continue' : '';
+        wc.textContent = words + ' word' + (words !== 1 ? 's' : '') + minLabel;
         wc.classList.toggle('has-content', words > 0);
+        // Auto-update observation checklist
+        if (taId === 'observeNotes') updateObserveChecklist(text, words);
       };
       ta.addEventListener('input', update);
       update(); // Init
+    });
+  }
+
+  // ===== Observation Checklist Auto-Check =====
+  function updateObserveChecklist(text, wordCount) {
+    const lower = (text || '').toLowerCase();
+    const checks = {
+      details: /\b\d{3,4}\b/.test(text) || /[A-Z][a-z]{2,}/.test(text),
+      format: ['letter', 'speech', 'law', 'decree', 'artwork', 'painting', 'map', 'chart', 'document', 'text', 'treaty', 'diary', 'photograph', 'edict', 'poem', 'scroll', 'inscription', 'memoir'].some(w => lower.includes(w)),
+      tone: ['tone', 'mood', 'perspective', 'formal', 'informal', 'persuasive', 'urgent', 'defensive', 'critical', 'celebratory', 'solemn', 'authoritative', 'confident', 'emotional', 'neutral', 'biased', 'sympathetic'].some(w => lower.includes(w)),
+      words: wordCount >= 20
+    };
+    document.querySelectorAll('.observe-check-item').forEach(item => {
+      const key = item.dataset.check;
+      const icon = item.querySelector('.observe-check-icon');
+      if (checks[key]) {
+        item.classList.add('checked');
+        if (icon) icon.textContent = '\u2611';
+      } else {
+        item.classList.remove('checked');
+        if (icon) icon.textContent = '\u2610';
+      }
+    });
+  }
+
+  // ===== Quality Gate Engine =====
+  function checkAnalyzerQuality(id) {
+    const el = document.getElementById(id);
+    let gateId = '';
+    if (id === 'evalFieldActive') gateId = 'gateEval';
+    else if (id === 'piecesExplanation') gateId = 'gatePieces';
+    else if (id === 'cerClaim') gateId = 'gateCerClaim';
+    else if (id === 'cerEvidence') gateId = 'gateCerEvidence';
+    else if (id === 'cerReasoning') gateId = 'gateCerReasoning';
+    
+    if (!gateId) return;
+    const gate = document.getElementById(gateId);
+    if (!el || !gate) return;
+
+    const val = el.value.trim();
+    const wc = val ? val.split(/\s+/).length : 0;
+    const lower = val.toLowerCase();
+
+    gate.className = 'quality-gate visible';
+
+    if (wc === 0) {
+      gate.classList.remove('visible');
+      return;
+    }
+
+    let issues = [];
+
+    if (id === 'evalFieldActive') {
+      if (wc < 12) issues.push({ icon: '🔴', text: `<strong>Develop your thoughts.</strong> This evaluation needs to be more detailed (~15 words). You have ${wc}.` });
+    } 
+    else if (id === 'piecesExplanation') {
+      if (wc < 12) issues.push({ icon: '🔴', text: `<strong>Needs detail.</strong> Explain how the source demonstrates the theme (~15 words). You have ${wc}.` });
+      const connectors = ['shows', 'demonstrates', 'reveals', 'highlights', 'because', 'indicates'];
+      if (!connectors.some(c => lower.includes(c)) && wc >= 5) {
+        issues.push({ icon: '🟡', text: '<strong>Show the connection:</strong> Try using verbs like "demonstrates," "reveals," or "shows that" to explain the connection.' });
+      }
+    } 
+    else if (id === 'cerClaim') {
+      if (wc < 8) issues.push({ icon: '🔴', text: `<strong>Too short.</strong> A claim must be a complete sentence taking a stance (~10 words). You have ${wc}.` });
+      const arguable = ['because', 'although', 'while', 'however'];
+      if (!arguable.some(a => lower.includes(a)) && wc >= 8) {
+        issues.push({ icon: '🟡', text: '<strong>Checking arguability:</strong> Is this a historical fact or an argument? Try adding "because" to make it debatable.' });
+      }
+    }
+    else if (id === 'cerEvidence') {
+      if (wc < 12) issues.push({ icon: '🔴', text: `<strong>Be specific.</strong> Evidence needs specific facts, dates, or quotes (~15 words). You have ${wc}.` });
+    }
+    else if (id === 'cerReasoning') {
+      if (wc < 15) issues.push({ icon: '🔴', text: `<strong>Unpack the evidence.</strong> Explain exactly *how* the evidence proves the claim (~20 words). You have ${wc}.` });
+      const reasonWords = ['proves', 'shows', 'because', 'demonstrates', 'means'];
+      if (!reasonWords.some(r => lower.includes(r)) && wc >= 10) {
+        issues.push({ icon: '🟡', text: '<strong>Connect it back:</strong> Use words like "This proves that..." or "This demonstrates..."' });
+      }
+    }
+
+    if (issues.length > 0) {
+      const hasRed = issues.some(i => i.icon === '🔴');
+      gate.classList.add(hasRed ? 'gate-fail' : 'gate-warn');
+      gate.innerHTML = issues.map(i => `<div style="margin-top:4px;">${i.icon} ${i.text}</div>`).join('');
+    } else {
+      gate.classList.add('gate-pass');
+      gate.innerHTML = `<div style="margin-top:4px;">✅ <strong>Solid work.</strong> (${wc} words)</div>`;
+    }
+  }
+
+  // ===== Send to CER Builder Pipeline =====
+  function setupCERPipeline() {
+    const btn = document.getElementById('btnSendToCER');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const handoff = {
+        claim: val('cerClaim'),
+        evidence: val('cerEvidence'),
+        reasoning: val('cerReasoning'),
+        theme: selectedPiecesThemes.size > 0 ? Array.from(selectedPiecesThemes)[0] : '',
+        sourceTitle: val('sourceTitle'),
+        from: 'source-analyzer',
+        ts: Date.now()
+      };
+      try {
+        localStorage.setItem('ahsas_cer_handoff', JSON.stringify(handoff));
+      } catch(e) {}
+      // Navigate to CER builder
+      btn.textContent = '\u2713 Sent!';
+      setTimeout(() => { window.location.href = '/cer-builder.html'; }, 600);
     });
   }
 

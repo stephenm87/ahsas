@@ -455,12 +455,68 @@
             .review-actions { flex-wrap: wrap; }
         }
 
+        /* Quality Gate Banner */
+        .quality-gate {
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: none;
+            animation: fadeUp 0.3s var(--ease) both;
+        }
+        .quality-gate.visible { display: block; }
+        .quality-gate.gate-pass {
+            background: rgba(45,138,110,0.08);
+            border: 1px solid rgba(45,138,110,0.25);
+            color: var(--jade);
+        }
+        .quality-gate.gate-warn {
+            background: rgba(212,160,57,0.08);
+            border: 1px solid rgba(212,160,57,0.25);
+            color: var(--gold);
+        }
+        .quality-gate.gate-fail {
+            background: rgba(199,62,58,0.08);
+            border: 1px solid rgba(199,62,58,0.25);
+            color: var(--vermillion);
+        }
+        .quality-gate strong { color: inherit; }
+        .gate-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; }
+        .gate-item:last-child { margin-bottom: 0; }
+        .gate-icon { flex-shrink: 0; font-size: 1rem; line-height: 1.4; }
+
+        /* Import banner */
+        .import-banner {
+            padding: var(--space-md);
+            background: rgba(45,138,110,0.08);
+            border: 1px solid rgba(45,138,110,0.2);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            color: var(--jade);
+            margin-bottom: var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeUp 0.3s var(--ease) both;
+        }
+        .import-banner .dismiss-import {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--jade);
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.6;
+        }
+        .import-banner .dismiss-import:hover { opacity: 1; }
+
         /* Print styles */
         @media print {
             body::before, body::after, .site-header, .site-footer,
             .steps-bar, .step-nav, .hint-btn, .hint-bubble,
             .builder-hero, .builder-actions, .example-bank,
-            .toast, .no-print { display: none !important; }
+            .toast, .no-print, .quality-gate, .import-banner { display: none !important; }
             body { background: #fff; color: #1a1a1a; font-size: 11pt; }
             .step-panel { display: block !important; }
             .step-panel[data-step="0"],
@@ -593,6 +649,7 @@
                         <textarea id="claimInput" class="builder-textarea" 
                             placeholder="Example: The Silk Road's greatest impact was cultural exchange between East and West, which fundamentally transformed artistic traditions in both regions."></textarea>
                         <div class="word-count" id="claimWordCount">0 words</div>
+                        <div class="quality-gate" id="claimGate"></div>
 
                         <div class="step-nav">
                             <span></span>
@@ -630,6 +687,7 @@
                         <textarea id="evidenceInput" class="builder-textarea" 
                             placeholder="Example: According to Marco Polo's account (c. 1300), Chinese paper-making techniques spread westward along the Silk Road, reaching Samarkand by the 8th century and eventually transforming European literacy rates."></textarea>
                         <div class="word-count" id="evidenceWordCount">0 words</div>
+                        <div class="quality-gate" id="evidenceGate"></div>
 
                         <div class="step-nav">
                             <button class="btn btn-secondary" id="backToStep1">← Claim</button>
@@ -664,6 +722,7 @@
                         <textarea id="reasoningInput" class="builder-textarea" 
                             placeholder="Example: This evidence demonstrates that the Silk Road was more than a trade route — it was a conduit for intellectual exchange. The spread of paper-making from China to Europe illustrates how technological diffusion along this network had lasting cultural consequences far beyond commerce."></textarea>
                         <div class="word-count" id="reasoningWordCount">0 words</div>
+                        <div class="quality-gate" id="reasoningGate"></div>
 
                         <div class="step-nav">
                             <button class="btn btn-secondary" id="backToStep2">← Evidence</button>
@@ -722,6 +781,7 @@
                                 <button class="btn btn-secondary" id="btnCopyCER">📋 Copy</button>
                                 <button class="btn btn-secondary" id="btnPrintCER">🖨️ Print</button>
                                 <button class="btn btn-secondary" id="btnDownloadCER">⬇️ Download</button>
+                                <button class="btn btn-primary" id="btnSendToResearch">🔬 Develop into Research →</button>
                                 <button class="btn btn-jade" id="btnStartOver">🔄 New CER</button>
                             </div>
                         </div>
@@ -1004,19 +1064,152 @@
         });
 
         // Navigation buttons
+        // ===== Quality Gate Checks =====
+        function wordCount(text) {
+            const t = text.trim();
+            return t ? t.split(/\s+/).length : 0;
+        }
+
+        function checkClaimQuality(claim) {
+            const issues = [];
+            const wc = wordCount(claim);
+            const lower = claim.toLowerCase();
+
+            // Word count check (strict: ≥10 with tolerance)
+            if (wc < 10) {
+                issues.push({ icon: '🔴', text: '<strong>Too short.</strong> A claim must be a complete, arguable sentence (at least 10 words). You have ' + wc + '.' });
+            }
+
+            // Closed-ended / factual check
+            const factualStarts = ['the silk road was', 'china was', 'the tang dynasty was', 'the mongol empire was'];
+            const endsWithPeriodNoArgue = !lower.includes('because') && !lower.includes('although') && !lower.includes('while') && !lower.includes('however') && !lower.includes('despite') && !lower.includes('most significant') && !lower.includes('greatest') && !lower.includes('primary') && !lower.includes('fundamentally') && !lower.includes('ultimately');
+            if (factualStarts.some(s => lower.startsWith(s)) && endsWithPeriodNoArgue && wc >= 10) {
+                issues.push({ icon: '🟡', text: '<strong>This may be a statement of fact, not an argument.</strong> Try adding "because", "although", or making a specific evaluative claim that someone could debate.' });
+            }
+
+            // Ends with question mark
+            if (claim.endsWith('?')) {
+                issues.push({ icon: '🔴', text: '<strong>A claim is a statement, not a question.</strong> Rewrite it as a clear position.' });
+            }
+
+            // PIECES connection nudge
+            if (!selectedTheme && wc >= 10) {
+                issues.push({ icon: '🟡', text: '<strong>No PIECES theme selected.</strong> Connecting to a PIECES lens will sharpen your argument and help you frame your evidence.' });
+            }
+
+            return issues;
+        }
+
+        function checkEvidenceQuality(evidence) {
+            const issues = [];
+            const wc = wordCount(evidence);
+            const lower = evidence.toLowerCase();
+            const claim = document.getElementById('claimInput').value.trim().toLowerCase();
+
+            if (wc < 15) {
+                issues.push({ icon: '🔴', text: '<strong>Evidence too brief.</strong> You need at least 15 words of specific, paraphrased evidence. You have ' + wc + '.' });
+            }
+
+            // Check for direct quotes (discourage — evidence should be paraphrased)
+            const hasQuotes = /"[^"]{10,}"/.test(evidence) || /"[^"]{10,}"/.test(evidence);
+            if (hasQuotes) {
+                issues.push({ icon: '🟡', text: '<strong>Remember to paraphrase.</strong> In our class, evidence should be paraphrased in your own words — not directly quoted. Demonstrate your understanding by restating the key information.' });
+            }
+
+            // Check for specificity (dates, numbers, proper nouns)
+            const hasDate = /\b\d{3,4}\b/.test(evidence);
+            const hasName = /[A-Z][a-z]{2,}/.test(evidence);
+            if (!hasDate && !hasName && wc >= 15) {
+                issues.push({ icon: '🟡', text: '<strong>Add specific details.</strong> Strong evidence includes dates, names, places, or data. Vague evidence weakens your argument.' });
+            }
+
+            // Check source name
+            const sourceName = document.getElementById('sourceInput').value.trim();
+            if (!sourceName && wc >= 15) {
+                issues.push({ icon: '🔴', text: '<strong>Name your source.</strong> Fill in the source citation field above — your reader needs to know where this evidence comes from.' });
+            }
+
+            // Check for restating the claim
+            if (claim.length > 20 && wc >= 15) {
+                const claimWords = claim.split(/\s+/).filter(w => w.length > 4);
+                const evidenceWords = lower.split(/\s+/).filter(w => w.length > 4);
+                const overlap = claimWords.filter(w => evidenceWords.includes(w));
+                if (overlap.length > claimWords.length * 0.6) {
+                    issues.push({ icon: '🟡', text: '<strong>Your evidence sounds like your claim.</strong> Evidence should be specific, paraphrased facts from a source — not a restatement of your argument.' });
+                }
+            }
+
+            return issues;
+        }
+
+        function checkReasoningQuality(reasoning) {
+            const issues = [];
+            const wc = wordCount(reasoning);
+            const lower = reasoning.toLowerCase();
+            const evidence = document.getElementById('evidenceInput').value.trim().toLowerCase();
+
+            if (wc < 20) {
+                issues.push({ icon: '🔴', text: '<strong>Reasoning too brief.</strong> You need at least 20 words to explain WHY your evidence supports your claim. You have ' + wc + '.' });
+            }
+
+            // Check for analytical connectors
+            const connectors = ['because', 'this demonstrates', 'this reveals', 'this is significant', 'as a result', 'this shows', 'this suggests', 'this illustrates', 'therefore', 'consequently', 'this evidence', 'this proves'];
+            const hasConnector = connectors.some(c => lower.includes(c));
+            if (!hasConnector && wc >= 20) {
+                issues.push({ icon: '🟡', text: '<strong>Missing analytical language.</strong> Use phrases like "This demonstrates that…", "This is significant because…", or "This reveals…" to connect evidence to your claim.' });
+            }
+
+            // Check for restating evidence
+            if (evidence.length > 20 && wc >= 20) {
+                const evidenceWords = evidence.split(/\s+/).filter(w => w.length > 4);
+                const reasoningWords = lower.split(/\s+/).filter(w => w.length > 4);
+                const overlap = evidenceWords.filter(w => reasoningWords.includes(w));
+                if (overlap.length > evidenceWords.length * 0.6) {
+                    issues.push({ icon: '🟡', text: '<strong>Your reasoning mostly repeats your evidence.</strong> Reasoning should explain the "so what" — why does this evidence matter? What broader historical significance does it reveal?' });
+                }
+            }
+
+            return issues;
+        }
+
+        function renderGate(gateId, issues, minWordCount, currentWC) {
+            const gate = document.getElementById(gateId);
+            if (!gate) return issues.length === 0;
+
+            if (issues.length === 0) {
+                gate.className = 'quality-gate gate-pass visible';
+                gate.innerHTML = '<div class="gate-item"><span class="gate-icon">✅</span><span>Looking strong — proceed when ready.</span></div>';
+                return true;
+            }
+
+            const hasRed = issues.some(i => i.icon === '🔴');
+            gate.className = 'quality-gate visible ' + (hasRed ? 'gate-fail' : 'gate-warn');
+            gate.innerHTML = issues.map(i => '<div class="gate-item"><span class="gate-icon">' + i.icon + '</span><span>' + i.text + '</span></div>').join('');
+            return !hasRed; // Can proceed if no red issues
+        }
+
         document.getElementById('toStep2').addEventListener('click', () => {
             const claim = document.getElementById('claimInput').value.trim();
             if (!claim) { shake(document.getElementById('claimInput')); return; }
+            const issues = checkClaimQuality(claim);
+            const canProceed = renderGate('claimGate', issues, 10, wordCount(claim));
+            if (!canProceed) return;
             goToStep(1);
         });
         document.getElementById('toStep3').addEventListener('click', () => {
             const evidence = document.getElementById('evidenceInput').value.trim();
             if (!evidence) { shake(document.getElementById('evidenceInput')); return; }
+            const issues = checkEvidenceQuality(evidence);
+            const canProceed = renderGate('evidenceGate', issues, 15, wordCount(evidence));
+            if (!canProceed) return;
             goToStep(2);
         });
         document.getElementById('toStep4').addEventListener('click', () => {
             const reasoning = document.getElementById('reasoningInput').value.trim();
             if (!reasoning) { shake(document.getElementById('reasoningInput')); return; }
+            const issues = checkReasoningQuality(reasoning);
+            const canProceed = renderGate('reasoningGate', issues, 20, wordCount(reasoning));
+            if (!canProceed) return;
             goToStep(3);
         });
         document.getElementById('backToStep1').addEventListener('click', () => goToStep(0));
@@ -1258,8 +1451,68 @@
             setTimeout(() => t.classList.remove('visible'), 2500);
         }
 
+        // ===== Cross-Tool Pipeline: Import from Source Analyzer =====
+        function checkHandoff() {
+            try {
+                const raw = localStorage.getItem('ahsas_cer_handoff');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                localStorage.removeItem('ahsas_cer_handoff');
+
+                // Pre-fill fields
+                if (data.claim) document.getElementById('claimInput').value = data.claim;
+                if (data.evidence) document.getElementById('evidenceInput').value = data.evidence;
+                if (data.reasoning) document.getElementById('reasoningInput').value = data.reasoning;
+                if (data.theme) {
+                    selectedTheme = data.theme;
+                    chips.forEach(c => {
+                        if (c.dataset.theme.toLowerCase() === data.theme.toLowerCase()) c.classList.add('selected');
+                    });
+                }
+
+                // Update word counts
+                ['claimInput', 'evidenceInput', 'reasoningInput'].forEach(id => {
+                    const ta = document.getElementById(id);
+                    if (ta) ta.dispatchEvent(new Event('input'));
+                });
+
+                hideEmptyState();
+                saveState();
+
+                // Show import banner
+                const hero = document.querySelector('.builder-hero');
+                if (hero) {
+                    const banner = document.createElement('div');
+                    banner.className = 'import-banner';
+                    banner.innerHTML = '✍️ <strong>Imported from Source Analysis' + (data.sourceTitle ? ': ' + data.sourceTitle : '') + '.</strong> Edit and refine your argument.' +
+                        '<button class="dismiss-import" onclick="this.parentElement.remove()">✕</button>';
+                    hero.after(banner);
+                }
+            } catch(e) {}
+        }
+
+        // ===== Cross-Tool Pipeline: Send to Research Studio =====
+        document.getElementById('btnSendToResearch').addEventListener('click', () => {
+            const claim = document.getElementById('claimInput').value.trim();
+            const evidence = document.getElementById('evidenceInput').value.trim();
+            const source = document.getElementById('sourceInput').value.trim();
+            const reasoning = document.getElementById('reasoningInput').value.trim();
+
+            const handoff = {
+                claim, evidence, reasoning, source,
+                theme: selectedTheme,
+                sourceType: selectedSource,
+                from: 'cer-builder',
+                ts: Date.now()
+            };
+            localStorage.setItem('ahsas_research_handoff', JSON.stringify(handoff));
+            showToast('🔬 Sent to Research Studio!');
+            setTimeout(() => { window.location.href = '/research.html'; }, 800);
+        });
+
         // Load saved state on page load
         loadState();
+        checkHandoff();
     })();
     </script>
 </body>

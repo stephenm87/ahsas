@@ -218,6 +218,67 @@
             border-radius: 2px;
             transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
+
+        /* ===== Thinking Journey ===== */
+        .journey-section {
+            margin-bottom: var(--space-xl);
+            display: none;
+        }
+        .journey-section.visible { display: block; }
+        .journey-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+        .journey-header h2 {
+            font-size: 1.15rem;
+            margin: 0;
+            font-weight: 600;
+        }
+        .journey-flow {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            overflow-x: auto;
+            padding-bottom: var(--space-sm);
+        }
+        .journey-node {
+            flex: 0 0 auto;
+            min-width: 140px;
+            max-width: 180px;
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text);
+            transition: all var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        .journey-node:hover { border-color: var(--jade); transform: translateY(-2px); }
+        .journey-node.dimmed { opacity: 0.45; }
+        .journey-node.active { border-color: var(--jade); box-shadow: 0 0 0 2px rgba(45,138,110,0.15); }
+        .journey-node-icon { font-size: 1.4rem; margin-bottom: 6px; }
+        .journey-node-title { font-weight: 600; font-size: 0.82rem; margin-bottom: 4px; }
+        .journey-node-status { font-size: 0.72rem; color: var(--text-dim); }
+        .journey-node-status.has-data { color: var(--jade); font-weight: 600; }
+        .journey-arrow {
+            flex: 0 0 auto;
+            width: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--border);
+            font-size: 0.9rem;
+        }
+        .journey-arrow.active { color: var(--jade); }
+        @media (max-width: 600px) {
+            .journey-flow { gap: 0; }
+            .journey-node { min-width: 110px; padding: var(--space-sm); }
+            .journey-arrow { width: 24px; }
+        }
     </style>
     <script>(function(){var t=localStorage.getItem("ahsas-theme");if(!t)t=window.matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t)})()</script>
 </head>
@@ -276,6 +337,15 @@
                         <button id="clearAllProgress" class="btn btn-sm btn-secondary">Clear All</button>
                     </div>
                     <div id="quickstartGrid" class="quickstart-grid"></div>
+                </div>
+
+                <!-- Thinking Journey -->
+                <div id="journeySection" class="journey-section animate-in delay-1">
+                    <div class="journey-header">
+                        <span>🧮</span>
+                        <h2>Your Thinking Journey</h2>
+                    </div>
+                    <div id="journeyFlow" class="journey-flow"></div>
                 </div>
 
                 <div class="tools-grid-2col">
@@ -652,6 +722,43 @@
                 `).join('');
             }
 
+            // === Render Thinking Journey ===
+            (function renderJourney() {
+                const journeySection = document.getElementById('journeySection');
+                const journeyFlow = document.getElementById('journeyFlow');
+                if (!journeySection || !journeyFlow) return;
+
+                const nodes = [
+                    { icon: '📚', title: 'Source Library', href: '/sources.html',
+                      check: () => { const b = JSON.parse(localStorage.getItem('ahsas-bookmarks') || '[]'); return b.length > 0 ? b.length + ' bookmarked' : null; } },
+                    { icon: '🔍', title: 'Source Analyzer', href: '/source-analyzer.html',
+                      check: () => { try { const d = JSON.parse(localStorage.getItem('ahsas_source_analyzer')); if (!d) return null; const step = d.currentStep; return step === 'review' ? 'Complete' : 'Step ' + ((step || 0) + 1) + '/4'; } catch(e) { return null; } } },
+                    { icon: '✍️', title: 'CER Builder', href: '/cer-builder.html',
+                      check: () => { try { const d = JSON.parse(localStorage.getItem('ahsas-cer-builder')); if (!d) return null; const step = d.step; return step >= 3 ? 'Complete' : 'Step ' + (step + 1) + '/4'; } catch(e) { return null; } } },
+                    { icon: '🔬', title: 'Research Studio', href: '/research.html',
+                      check: () => { try { const d = JSON.parse(localStorage.getItem('ahsas_research_studio')); if (!d) return null; return 'Step ' + (d.currentStep || 1) + '/7'; } catch(e) { return null; } } }
+                ];
+
+                let anyActive = false;
+                const rendered = nodes.map((n, i) => {
+                    const status = n.check();
+                    if (status) anyActive = true;
+                    const cls = status ? 'journey-node active' : 'journey-node dimmed';
+                    const statusCls = status ? 'journey-node-status has-data' : 'journey-node-status';
+                    return (i > 0 ? '<div class="journey-arrow' + (status ? ' active' : '') + '">→</div>' : '') +
+                        '<a href="' + n.href + '" class="' + cls + '">' +
+                            '<div class="journey-node-icon">' + n.icon + '</div>' +
+                            '<div class="journey-node-title">' + n.title + '</div>' +
+                            '<div class="' + statusCls + '">' + (status || 'Start here →') + '</div>' +
+                        '</a>';
+                });
+
+                if (anyActive) {
+                    journeySection.classList.add('visible');
+                    journeyFlow.innerHTML = rendered.join('');
+                }
+            })();
+
             // === Render Progress Badges on Tool Cards ===
             Object.entries(toolBadges).forEach(([tool, info]) => {
                 const card = document.querySelector(`[data-tool="${tool}"]`);
@@ -697,12 +804,16 @@
                 btn.onclick = () => {
                     if (!pending) {
                         pending = true;
-                        btn.textContent = 'Sure?';
+                        btn.textContent = 'Sure? Tap again';
                         btn.style.background = 'var(--vermillion)';
                         btn.style.color = '#fff';
-                        setTimeout(() => { pending = false; btn.textContent = label; btn.style.background = ''; btn.style.color = ''; }, 3000);
+                        btn.style.minWidth = btn.offsetWidth + 'px';
+                        setTimeout(() => { pending = false; btn.textContent = label; btn.style.background = ''; btn.style.color = ''; btn.style.minWidth = ''; }, 5000);
                     } else {
-                        clearAllData();
+                        btn.textContent = '✓ Cleared!';
+                        btn.style.background = 'var(--jade)';
+                        btn.disabled = true;
+                        setTimeout(() => clearAllData(), 600);
                     }
                 };
             }

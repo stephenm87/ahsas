@@ -394,4 +394,124 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init All
     renderGrid();
     renderEvalForm();
+    initDiscussionPrep();
 });
+
+// ===== Discussion Prep: Counter-Argument Practice =====
+function initDiscussionPrep() {
+    const PREP_KEY = 'ahsas_seminar_prep';
+    const fields = ['prepClaim', 'prepEvidence', 'prepCounter', 'prepResponse'];
+
+    // Load saved prep
+    try {
+        const saved = JSON.parse(localStorage.getItem(PREP_KEY) || '{}');
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && saved[id]) el.value = saved[id];
+        });
+    } catch(e) {}
+
+    // Auto-save & Quality Gates on input
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', () => {
+            const data = {};
+            fields.forEach(fid => {
+                const f = document.getElementById(fid);
+                if (f) data[fid] = f.value;
+            });
+            try { localStorage.setItem(PREP_KEY, JSON.stringify(data)); } catch(e) {}
+            checkPrepQuality(id);
+        });
+    });
+
+    // Pre-fill from most recent CER Builder work (if no prep saved yet)
+    const hasSavedPrep = fields.some(id => {
+        const el = document.getElementById(id);
+        return el && el.value.trim().length > 0;
+    });
+
+    if (!hasSavedPrep) {
+        try {
+            const cerRaw = localStorage.getItem('ahsas-cer-builder');
+            if (cerRaw) {
+                const cer = JSON.parse(cerRaw);
+                const claimEl = document.getElementById('prepClaim');
+                const evidenceEl = document.getElementById('prepEvidence');
+                if (claimEl && cer.claim && !claimEl.value) { claimEl.value = cer.claim; checkPrepQuality('prepClaim'); }
+                if (evidenceEl && cer.evidence && !evidenceEl.value) { evidenceEl.value = cer.evidence; checkPrepQuality('prepEvidence'); }
+
+                // Show import banner
+                const banner = document.getElementById('prepImportBanner');
+                if (banner && (cer.claim || cer.evidence)) {
+                    banner.innerHTML = '<div style="padding:8px 12px;background:rgba(45,138,110,0.08);border:1px solid rgba(45,138,110,0.2);border-radius:6px;font-size:0.8rem;color:var(--jade);display:flex;align-items:center;gap:6px;">✍️ <strong>Pre-filled from your CER Builder work.</strong> Edit as needed for today\'s discussion.<button onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:var(--jade);cursor:pointer;opacity:0.6;">✕</button></div>';
+                }
+            }
+        } catch(e) {}
+    } else {
+        // Run checks on load if there's saved data
+        fields.forEach(id => checkPrepQuality(id));
+    }
+
+    // Quality Rules Engine for Discussion Prep
+    function checkPrepQuality(id) {
+        const el = document.getElementById(id);
+        const map = {
+            'prepClaim': 'gateClaim',
+            'prepEvidence': 'gateEvidence',
+            'prepCounter': 'gateCounter',
+            'prepResponse': 'gateResponse'
+        };
+        const gate = document.getElementById(map[id]);
+        if (!el || !gate) return;
+
+        const val = el.value.trim();
+        const wc = val ? val.split(/\s+/).length : 0;
+        const lower = val.toLowerCase();
+        
+        gate.className = 'quality-gate visible'; // reset classes
+
+        if (wc === 0) {
+            gate.classList.remove('visible');
+            return;
+        }
+
+        let issues = [];
+
+        if (id === 'prepClaim') {
+            if (wc < 8) issues.push({ icon: '🔴', text: `<strong>Too short.</strong> A seminar claim should be a full, arguable sentence (~10 words). You have ${wc}.` });
+            const factualStarts = ['the silk road was', 'china was', 'the tang dynasty was'];
+            const arguable = ['because', 'although', 'while', 'however', 'fundamentally', 'ultimately'];
+            if (factualStarts.some(s => lower.startsWith(s)) && !arguable.some(a => lower.includes(a)) && wc >= 8) {
+                issues.push({ icon: '🟡', text: '<strong>Checking arguability:</strong> This feels like a statement of fact. To make a claim, try adding "because" or taking a stance.' });
+            }
+        } 
+        else if (id === 'prepEvidence') {
+            if (wc < 12) issues.push({ icon: '🔴', text: `<strong>Needs detail.</strong> Seminar evidence should reference specific facts, dates, or documents (~15 words). You have ${wc}.` });
+        } 
+        else if (id === 'prepCounter') {
+            if (wc < 12) issues.push({ icon: '🔴', text: `<strong>Develop the counter-argument.</strong> Briefly explain *why* someone might disagree (~15 words). You have ${wc}.` });
+            const oppKeywords = ['someone', 'might', 'critics', 'argue', 'disagree', 'others', 'instead'];
+            if (!oppKeywords.some(k => lower.includes(k)) && wc >= 5) {
+                issues.push({ icon: '🟡', text: '<strong>Try starting with:</strong> "Some might argue that..." or "Critics might point out that..."' });
+            }
+        } 
+        else if (id === 'prepResponse') {
+            if (wc < 12) issues.push({ icon: '🔴', text: `<strong>Develop your defense.</strong> Explain why your claim survives the counter-argument. (~15 words). You have ${wc}.` });
+            const defKeywords = ['however', 'despite', 'because', 'while', 'still', 'ultimately'];
+            if (!defKeywords.some(k => lower.includes(k)) && wc >= 5) {
+                issues.push({ icon: '🟡', text: '<strong>Make the pivot:</strong> Use a transition like "However," "Despite that point," or "Ultimately" to bring it back to your evidence.' });
+            }
+        }
+
+        if (issues.length > 0) {
+            const hasRed = issues.some(i => i.icon === '🔴');
+            gate.classList.add(hasRed ? 'gate-fail' : 'gate-warn');
+            gate.innerHTML = issues.map(i => `<div style="margin-top:4px;">${i.icon} ${i.text}</div>`).join('');
+        } else {
+            gate.classList.add('gate-pass');
+            gate.innerHTML = `<div style="margin-top:4px;">✅ <strong>Solid response.</strong> Ready for the seminar. (${wc} words)</div>`;
+        }
+    }
+}

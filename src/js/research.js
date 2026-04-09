@@ -40,7 +40,59 @@
         
         // Build flowchart on step change
         buildFlowchart();
+        
+        // Check for cross-tool handoff imports
+        checkResearchHandoff();
     });
+
+    // ===== Cross-Tool Pipeline: Import from CER Builder or Compare Tool =====
+    function checkResearchHandoff() {
+        try {
+            const raw = localStorage.getItem('ahsas_research_handoff');
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            localStorage.removeItem('ahsas_research_handoff');
+
+            if (data.from === 'cer-builder') {
+                // Pre-fill from CER Builder
+                const topicEl = document.getElementById('topicExploration');
+                if (topicEl && !topicEl.value && data.claim) {
+                    // Extract topic from claim
+                    topicEl.value = data.claim;
+                }
+                const rqEl = document.getElementById('researchQuestion');
+                if (rqEl && !rqEl.value && data.claim) {
+                    // Convert claim to question
+                    rqEl.value = 'To what extent ' + data.claim.charAt(0).toLowerCase() + data.claim.slice(1).replace(/\.$/, '') + '?';
+                }
+            } else if (data.from === 'compare') {
+                // Pre-fill from Compare Tool
+                const topicEl = document.getElementById('topicExploration');
+                if (topicEl && !topicEl.value && data.comparison) {
+                    topicEl.value = data.comparison;
+                }
+                const rqEl = document.getElementById('researchQuestion');
+                if (rqEl && !rqEl.value && data.comparison) {
+                    rqEl.value = 'How did ' + data.comparison + '?';
+                }
+                const thesisEl = document.getElementById('thesisStatement');
+                if (thesisEl && !thesisEl.value && data.synthesis) {
+                    thesisEl.value = data.synthesis;
+                }
+            }
+
+            saveState();
+
+            // Show welcome banner
+            const banner = document.getElementById('welcomeBackBanner');
+            if (banner) {
+                const fromLabel = data.from === 'cer-builder' ? 'CER Builder' : 'Compare Tool';
+                banner.innerHTML = '<p>\ud83d\udce5 <strong>Imported from ' + fromLabel + '.</strong> Your work has been pre-filled. Review and refine each step.</p>' +
+                    '<button class="btn btn-sm btn-gold" onclick="this.closest(\'.welcome-back-banner\').style.display=\'none\'">Dismiss</button>';
+                banner.style.display = 'flex';
+            }
+        } catch(e) {}
+    }
 
     const STEP_LABELS = ['Topic', 'Question', 'Sub-Qs', 'Sources', 'Evidence', 'Thesis', 'Outline'];
 
@@ -65,15 +117,57 @@
     }
 
     function goToStep(n) {
-        // Enforce inquiry sequence: cannot go to step 6 without completing 1-5
-        if (n === 6) {
-            const prereqs = [1,2,3,4,5];
-            // We allow navigation but show a warning
+        // ===== Substance-based step completion =====
+        function isStepSubstantive(stepNum) {
+            switch(stepNum) {
+                case 1: {
+                    const topic = document.getElementById('topicExploration');
+                    const wc = topic ? (topic.value.trim().split(/\s+/).filter(Boolean).length) : 0;
+                    return wc >= 8; // ~10 words with tolerance
+                }
+                case 2: {
+                    const rq = document.getElementById('researchQuestion');
+                    const wc = rq ? (rq.value.trim().split(/\s+/).filter(Boolean).length) : 0;
+                    return wc >= 12; // ~15 words with tolerance
+                }
+                case 3: {
+                    const sqs = getSubQuestions();
+                    return sqs.length >= 2;
+                }
+                case 4: {
+                    const hunts = document.querySelectorAll('[data-hunt]');
+                    let filledCount = 0;
+                    hunts.forEach(h => { if (h.value && h.value.trim().length > 5) filledCount++; });
+                    return filledCount >= 2;
+                }
+                case 5: {
+                    const findings = document.querySelectorAll('[data-matrix-finding]');
+                    let filledCount = 0;
+                    findings.forEach(f => { if (f.value && f.value.trim().length > 10) filledCount++; });
+                    return filledCount >= 2;
+                }
+                default: return true;
+            }
         }
 
-        // Mark current step as completed if moving forward
+        // Enforce inquiry sequence: cannot go to step 6 without completing 1-5
+        if (n === 6) {
+            const incomplete = [];
+            const stepNames = ['', 'Topic Exploration', 'Research Question', 'Sub-Questions', 'Source Hunt', 'Evidence Matrix'];
+            for (let i = 1; i <= 5; i++) {
+                if (!isStepSubstantive(i)) incomplete.push('Step ' + i + ' (' + stepNames[i] + ')');
+            }
+            if (incomplete.length > 0) {
+                alert('\ud83d\udcdd The Inquiry Principle\n\nYour thesis should emerge from your research, not the other way around.\n\nComplete these steps first:\n\u2022 ' + incomplete.join('\n\u2022 ') + '\n\nEach step needs meaningful content before you can write your thesis.');
+                return;
+            }
+        }
+
+        // Mark current step as completed if moving forward AND substantive
         if (n > currentStep) {
-            completedSteps.add(currentStep);
+            if (isStepSubstantive(currentStep)) {
+                completedSteps.add(currentStep);
+            }
         }
 
         document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
@@ -507,6 +601,68 @@
         showIndicator('⬇️ Downloaded research-outline.doc');
     }
 
+    // ===== Quality Gate Engine (Early Steps) =====
+    function checkResearchQuality(id) {
+        if (!id) return;
+        
+        // Map elements
+        let el, gate, type;
+        if (id.startsWith('topic')) {
+            el = document.getElementById(id);
+            gate = document.getElementById('gate' + id.charAt(0).toUpperCase() + id.slice(1));
+            type = 'topic';
+        } else if (!isNaN(id)) {
+            // It's a sub-question
+            el = document.querySelector(`textarea[data-subq="${id}"]`);
+            gate = document.getElementById(`gateSubq${id}`);
+            type = 'subq';
+        }
+
+        if (!el || !gate) return;
+
+        const val = el.value.trim();
+        const wc = val ? val.split(/\s+/).length : 0;
+        const lower = val.toLowerCase();
+
+        gate.className = 'quality-gate visible';
+
+        if (wc === 0) {
+            gate.classList.remove('visible');
+            return;
+        }
+
+        let issues = [];
+
+        if (id === 'topicArea') {
+            if (wc < 15) issues.push({ icon: '🔴', text: `<strong>Needs detail.</strong> Describe your historical period or topic of interest (~20 words). You have ${wc}.` });
+        }
+        else if (id === 'topicWhy') {
+            if (wc < 12) issues.push({ icon: '🔴', text: `<strong>Develop your interest.</strong> Explain *why* this grabs your attention (~15 words). You have ${wc}.` });
+        }
+        else if (id === 'topicQuestions') {
+            if (wc < 15) issues.push({ icon: '🔴', text: `<strong>Brainstorm more.</strong> List at least 3-4 initial questions (~20 words). You have ${wc}.` });
+            if (!val.includes('?')) issues.push({ icon: '🟡', text: '<strong>Format correctly:</strong> Make sure you are actually writing questions ending with "?".' });
+        }
+        else if (type === 'subq') {
+            if (wc < 6) issues.push({ icon: '🔴', text: `<strong>Too short.</strong> A sub-question needs enough scope to be researched (~8 words). You have ${wc}.` });
+            if (!val.includes('?')) issues.push({ icon: '🔴', text: '<strong>Must be a question.</strong> Be sure to end with a question mark "?".' });
+            
+            const starters = ['how', 'why', 'what', 'to what extent', 'evaluate'];
+            if (!starters.some(s => lower.startsWith(s)) && wc >= 3) {
+                issues.push({ icon: '🟡', text: '<strong>Try open-ended starters.</strong> Questions starting with How or Why lead to deeper analysis than Who/When/Where.' });
+            }
+        }
+
+        if (issues.length > 0) {
+            const hasRed = issues.some(i => i.icon === '🔴');
+            gate.classList.add(hasRed ? 'gate-fail' : 'gate-warn');
+            gate.innerHTML = issues.map(i => `<div style="margin-top:4px;">${i.icon} ${i.text}</div>`).join('');
+        } else {
+            gate.classList.add('gate-pass');
+            gate.innerHTML = `<div style="margin-top:4px;">✅ <strong>Solid.</strong> (${wc} words)</div>`;
+        }
+    }
+
     function showIndicator(msg) {
         const indicator = document.getElementById('saveIndicator');
         indicator.textContent = msg;
@@ -516,8 +672,21 @@
 
     // Auto-save to localStorage
     function setupAutoSave() {
-        document.addEventListener('input', debounce(saveState, 1000));
+        document.addEventListener('input', (e) => {
+            debounce(saveState, 1000)();
+            if (e.target.matches('textarea.studio-input')) {
+                debounce(() => checkResearchQuality(e.target.id || e.target.getAttribute('data-subq')), 500)();
+            }
+        });
         document.addEventListener('change', debounce(saveState, 500));
+        
+        // Initial checks
+        setTimeout(() => {
+            checkResearchQuality('topicArea');
+            checkResearchQuality('topicWhy');
+            checkResearchQuality('topicQuestions');
+            for(let i=1; i<=subqCount; i++) checkResearchQuality(i.toString());
+        }, 1000);
     }
 
     function saveState() {

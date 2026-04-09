@@ -393,6 +393,17 @@
                     <a href="/cer.html" class="btn btn-primary">Explore CER Framework →</a>
                 </div>
 
+                <!-- PIECES Lens Workout -->
+                <div class="pieces-workout animate-in" id="piecesWorkout" style="max-width:800px;margin:0 auto var(--space-2xl);">
+                    <div style="text-align:center;margin-bottom:var(--space-xl);">
+                        <h2>🏋️ PIECES Lens Workout</h2>
+                        <p style="color:var(--text-muted);font-size:0.9rem;max-width:560px;margin:var(--space-sm) auto 0;">
+                            Practice identifying PIECES themes in real Chinese history scenarios. Select all themes that apply, then check your answer.
+                        </p>
+                    </div>
+                    <div id="workoutContainer"></div>
+                </div>
+
             </div>
         </main>
 
@@ -417,5 +428,234 @@
     <button class="back-to-top" aria-label="Back to top">↑</button>
     <script type="module" src="/src/js/progress.js"></script>
     <script type="module" src="/src/js/nav.js"></script>
+
+    <style>
+        .workout-scenario {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        .workout-scenario::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--gold);
+            border-radius: var(--radius-md) 0 0 var(--radius-md);
+        }
+        .workout-number {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+        }
+        .workout-text {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text);
+            margin-bottom: var(--space-md);
+            font-style: italic;
+        }
+        .workout-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: var(--space-md);
+        }
+        .workout-chip {
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .workout-chip:hover { border-color: var(--gold); }
+        .workout-chip.selected {
+            border-color: var(--gold);
+            background: rgba(212,160,57,0.12);
+            color: var(--gold);
+        }
+        .workout-chip.correct {
+            border-color: var(--jade);
+            background: rgba(45,138,110,0.12);
+            color: var(--jade);
+        }
+        .workout-chip.missed {
+            border-color: var(--vermillion);
+            background: rgba(199,62,58,0.08);
+            color: var(--vermillion);
+        }
+        .workout-check-btn {
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--gold);
+            color: var(--bg-deep);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .workout-check-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .workout-check-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+        .workout-feedback {
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            display: none;
+            animation: fadeUp 0.3s ease both;
+        }
+        .workout-feedback.visible { display: block; }
+        .workout-feedback.pass {
+            background: rgba(45,138,110,0.08);
+            border: 1px solid rgba(45,138,110,0.25);
+            color: var(--jade);
+        }
+        .workout-feedback.partial {
+            background: rgba(212,160,57,0.08);
+            border: 1px solid rgba(212,160,57,0.25);
+            color: var(--gold);
+        }
+    </style>
+
+    <script>
+    (function() {
+        const SCENARIOS = [
+            {
+                text: 'During the Song Dynasty (960–1279), the government introduced the world\'s first paper money, called jiaozi, to facilitate growing commercial activity along internal trade routes. Merchants in Sichuan province had been using heavy iron coins, making long-distance trade impractical.',
+                correct: ['economic', 'innovation', 'political'],
+                explanations: {
+                    economic: 'The creation of paper money directly transformed commerce and trade systems.',
+                    innovation: 'Paper currency was a groundbreaking technological and conceptual innovation.',
+                    political: 'The government\'s decision to issue and regulate currency reflects state economic policy and centralized authority.'
+                }
+            },
+            {
+                text: 'The Taiping Rebellion (1850–1864) was led by Hong Xiuquan, who claimed to be the brother of Jesus Christ. His Taiping Heavenly Kingdom promised gender equality, land redistribution, and the abolition of foot-binding. An estimated 20–30 million people died in the conflict.',
+                correct: ['social', 'cultural', 'political'],
+                explanations: {
+                    social: 'The rebellion directly challenged social hierarchies — promising equality for women and equitable land for peasants.',
+                    cultural: 'Hong Xiuquan blended Christian beliefs with Chinese millenarian traditions, creating a syncretic belief system that challenged Confucian orthodoxy.',
+                    political: 'The rebellion was a direct challenge to Qing dynasty political authority, establishing a rival government.'
+                }
+            },
+            {
+                text: 'The Grand Canal, completed in its final form during the Sui Dynasty (605 CE), stretched over 1,776 km connecting Beijing to Hangzhou. It enabled rice from the fertile Yangtze Delta to feed the northern capital and its massive army, but its construction conscripted millions of laborers, many of whom died.',
+                correct: ['environmental', 'economic', 'political', 'social'],
+                explanations: {
+                    environmental: 'The canal dramatically reshaped the landscape, redirecting waterways and connecting river systems across thousands of kilometers.',
+                    economic: 'It created a vital trade artery that connected northern and southern economies, enabling the flow of grain, silk, and goods.',
+                    political: 'The canal was a state infrastructure project designed to consolidate imperial control over a vast territory.',
+                    social: 'Forced conscription of millions of laborers, and the resulting deaths, reveals the human cost borne by the lowest social classes.'
+                }
+            },
+            {
+                text: 'During the Cultural Revolution (1966–76), Mao Zedong mobilized millions of young Red Guards to destroy "old customs, old culture, old habits, and old ideas." Temples, libraries, and cultural artifacts were burned. Intellectuals were sent to labor camps. Traditional arts, music, and Confucian values were denounced as counter-revolutionary.',
+                correct: ['cultural', 'political', 'social'],
+                explanations: {
+                    cultural: 'The explicit destruction of temples, art, literature, and Confucian tradition represents one of history\'s most deliberate attacks on cultural heritage.',
+                    political: 'Mao used the Cultural Revolution to reassert his political power, purging rivals and consolidating party loyalty through mass mobilization.',
+                    social: 'The persecution of intellectuals, teachers, and anyone deemed "bourgeois" upended China\'s social hierarchy, weaponizing class identity.'
+                }
+            }
+        ];
+
+        const THEME_LABELS = {
+            political: '🏛️ Political',
+            innovation: '🔬 Innovation',
+            environmental: '🌍 Environmental',
+            cultural: '🎭 Cultural',
+            economic: '💰 Economic',
+            social: '👥 Social'
+        };
+        const ALL_THEMES = Object.keys(THEME_LABELS);
+
+        const container = document.getElementById('workoutContainer');
+        if (!container) return;
+
+        SCENARIOS.forEach((scenario, idx) => {
+            const div = document.createElement('div');
+            div.className = 'workout-scenario';
+            div.innerHTML = `
+                <div class="workout-number">Scenario ${idx + 1} of ${SCENARIOS.length}</div>
+                <div class="workout-text">${scenario.text}</div>
+                <div class="workout-chips" id="chips-${idx}">
+                    ${ALL_THEMES.map(t => `<button class="workout-chip" data-theme="${t}" data-scenario="${idx}">${THEME_LABELS[t]}</button>`).join('')}
+                </div>
+                <button class="workout-check-btn" id="check-${idx}">Check My Answer</button>
+                <div class="workout-feedback" id="feedback-${idx}"></div>
+            `;
+            container.appendChild(div);
+
+            // Chip selection toggle
+            div.querySelectorAll('.workout-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chip.classList.toggle('selected');
+                });
+            });
+
+            // Check answer
+            document.getElementById('check-' + idx).addEventListener('click', function() {
+                const chips = div.querySelectorAll('.workout-chip');
+                const selected = new Set();
+                chips.forEach(c => { if (c.classList.contains('selected')) selected.add(c.dataset.theme); });
+                const correctSet = new Set(scenario.correct);
+
+                let feedbackHtml = '';
+                let allCorrect = true;
+
+                // Mark chips
+                chips.forEach(c => {
+                    const theme = c.dataset.theme;
+                    c.style.pointerEvents = 'none';
+                    if (correctSet.has(theme) && selected.has(theme)) {
+                        c.classList.add('correct');
+                        c.classList.remove('selected');
+                    } else if (correctSet.has(theme) && !selected.has(theme)) {
+                        c.classList.add('missed');
+                        c.classList.remove('selected');
+                        allCorrect = false;
+                    } else if (!correctSet.has(theme) && selected.has(theme)) {
+                        c.classList.remove('selected');
+                        c.style.opacity = '0.4';
+                        allCorrect = false;
+                    } else {
+                        c.style.opacity = '0.3';
+                    }
+                });
+
+                // Build feedback
+                if (allCorrect && selected.size === correctSet.size) {
+                    feedbackHtml = '<strong>✅ Perfect!</strong> You identified all the correct themes.';
+                } else {
+                    feedbackHtml = '<strong>Here\'s what to look for:</strong><br>';
+                    scenario.correct.forEach(t => {
+                        const icon = selected.has(t) ? '✅' : '🔍';
+                        feedbackHtml += `<div style="margin-top:6px;">${icon} <strong>${THEME_LABELS[t]}:</strong> ${scenario.explanations[t]}</div>`;
+                    });
+                }
+
+                const fb = document.getElementById('feedback-' + idx);
+                fb.className = 'workout-feedback visible ' + (allCorrect && selected.size === correctSet.size ? 'pass' : 'partial');
+                fb.innerHTML = feedbackHtml;
+                this.disabled = true;
+                this.textContent = '✓ Checked';
+            });
+        });
+    })();
+    </script>
 </body>
 </html>

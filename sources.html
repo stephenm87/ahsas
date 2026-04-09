@@ -775,7 +775,7 @@
                         <div class="source-actions">
                             ${s.url ? `<a href="${s.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" onclick="event.stopPropagation();">Read Source</a>` : ''}
                             <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); copyCitation(this, \`${s.mlaCitation.replace(/`/g, "'").replace(/\\/g, "\\\\")}\`);">Copy Citation</button>
-                            <a href="/source-analyzer.html?title=${encodeURIComponent(s.title)}&type=${encodeURIComponent(s.format || 'text')}&sourceType=${encodeURIComponent(s.type)}" class="btn btn-sm btn-analyze" onclick="event.stopPropagation();">Analyze This Source</a>
+                            <a href="/source-analyzer.html?title=${encodeURIComponent(s.title)}&type=${encodeURIComponent(s.format || 'text')}&sourceType=${encodeURIComponent(s.type)}&snippet=${encodeURIComponent(s.snippet)}&creator=${encodeURIComponent(s.creator)}" class="btn btn-sm btn-analyze" onclick="event.stopPropagation();">Analyze This Source</a>
                         </div>
                     </div>
                 `;
