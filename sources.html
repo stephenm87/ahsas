@@ -23,13 +23,95 @@
             line-height: 1.8;
         }
 
-        /* Filter bar */
+        /* ===== Bookmark Shelf ===== */
+        .bookmark-shelf {
+            max-width: 800px;
+            margin: 0 auto var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-card);
+            border: 1px solid rgba(212,160,57,0.25);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--gold);
+            animation: fadeUp 0.3s var(--ease) both;
+            display: none;
+        }
+        .bookmark-shelf.visible { display: block; }
+        .bookmark-shelf-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-sm);
+        }
+        .bookmark-shelf-title {
+            font-family: var(--font-heading);
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bookmark-count {
+            background: var(--gold);
+            color: var(--bg-deep);
+            font-size: 0.62rem;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-family: var(--font-body);
+        }
+        .bookmark-shelf-clear {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 3px 10px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .bookmark-shelf-clear:hover {
+            color: var(--vermillion);
+            border-color: var(--vermillion);
+        }
+        .bookmark-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .bookmark-chip {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: var(--gold-glow);
+            color: var(--gold);
+            border: 1px solid rgba(212,160,57,0.2);
+            cursor: pointer;
+            transition: all var(--transition);
+            white-space: nowrap;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bookmark-chip:hover {
+            background: rgba(212,160,57,0.2);
+            border-color: var(--gold);
+        }
+
+        /* ===== Search + Filter bar ===== */
         .filter-bar {
             display: flex;
             flex-wrap: wrap;
             gap: var(--space-sm);
             justify-content: center;
-            margin-bottom: var(--space-xl);
+            align-items: center;
+            margin-bottom: var(--space-sm);
             padding: var(--space-md);
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -38,6 +120,54 @@
             margin-left: auto;
             margin-right: auto;
         }
+        .search-wrapper {
+            position: relative;
+            flex: 1 1 100%;
+            max-width: 100%;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 14px 10px 34px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            transition: border-color var(--transition);
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212,160,57,0.1);
+        }
+        .search-input::placeholder { color: var(--text-dim); }
+        .search-clear {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.88rem;
+            padding: 4px;
+            display: none;
+            transition: color var(--transition);
+        }
+        .search-clear:hover { color: var(--text); }
+        .search-clear.visible { display: block; }
+
         .filter-bar select {
             padding: 8px 14px;
             border-radius: var(--radius-sm);
@@ -54,14 +184,65 @@
             outline: none;
             border-color: var(--vermillion);
         }
+
+        /* ===== Source Stats ===== */
+        .source-stats {
+            max-width: 800px;
+            margin: 0 auto var(--space-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
         .filter-count {
             font-size: 0.8rem;
             color: var(--text-dim);
-            text-align: center;
-            margin-bottom: var(--space-lg);
+        }
+        .stat-pills {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .stat-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .stat-pill.primary {
+            background: var(--vermillion-glow);
+            color: var(--vermillion);
+        }
+        .stat-pill.secondary {
+            background: var(--jade-glow);
+            color: var(--jade);
+        }
+        .stat-divider {
+            width: 1px;
+            height: 14px;
+            background: var(--border);
+        }
+        .stat-pieces-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .stat-piece-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            position: relative;
+            cursor: help;
+        }
+        .stat-piece-dot.empty {
+            opacity: 0.2;
+            transform: scale(0.75);
         }
 
-        /* Source grid */
+        /* ===== Source grid ===== */
         .source-grid {
             display: grid;
             gap: var(--space-lg);
@@ -69,7 +250,7 @@
             margin: 0 auto;
         }
 
-        /* Source card */
+        /* ===== Source card with animation ===== */
         .source-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -77,9 +258,29 @@
             padding: var(--space-lg);
             position: relative;
             cursor: pointer;
-            transition: border-color var(--transition), transform var(--transition);
+            transition: border-color var(--transition), transform var(--transition), opacity 0.35s ease, max-height 0.4s ease;
             overflow: hidden;
+            opacity: 1;
+            max-height: 600px;
         }
+        .source-card.card-hidden {
+            opacity: 0;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            border-width: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, max-height 0.35s ease 0.1s, padding 0.35s ease 0.1s, border-width 0s 0.35s;
+        }
+        .source-card.card-enter {
+            animation: cardFadeIn 0.4s var(--ease) both;
+        }
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .source-card::before {
             content: '';
             position: absolute;
@@ -93,9 +294,30 @@
         .source-card.type-secondary::before {
             background: var(--jade);
         }
-        .source-card:hover {
+        .source-card:not(.card-hidden):hover {
             border-color: var(--subtle-border);
             transform: translateY(-2px);
+        }
+
+        /* Bookmark star */
+        .source-bookmark-btn {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: all 0.2s ease;
+            z-index: 2;
+            padding: 4px;
+            line-height: 1;
+        }
+        .source-bookmark-btn:hover { opacity: 0.7; transform: scale(1.15); }
+        .source-bookmark-btn.bookmarked {
+            opacity: 1;
+            filter: drop-shadow(0 0 4px rgba(212,160,57,0.5));
         }
 
         .source-header {
@@ -103,6 +325,7 @@
             align-items: flex-start;
             gap: var(--space-md);
             margin-bottom: var(--space-sm);
+            padding-right: 30px;
         }
         .source-type-badge {
             font-size: 0.65rem;
@@ -175,13 +398,24 @@
             font-weight: 700;
             padding: 2px 8px;
             border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
         }
-        .pieces-tag.political { background: rgba(74,144,217,0.15); color: #4a90d9; }
-        .pieces-tag.innovation { background: rgba(230,126,34,0.15); color: #e67e22; }
-        .pieces-tag.environmental { background: rgba(46,204,113,0.15); color: #2ecc71; }
-        .pieces-tag.cultural { background: rgba(155,89,182,0.15); color: #9b59b6; }
-        .pieces-tag.economic { background: var(--gold-glow); color: var(--gold); }
-        .pieces-tag.social { background: var(--vermillion-glow); color: var(--vermillion); }
+        .pieces-tag:hover { transform: scale(1.08); }
+        .pieces-tag.political { background: var(--pieces-political-bg); color: var(--pieces-political); }
+        .pieces-tag.innovation { background: var(--pieces-innovation-bg); color: var(--pieces-innovation); }
+        .pieces-tag.environmental { background: var(--pieces-environmental-bg); color: var(--pieces-environmental); }
+        .pieces-tag.cultural { background: var(--pieces-cultural-bg); color: var(--pieces-cultural); }
+        .pieces-tag.economic { background: var(--pieces-economic-bg); color: var(--pieces-economic); }
+        .pieces-tag.social { background: var(--pieces-social-bg); color: var(--pieces-social); }
+
+        /* Search highlight */
+        mark {
+            background: rgba(212,160,57,0.3);
+            color: inherit;
+            border-radius: 2px;
+            padding: 0 1px;
+        }
 
         /* Expanded detail */
         .source-detail {
@@ -288,6 +522,7 @@
             padding: var(--space-2xl) 0;
             font-size: 0.9rem;
         }
+        .no-results .icon-lg { font-size: 2rem; margin-bottom: var(--space-sm); opacity: 0.4; }
 
         @media (max-width: 600px) {
             .filter-bar {
@@ -297,6 +532,7 @@
                 width: 100%;
                 min-width: unset;
             }
+            .search-wrapper { max-width: 100%; }
         }
     </style>
     <script>(function(){var t=localStorage.getItem("ahsas-theme");if(!t)t=window.matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t)})()</script>
@@ -348,8 +584,22 @@
                     </p>
                 </div>
 
+                <!-- Bookmark Shelf -->
+                <div class="bookmark-shelf" id="bookmarkShelf">
+                    <div class="bookmark-shelf-header">
+                        <span class="bookmark-shelf-title">⭐ My Bookmarks <span class="bookmark-count" id="bookmarkCount">0</span></span>
+                        <button class="bookmark-shelf-clear" id="clearBookmarks">Clear All</button>
+                    </div>
+                    <div class="bookmark-chips" id="bookmarkChips"></div>
+                </div>
+
                 <!-- Filters -->
                 <div class="filter-bar animate-in delay-1">
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="search" class="search-input" id="searchInput" placeholder="Search sources by title, creator, or keyword…" autocomplete="off">
+                        <button class="search-clear" id="searchClear" aria-label="Clear search">✕</button>
+                    </div>
                     <select id="filterUnit" aria-label="Filter by unit">
                         <option value="all">All Units</option>
                     </select>
@@ -369,7 +619,8 @@
                     </select>
                 </div>
 
-                <div class="filter-count animate-in delay-1" id="filterCount"></div>
+                <!-- Stats row -->
+                <div class="source-stats animate-in delay-1" id="sourceStats"></div>
 
                 <!-- Source Grid -->
                 <div class="source-grid" id="sourceGrid"></div>
@@ -435,7 +686,12 @@
             const filterUnit = document.getElementById('filterUnit');
             const filterType = document.getElementById('filterType');
             const filterPieces = document.getElementById('filterPieces');
-            const filterCount = document.getElementById('filterCount');
+            const searchInput = document.getElementById('searchInput');
+            const searchClear = document.getElementById('searchClear');
+            const statsEl = document.getElementById('sourceStats');
+
+            // Bookmarks from localStorage
+            let bookmarks = JSON.parse(localStorage.getItem('ahsas-bookmarks') || '[]');
 
             // Populate unit filter
             curriculum.units.forEach(u => {
@@ -447,81 +703,260 @@
             });
 
             function getUnitInfo(unitId) {
-                return curriculum.units.find(u => u.id === unitId) || { title: unitId, icon: '📄', color: '#888' };
+                return curriculum.units.find(u => u.id === unitId) || { title: unitId, icon: '📄', color: '#888', number: '?' };
             }
 
-            function renderSources() {
+            // ===== Highlight search text =====
+            function highlightText(text, query) {
+                if (!query) return text;
+                const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escaped})`, 'gi');
+                return text.replace(regex, '<mark>$1</mark>');
+            }
+
+            // ===== Build all cards once =====
+            let allCardElements = [];
+            function buildAllCards() {
+                grid.innerHTML = '';
+                allCardElements = sources.map((s, idx) => {
+                    const div = document.createElement('div');
+                    div.className = `source-card type-${s.type}`;
+                    div.dataset.id = s.id;
+                    div.dataset.index = idx;
+                    div.addEventListener('click', () => toggleSource(div));
+                    updateCardContent(div, s, '');
+                    grid.appendChild(div);
+                    return { el: div, source: s };
+                });
+            }
+
+            function updateCardContent(div, s, query) {
+                const unit = getUnitInfo(s.unit);
+                const isBookmarked = bookmarks.includes(s.id);
+                const piecesHtml = s.pieces.map(p => {
+                    const theme = curriculum.piecesThemes[p];
+                    return `<span class="pieces-tag ${p}" data-filter="${p}" onclick="event.stopPropagation(); filterByPieces('${p}');" title="Click to filter by ${theme ? theme.label : p}">${theme ? theme.icon : ''} ${theme ? theme.label : p}</span>`;
+                }).join('');
+
+                const promptsHtml = s.analysisPrompts ? s.analysisPrompts.map(p => `<li>${p}</li>`).join('') : '';
+
+                const title = highlightText(s.title, query);
+                const creator = highlightText(s.creator, query);
+                const snippet = highlightText(s.snippet, query);
+                const date = highlightText(s.date, query);
+
+                div.innerHTML = `
+                    <button class="source-bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="event.stopPropagation(); window._toggleBookmark('${s.id}');" title="${isBookmarked ? 'Remove bookmark' : 'Bookmark this source'}">${isBookmarked ? '⭐' : '☆'}</button>
+                    <div class="source-meta">
+                        <span class="source-type-badge ${s.type}">${s.type}</span>
+                        <span class="source-format-badge">${s.format}</span>
+                        <span style="color:${unit.color};font-weight:600;">${unit.icon} Unit ${unit.number}</span>
+                    </div>
+                    <div class="source-header">
+                        <span class="source-title">${title}</span>
+                    </div>
+                    <div class="source-meta">
+                        <span class="source-creator">${creator}</span>
+                        <span>·</span>
+                        <span class="source-date">${date}</span>
+                    </div>
+                    <p class="source-snippet">${snippet}</p>
+                    ${s.perspective ? `<div class="source-perspective"><span class="perspective-icon">🧭</span> <span class="perspective-label">Perspective:</span> ${s.perspective}</div>` : ''}
+                    <div class="source-pieces">${piecesHtml}</div>
+                    <div class="source-detail">
+                        <div class="source-citation">
+                            <span class="citation-label">MLA Citation</span>
+                            ${s.mlaCitation}
+                        </div>
+                        ${promptsHtml ? `
+                        <div class="source-prompts">
+                            <div class="source-prompts-label">Analysis Prompts</div>
+                            <ul>${promptsHtml}</ul>
+                        </div>` : ''}
+                        <div class="source-actions">
+                            ${s.url ? `<a href="${s.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" onclick="event.stopPropagation();">Read Source</a>` : ''}
+                            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); copyCitation(this, \`${s.mlaCitation.replace(/`/g, "'").replace(/\\/g, "\\\\")}\`);">Copy Citation</button>
+                            <a href="/source-analyzer.html?title=${encodeURIComponent(s.title)}&type=${encodeURIComponent(s.format || 'text')}&sourceType=${encodeURIComponent(s.type)}" class="btn btn-sm btn-analyze" onclick="event.stopPropagation();">Analyze This Source</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ===== Filter + Animate =====
+            let filterTimeout;
+            function applyFilters() {
+                clearTimeout(filterTimeout);
+                filterTimeout = setTimeout(_applyFilters, 30);
+            }
+
+            function _applyFilters() {
                 const unitVal = filterUnit.value;
                 const typeVal = filterType.value;
                 const piecesVal = filterPieces.value;
+                const query = searchInput.value.trim().toLowerCase();
 
-                const filtered = sources.filter(s => {
-                    if (unitVal !== 'all' && s.unit !== unitVal) return false;
-                    if (typeVal !== 'all' && s.type !== typeVal) return false;
-                    if (piecesVal !== 'all' && !s.pieces.includes(piecesVal)) return false;
-                    return true;
+                // Update search clear button
+                searchClear.classList.toggle('visible', query.length > 0);
+
+                let visibleCount = 0;
+                let primaryCount = 0;
+                let secondaryCount = 0;
+                const themeCounts = {};
+
+                allCardElements.forEach(({ el, source: s }, i) => {
+                    // Check filter match
+                    const unitMatch = unitVal === 'all' || s.unit === unitVal;
+                    const typeMatch = typeVal === 'all' || s.type === typeVal;
+                    const piecesMatch = piecesVal === 'all' || s.pieces.includes(piecesVal);
+                    const searchMatch = !query || 
+                        s.title.toLowerCase().includes(query) ||
+                        s.creator.toLowerCase().includes(query) ||
+                        s.snippet.toLowerCase().includes(query) ||
+                        s.date.toLowerCase().includes(query);
+
+                    const visible = unitMatch && typeMatch && piecesMatch && searchMatch;
+
+                    if (visible) {
+                        visibleCount++;
+                        if (s.type === 'primary') primaryCount++;
+                        else secondaryCount++;
+                        s.pieces.forEach(p => { themeCounts[p] = (themeCounts[p] || 0) + 1; });
+
+                        // Update content with highlights
+                        updateCardContent(el, s, query);
+                        
+                        if (el.classList.contains('card-hidden')) {
+                            el.classList.remove('card-hidden');
+                            el.classList.add('card-enter');
+                            el.style.animationDelay = `${Math.min(i * 0.03, 0.3)}s`;
+                            el.addEventListener('animationend', () => {
+                                el.classList.remove('card-enter');
+                                el.style.animationDelay = '';
+                            }, { once: true });
+                        }
+                    } else {
+                        el.classList.add('card-hidden');
+                        el.classList.remove('card-enter');
+                    }
                 });
 
-                filterCount.textContent = `Showing ${filtered.length} of ${sources.length} sources`;
+                // Update stats
+                updateStats(visibleCount, sources.length, primaryCount, secondaryCount, themeCounts);
 
-                if (filtered.length === 0) {
-                    grid.innerHTML = '<div class="no-results">No sources match your filters. Try broadening your search.</div>';
+                // Show no-results message
+                const noResults = grid.querySelector('.no-results');
+                if (visibleCount === 0 && !noResults) {
+                    const msg = document.createElement('div');
+                    msg.className = 'no-results';
+                    msg.innerHTML = '<div class="icon-lg">📭</div><p>No sources match your filters. Try broadening your search.</p>';
+                    grid.appendChild(msg);
+                } else if (visibleCount > 0 && noResults) {
+                    noResults.remove();
+                }
+            }
+
+            // ===== Stats =====
+            function updateStats(visible, total, primary, secondary, themeCounts) {
+                const allThemes = ['political', 'innovation', 'environmental', 'cultural', 'economic', 'social'];
+                const pieceDots = allThemes.map(t => {
+                    const theme = curriculum.piecesThemes[t];
+                    const count = themeCounts[t] || 0;
+                    return `<span class="stat-piece-dot ${count === 0 ? 'empty' : ''}" style="background:${theme.color};" title="${theme.label}: ${count} source${count !== 1 ? 's' : ''}"></span>`;
+                }).join('');
+
+                statsEl.innerHTML = `
+                    <span class="filter-count">Showing ${visible} of ${total} sources</span>
+                    <div class="stat-divider"></div>
+                    <div class="stat-pills">
+                        <span class="stat-pill primary">📜 ${primary} Primary</span>
+                        <span class="stat-pill secondary">📖 ${secondary} Secondary</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-pieces-dots">${pieceDots}</div>
+                `;
+            }
+
+            // ===== Bookmarks =====
+            window._toggleBookmark = function(sourceId) {
+                const idx = bookmarks.indexOf(sourceId);
+                if (idx >= 0) {
+                    bookmarks.splice(idx, 1);
+                    showToast('Bookmark removed');
+                } else {
+                    bookmarks.push(sourceId);
+                    showToast('⭐ Source bookmarked!');
+                }
+                localStorage.setItem('ahsas-bookmarks', JSON.stringify(bookmarks));
+                // Also expose globally for Timeline
+                window.AHSAS_BOOKMARKS = bookmarks;
+                renderBookmarkShelf();
+                applyFilters(); // Re-render star states
+            };
+
+            function renderBookmarkShelf() {
+                const shelf = document.getElementById('bookmarkShelf');
+                const chips = document.getElementById('bookmarkChips');
+                const countEl = document.getElementById('bookmarkCount');
+
+                if (bookmarks.length === 0) {
+                    shelf.classList.remove('visible');
                     return;
                 }
 
-                grid.innerHTML = filtered.map(s => {
-                    const unit = getUnitInfo(s.unit);
-                    const piecesHtml = s.pieces.map(p => {
-                        const theme = curriculum.piecesThemes[p];
-                        return `<span class="pieces-tag ${p}">${theme ? theme.icon : ''} ${theme ? theme.label : p}</span>`;
-                    }).join('');
-
-                    const promptsHtml = s.analysisPrompts ? s.analysisPrompts.map(p => `<li>${p}</li>`).join('') : '';
-
-                    return `
-                        <div class="source-card type-${s.type}" data-id="${s.id}" onclick="toggleSource(this)">
-                            <div class="source-meta">
-                                <span class="source-type-badge ${s.type}">${s.type}</span>
-                                <span class="source-format-badge">${s.format}</span>
-                                <span style="color:${unit.color};font-weight:600;">${unit.icon} Unit ${unit.number}</span>
-                            </div>
-                            <div class="source-header">
-                                <span class="source-title">${s.title}</span>
-                            </div>
-                            <div class="source-meta">
-                                <span class="source-creator">${s.creator}</span>
-                                <span>·</span>
-                                <span class="source-date">${s.date}</span>
-                            </div>
-                            <p class="source-snippet">${s.snippet}</p>
-                            ${s.perspective ? `<div class="source-perspective"><span class="perspective-icon">🧭</span> <span class="perspective-label">Perspective:</span> ${s.perspective}</div>` : ''}
-                            <div class="source-pieces">${piecesHtml}</div>
-                            <div class="source-detail">
-                                <div class="source-citation">
-                                    <span class="citation-label">MLA Citation</span>
-                                    ${s.mlaCitation}
-                                </div>
-                                ${promptsHtml ? `
-                                <div class="source-prompts">
-                                    <div class="source-prompts-label">Analysis Prompts</div>
-                                    <ul>${promptsHtml}</ul>
-                                </div>` : ''}
-                                <div class="source-actions">
-                                    ${s.url ? `<a href="${s.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm" onclick="event.stopPropagation();">📄 Read Source ↗</a>` : ''}
-                                    <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); copyCitation(this, \`${s.mlaCitation.replace(/`/g, "'").replace(/\\/g, "\\\\")}\`);">📋 Copy Citation</button>
-                                    <a href="/source-analyzer.html" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">Use in Analyzer →</a>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                shelf.classList.add('visible');
+                countEl.textContent = bookmarks.length;
+                chips.innerHTML = bookmarks.map(id => {
+                    const s = sources.find(src => src.id === id);
+                    if (!s) return '';
+                    const shortTitle = s.title.length > 35 ? s.title.substring(0, 35) + '…' : s.title;
+                    return `<span class="bookmark-chip" onclick="window._scrollToSource('${id}')" title="${s.title}">${shortTitle}</span>`;
                 }).join('');
             }
 
-            filterUnit.addEventListener('change', renderSources);
-            filterType.addEventListener('change', renderSources);
-            filterPieces.addEventListener('change', renderSources);
+            window._scrollToSource = function(sourceId) {
+                const card = grid.querySelector(`[data-id="${sourceId}"]`);
+                if (card) {
+                    // Make sure it's visible first
+                    filterUnit.value = 'all';
+                    filterType.value = 'all';
+                    filterPieces.value = 'all';
+                    searchInput.value = '';
+                    applyFilters();
+                    setTimeout(() => {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.boxShadow = '0 0 0 3px var(--gold), 0 0 20px rgba(212,160,57,0.3)';
+                        setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+                    }, 100);
+                }
+            };
 
-            renderSources();
+            document.getElementById('clearBookmarks').addEventListener('click', () => {
+                bookmarks = [];
+                localStorage.setItem('ahsas-bookmarks', JSON.stringify(bookmarks));
+                window.AHSAS_BOOKMARKS = bookmarks;
+                renderBookmarkShelf();
+                applyFilters();
+                showToast('All bookmarks cleared');
+            });
+
+            // ===== Wire up filters =====
+            filterUnit.addEventListener('change', applyFilters);
+            filterType.addEventListener('change', applyFilters);
+            filterPieces.addEventListener('change', applyFilters);
+            searchInput.addEventListener('input', applyFilters);
+            searchClear.addEventListener('click', () => {
+                searchInput.value = '';
+                applyFilters();
+                searchInput.focus();
+            });
+
+            // Expose bookmarks globally
+            window.AHSAS_BOOKMARKS = bookmarks;
+
+            // ===== Init =====
+            buildAllCards();
+            renderBookmarkShelf();
+            applyFilters();
         }
     });
 
@@ -530,13 +965,23 @@
     }
 
     function copyCitation(btn, citation) {
-        // Strip HTML tags for plain text copy
         const temp = document.createElement('div');
         temp.innerHTML = citation;
         const text = temp.textContent || temp.innerText;
         navigator.clipboard.writeText(text).then(() => {
             showToast('Citation copied to clipboard!');
         });
+    }
+
+    function filterByPieces(theme) {
+        const filterPieces = document.getElementById('filterPieces');
+        if (filterPieces) {
+            filterPieces.value = theme;
+            filterPieces.dispatchEvent(new Event('change'));
+            const grid = document.getElementById('sourceGrid');
+            if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showToast('Filtered by ' + theme.charAt(0).toUpperCase() + theme.slice(1));
+        }
     }
 
     function showToast(msg) {

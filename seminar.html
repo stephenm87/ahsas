@@ -215,6 +215,8 @@
                                 <button class="btn btn-secondary reset-btn-sm" id="btnResetDna" title="Clear tracking history">↺ Reset</button>
                             </div>
                             <p class="text-xs text-muted mb-md"><strong>Outer Circle / Observer Mode:</strong> Track your partner's moves during the seminar to give them data-driven feedback later.</p>
+
+                            <p class="empty-state" id="trackerEmptyState">No moves tracked yet. Tap a move button each time your partner contributes during the seminar.</p>
                             
                             <h3 class="h5 mb-sm section-heading-jade">Positive Moves</h3>
                             <div class="tracker-grid-layout mb-md" id="trackerGrid">
@@ -230,6 +232,9 @@
                                  <div class="text-xs text-uppercase font-heading total-label">Total Positive Contributions</div>
                                  <div class="font-heading total-number" id="dnaTotalCount">0</div>
                             </div>
+
+                            <!-- Visual Summary Chart -->
+                            <div class="tracker-summary" id="trackerSummary" style="display:none;"></div>
                         </div>
                     </div>
                 </details>
@@ -244,6 +249,8 @@
                         <div class="card eval-card">
                             <h2 class="h3 mb-sm border-bottom pb-xs"><span class="section-heading-gold">📝</span> Self-Evaluation</h2>
                             <p class="text-xs text-muted mb-md">Complete this section about yourself AFTER the seminar to reflect on your collaboration and resilience.</p>
+
+                            <p class="empty-state" id="evalEmptyState">No responses recorded yet. Use the scale below to rate your own participation after the discussion ends.</p>
                             
                             <div class="eval-scale-hint">
                                 <span>1 = Very Unsuccessful</span>
@@ -359,6 +366,8 @@
             </div>
         </footer>
     </div>
+
+    <button class="back-to-top" aria-label="Back to top">↑</button>
 
     <script type="module" src="/src/js/nav.js"></script>
     <script type="module" src="/src/js/seminar.js"></script>

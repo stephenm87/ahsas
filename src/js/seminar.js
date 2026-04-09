@@ -80,6 +80,56 @@ document.addEventListener('DOMContentLoaded', () => {
         WARNING_MOVES.forEach(move => warningGrid.appendChild(createBtn(move, false)));
 
         if (totalDisplay) totalDisplay.textContent = totalPositive;
+
+        // Hide empty state once tracking begins
+        const trackerEmpty = document.getElementById('trackerEmptyState');
+        const hasAnyCounts = [...POSITIVE_MOVES, ...WARNING_MOVES].some(m => (counts[m.id] || 0) > 0);
+        if (trackerEmpty) trackerEmpty.style.display = hasAnyCounts ? 'none' : '';
+
+        // Render visual summary bar chart
+        renderSummary();
+    }
+
+    function renderSummary() {
+        const container = document.getElementById('trackerSummary');
+        if (!container) return;
+
+        const allMoves = [...POSITIVE_MOVES, ...WARNING_MOVES];
+        const maxCount = Math.max(1, ...allMoves.map(m => counts[m.id] || 0));
+        const hasAny = allMoves.some(m => (counts[m.id] || 0) > 0);
+
+        if (!hasAny) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'block';
+        let html = '<h4>📊 Session Summary</h4>';
+
+        // Positive moves
+        POSITIVE_MOVES.forEach(m => {
+            const c = counts[m.id] || 0;
+            const pct = Math.round((c / maxCount) * 100);
+            html += `<div class="tracker-bar-row">
+                <span class="tracker-bar-label">${m.icon} ${m.label}</span>
+                <div class="tracker-bar-track"><div class="tracker-bar-fill positive" style="width:${pct}%"></div></div>
+                <span class="tracker-bar-count">${c}</span>
+            </div>`;
+        });
+
+        // Warning moves
+        WARNING_MOVES.forEach(m => {
+            const c = counts[m.id] || 0;
+            if (c === 0) return;
+            const pct = Math.round((c / maxCount) * 100);
+            html += `<div class="tracker-bar-row">
+                <span class="tracker-bar-label">${m.icon} ${m.label}</span>
+                <div class="tracker-bar-track"><div class="tracker-bar-fill warning" style="width:${pct}%"></div></div>
+                <span class="tracker-bar-count">${c}</span>
+            </div>`;
+        });
+
+        container.innerHTML = html;
     }
 
     // 2. Initialize Self-Evaluation Form
@@ -144,6 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = document.getElementById('btnReflection');
         if (!btn) return;
         const answered = EVAL_QUESTIONS.filter(q => evalState[q.id] != null).length;
+
+        // Hide empty state once any question is answered
+        const evalEmpty = document.getElementById('evalEmptyState');
+        if (evalEmpty) evalEmpty.style.display = answered > 0 ? 'none' : '';
+
         if (answered >= EVAL_QUESTIONS.length) {
             btn.style.display = 'block';
             btn.textContent = '🪞 See My Reflection';

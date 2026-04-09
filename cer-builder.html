@@ -104,7 +104,7 @@
             font-weight: 700;
             margin-bottom: var(--space-xs);
         }
-        .step-label-claim { color: #5fa8e8; }
+        .step-label-claim { color: var(--pieces-claim); }
         .step-label-evidence { color: var(--jade); }
         .step-label-reasoning { color: var(--gold); }
         .step-label-review { color: var(--vermillion); }
@@ -297,7 +297,7 @@
         .rubric-title {
             font-family: var(--font-heading);
             font-size: 1rem;
-            color: #b57edc;
+            color: var(--pieces-cultural);
             margin-bottom: var(--space-md);
         }
         .rubric-item {
@@ -311,7 +311,7 @@
         }
         .rubric-item input[type="checkbox"] {
             margin-top: 3px;
-            accent-color: #b57edc;
+            accent-color: var(--pieces-cultural);
             flex-shrink: 0;
         }
         .rubric-score {
@@ -320,7 +320,7 @@
             font-size: 0.85rem;
             color: var(--text-dim);
         }
-        .rubric-score strong { color: #b57edc; }
+        .rubric-score strong { color: var(--pieces-cultural); }
 
         /* Feedback panel */
         .feedback-panel {
@@ -356,7 +356,7 @@
             color: var(--text);
             margin-top: var(--space-lg);
         }
-        .full-paragraph .cer-highlight-c { color: #5fa8e8; }
+        .full-paragraph .cer-highlight-c { color: var(--pieces-claim); }
         .full-paragraph .cer-highlight-e { color: var(--jade); }
         .full-paragraph .cer-highlight-r { color: var(--gold); }
 
@@ -430,7 +430,7 @@
             letter-spacing: 0.1em;
             margin-bottom: 2px;
         }
-        .example-part-label.c-label { color: #5fa8e8; }
+        .example-part-label.c-label { color: var(--pieces-claim); }
         .example-part-label.e-label { color: var(--jade); }
         .example-part-label.r-label { color: var(--gold); }
 
@@ -438,12 +438,14 @@
         .step-nav {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-top: var(--space-lg);
             gap: var(--space-md);
         }
         .step-nav .btn { min-width: 120px; }
         .review-actions {
             display: flex;
+            align-items: center;
             gap: var(--space-sm);
         }
 
@@ -527,7 +529,7 @@
                         Build a historical argument step by step. Choose a theme, write your claim, add evidence, and explain your reasoning.
                     </p>
                     <div class="builder-actions no-print">
-                        <span class="saved-badge" id="savedBadge">💾 Saved</span>
+                        <span class="autosave-badge" id="autosaveBadge"><span class="save-dot"></span> <span id="autosaveText">Not yet saved</span></span>
                     </div>
                 </div>
 
@@ -550,6 +552,17 @@
 
                         <div class="step-hint">
                             A <strong>claim</strong> is a one-sentence answer to a historical question. It should be arguable — someone could reasonably disagree with it.
+                        </div>
+
+                        <!-- Empty-state guidance (hides once user engages) -->
+                        <div class="cer-empty-state" id="cerEmptyState">
+                            <div class="cer-empty-state-icon">✍️</div>
+                            <div class="cer-empty-state-steps">
+                                <div class="cer-empty-step"><span class="cer-empty-num">1</span> Select a <strong>PIECES theme</strong> below to frame your argument</div>
+                                <div class="cer-empty-step"><span class="cer-empty-num">2</span> Draft a <strong>one-sentence claim</strong> that someone could debate</div>
+                                <div class="cer-empty-step"><span class="cer-empty-num">3</span> Click <strong>"Get a Hint"</strong> if you're stuck</div>
+                            </div>
+                            <p class="cer-empty-tip">💡 Don't worry about getting it perfect — you can revise at any step.</p>
                         </div>
 
                         <button class="hint-btn" data-hint="claim">💡 Get a Hint</button>
@@ -580,6 +593,7 @@
                         <label class="form-label">Write your claim</label>
                         <textarea id="claimInput" class="builder-textarea" 
                             placeholder="Example: The Silk Road's greatest impact was cultural exchange between East and West, which fundamentally transformed artistic traditions in both regions."></textarea>
+                        <div class="word-count" id="claimWordCount">0 words</div>
 
                         <div class="step-nav">
                             <span></span>
@@ -616,6 +630,7 @@
                         <label class="form-label mt-md">Your evidence</label>
                         <textarea id="evidenceInput" class="builder-textarea" 
                             placeholder="Example: According to Marco Polo's account (c. 1300), Chinese paper-making techniques spread westward along the Silk Road, reaching Samarkand by the 8th century and eventually transforming European literacy rates."></textarea>
+                        <div class="word-count" id="evidenceWordCount">0 words</div>
 
                         <div class="step-nav">
                             <button class="btn btn-secondary" id="backToStep1">← Claim</button>
@@ -649,6 +664,7 @@
                         <label class="form-label">Your reasoning</label>
                         <textarea id="reasoningInput" class="builder-textarea" 
                             placeholder="Example: This evidence demonstrates that the Silk Road was more than a trade route — it was a conduit for intellectual exchange. The spread of paper-making from China to Europe illustrates how technological diffusion along this network had lasting cultural consequences far beyond commerce."></textarea>
+                        <div class="word-count" id="reasoningWordCount">0 words</div>
 
                         <div class="step-nav">
                             <button class="btn btn-secondary" id="backToStep2">← Evidence</button>
@@ -815,7 +831,7 @@
         </footer>
     </div>
 
-    <!-- Toast -->
+    <button class="back-to-top" aria-label="Back to top">↑</button>
     <div class="toast" id="toast"></div>
 
     <script type="module" src="/src/js/progress.js"></script>
@@ -850,10 +866,14 @@
                 ts: Date.now()
             };
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
-            // Flash saved badge
-            const badge = document.getElementById('savedBadge');
+            // Show autosave badge with timestamp
+            const badge = document.getElementById('autosaveBadge');
+            const textEl = document.getElementById('autosaveText');
+            const now = new Date();
+            textEl.textContent = 'Saved at ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             badge.classList.add('visible');
-            setTimeout(() => badge.classList.remove('visible'), 1500);
+            clearTimeout(badge._hideTimer);
+            badge._hideTimer = setTimeout(() => badge.classList.remove('visible'), 5000);
         }
 
         function loadState() {
@@ -898,6 +918,27 @@
             let t; return function() { clearTimeout(t); t = setTimeout(fn, ms); };
         }
 
+        // ===== Word Counts =====
+        function updateWordCount(textareaId, countId) {
+            const ta = document.getElementById(textareaId);
+            const wc = document.getElementById(countId);
+            if (!ta || !wc) return;
+            ta.addEventListener('input', () => {
+                const text = ta.value.trim();
+                const words = text ? text.split(/\s+/).length : 0;
+                wc.textContent = words + ' word' + (words !== 1 ? 's' : '');
+                wc.classList.toggle('has-content', words > 0);
+            });
+            // Init
+            const text = ta.value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            wc.textContent = words + ' word' + (words !== 1 ? 's' : '');
+            wc.classList.toggle('has-content', words > 0);
+        }
+        updateWordCount('claimInput', 'claimWordCount');
+        updateWordCount('evidenceInput', 'evidenceWordCount');
+        updateWordCount('reasoningInput', 'reasoningWordCount');
+
         // ===== Navigation =====
         function goToStep(n) {
             currentStep = n;
@@ -919,9 +960,27 @@
                 chips.forEach(c => c.classList.remove('selected'));
                 chip.classList.add('selected');
                 selectedTheme = chip.dataset.theme;
+                hideEmptyState();
                 saveState();
             });
         });
+
+        // Hide empty-state on claim input
+        document.getElementById('claimInput').addEventListener('input', function() {
+            if (this.value.trim().length > 0) hideEmptyState();
+        });
+
+        function hideEmptyState() {
+            const es = document.getElementById('cerEmptyState');
+            if (es && !es.classList.contains('hidden')) {
+                es.classList.add('hidden');
+            }
+        }
+
+        // On load: auto-hide empty-state if there's already content
+        if (document.getElementById('claimInput').value.trim() || selectedTheme) {
+            hideEmptyState();
+        }
 
         // Source chip selection
         sourceChips.forEach(chip => {
@@ -965,16 +1024,37 @@
         document.getElementById('backToStep2').addEventListener('click', () => goToStep(1));
         document.getElementById('backToStep3').addEventListener('click', () => goToStep(2));
 
-        // Start over
+        // Start over (with confirmation)
         document.getElementById('btnStartOver').addEventListener('click', () => {
+            if (!confirm('Start a new CER? This will clear your current claim, evidence, and reasoning.')) return;
+            // Clear all inputs
             document.getElementById('claimInput').value = '';
             document.getElementById('evidenceInput').value = '';
             document.getElementById('sourceInput').value = '';
             document.getElementById('reasoningInput').value = '';
+            // Reset selections
             chips.forEach(c => c.classList.remove('selected'));
             sourceChips.forEach(c => c.classList.remove('selected'));
             selectedTheme = '';
             selectedSource = '';
+            // Reset word counts
+            ['claimWordCount', 'evidenceWordCount', 'reasoningWordCount'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = '0 words'; el.classList.remove('has-content'); }
+            });
+            // Uncheck rubric
+            document.querySelectorAll('.rubric-check').forEach(cb => { cb.checked = false; });
+            const rubricScore = document.getElementById('rubricScore');
+            if (rubricScore) rubricScore.textContent = '0 / 7 checked';
+            // Re-show empty state
+            const es = document.getElementById('cerEmptyState');
+            if (es) es.classList.remove('hidden');
+            // Reset autosave badge
+            const badge = document.getElementById('autosaveBadge');
+            if (badge) { badge.classList.remove('visible'); }
+            const textEl = document.getElementById('autosaveText');
+            if (textEl) textEl.textContent = 'Not yet saved';
+            // Clear storage and go to step 1
             clearState();
             goToStep(0);
         });

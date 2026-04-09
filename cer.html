@@ -51,12 +51,12 @@
             letter-spacing: 0.1em;
             font-weight: 600;
         }
-        .cer-flow-step.claim { background: rgba(74, 144, 217, 0.35); }
-        .cer-flow-step.claim .flow-letter { color: #4a90d9; }
-        .cer-flow-step.claim .flow-label { color: #4a90d9; }
-        .cer-flow-step.evidence { background: rgba(46, 204, 113, 0.35); }
-        .cer-flow-step.evidence .flow-letter { color: #2ecc71; }
-        .cer-flow-step.evidence .flow-label { color: #2ecc71; }
+        .cer-flow-step.claim { background: var(--pieces-political-bg); }
+        .cer-flow-step.claim .flow-letter { color: var(--pieces-claim); }
+        .cer-flow-step.claim .flow-label { color: var(--pieces-claim); }
+        .cer-flow-step.evidence { background: var(--pieces-environmental-bg); }
+        .cer-flow-step.evidence .flow-letter { color: var(--pieces-evidence); }
+        .cer-flow-step.evidence .flow-label { color: var(--pieces-evidence); }
         .cer-flow-step.reasoning { background: rgba(212, 160, 57, 0.35); }
         .cer-flow-step.reasoning .flow-letter { color: var(--gold); }
         .cer-flow-step.reasoning .flow-label { color: var(--gold); }
@@ -106,8 +106,8 @@
             height: 100%;
             border-radius: var(--radius-md) 0 0 var(--radius-md);
         }
-        .cer-card.claim-card::before { background: #4a90d9; }
-        .cer-card.evidence-card::before { background: #2ecc71; }
+        .cer-card.claim-card::before { background: var(--pieces-claim); }
+        .cer-card.evidence-card::before { background: var(--pieces-evidence); }
         .cer-card.reasoning-card::before { background: var(--gold); }
 
         .cer-card h2 {
@@ -125,9 +125,9 @@
             padding: 3px 8px;
             border-radius: 4px;
         }
-        .claim-card .cer-badge { background: rgba(74, 144, 217, 0.15); color: #4a90d9; }
-        .evidence-card .cer-badge { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
-        .reasoning-card .cer-badge { background: var(--gold-glow); color: var(--gold); }
+        .claim-card .cer-badge { background: var(--pieces-political-bg); color: var(--pieces-claim); }
+        .evidence-card .cer-badge { background: var(--pieces-environmental-bg); color: var(--pieces-evidence); }
+        .reasoning-card .cer-badge { background: var(--pieces-economic-bg); color: var(--pieces-reasoning); }
 
         .cer-card > p {
             color: var(--text-muted);
@@ -201,7 +201,7 @@
             font-style: normal;
         }
         .cer-example .tag-weak { background: rgba(199, 62, 58, 0.15); color: var(--vermillion); }
-        .cer-example .tag-strong { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .cer-example .tag-strong { background: var(--pieces-environmental-bg); color: var(--pieces-evidence); }
 
         /* PIECES connection */
         .pieces-connection {
@@ -246,10 +246,10 @@
             font-size: 0.8rem;
             font-weight: 600;
         }
-        .flow-diagram .step-pieces { background: rgba(155, 89, 182, 0.15); color: #9b59b6; }
-        .flow-diagram .step-c { background: rgba(74, 144, 217, 0.15); color: #4a90d9; }
-        .flow-diagram .step-e { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
-        .flow-diagram .step-r { background: var(--gold-glow); color: var(--gold); }
+        .flow-diagram .step-pieces { background: var(--pieces-cultural-bg); color: var(--pieces-cultural); }
+        .flow-diagram .step-c { background: var(--pieces-political-bg); color: var(--pieces-claim); }
+        .flow-diagram .step-e { background: var(--pieces-environmental-bg); color: var(--pieces-evidence); }
+        .flow-diagram .step-r { background: var(--pieces-economic-bg); color: var(--pieces-reasoning); }
         .flow-diagram .arrow { color: var(--text-dim); }
 
         /* Sentence starters */

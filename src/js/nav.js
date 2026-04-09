@@ -9,13 +9,43 @@ document.addEventListener('DOMContentLoaded', () => {
     navLinks.classList.toggle('open');
   });
 
-  // Close menu when a link is clicked
+  // Mobile: make "Tools ▾" dropdown expand inline on tap
+  const dropdown = navLinks.querySelector('.nav-dropdown');
+  if (dropdown) {
+    const trigger = dropdown.querySelector(':scope > a');
+    if (trigger) {
+      trigger.addEventListener('click', (e) => {
+        // Only handle as toggle on mobile (when hamburger is visible)
+        if (window.innerWidth <= 768) {
+          e.preventDefault();
+          dropdown.classList.toggle('mobile-open');
+        }
+      });
+    }
+  }
+
+  // Close menu when a non-dropdown link is clicked
   navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
+    link.addEventListener('click', (e) => {
+      // Don't close for the dropdown trigger on mobile
+      if (link.closest('.nav-dropdown') && link === link.closest('.nav-dropdown').querySelector(':scope > a') && window.innerWidth <= 768) {
+        return;
+      }
       toggle.classList.remove('open');
       navLinks.classList.remove('open');
     });
   });
+
+  // ===== Back to Top Button =====
+  const btt = document.querySelector('.back-to-top');
+  if (btt) {
+    window.addEventListener('scroll', () => {
+      btt.classList.toggle('visible', window.scrollY > 300);
+    }, { passive: true });
+    btt.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 });
 
 // ===== Theme Toggle =====
@@ -62,3 +92,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 })();
+
+// ===== Shared Toast Utility =====
+// Usage: window.showToast('Message') from any page
+window.showToast = function(msg) {
+  let toast = document.getElementById('sharedToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'sharedToast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.classList.remove('visible');
+  }, 2200);
+};

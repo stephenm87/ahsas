@@ -70,7 +70,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
-            margin-bottom: var(--space-lg);
+            margin-bottom: var(--space-md);
             border-left: 4px solid var(--unit-color, var(--gold));
             animation: fadeUp 0.3s var(--ease) both;
         }
@@ -91,12 +91,17 @@
             line-height: 1.6;
             margin-top: 4px;
         }
-        .unit-header-stats {
+        .unit-header-right {
             margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            flex-shrink: 0;
+        }
+        .unit-header-stats {
             text-align: right;
             font-size: 0.78rem;
             color: var(--text-dim);
-            flex-shrink: 0;
         }
         .unit-header-stats strong {
             display: block;
@@ -105,12 +110,32 @@
             font-family: var(--font-heading);
         }
 
+
+
         /* ===== Horizontal Timeline Rail ===== */
+        .timeline-rail-container {
+            position: relative;
+            overflow: hidden;
+        }
+
         .timeline-rail-outer {
             position: relative;
             margin-bottom: var(--space-lg);
-            animation: fadeUp 0.3s var(--ease) 0.1s both;
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
+        .timeline-rail-outer.rail-exit {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .timeline-rail-outer.rail-enter {
+            animation: railSlideIn 0.35s var(--ease) both;
+        }
+        @keyframes railSlideIn {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
         .timeline-rail-wrapper {
             position: relative;
             padding: var(--space-lg) var(--space-md);
@@ -238,7 +263,7 @@
             min-width: 90px;
             cursor: pointer;
             position: relative;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.3s ease;
             flex-shrink: 0;
             padding: 0 6px;
         }
@@ -249,6 +274,11 @@
             transform: scale(1.4);
             box-shadow: 0 0 12px var(--node-color, var(--gold));
         }
+        .event-node.dimmed {
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .event-node.dimmed:hover { transform: none; }
 
         .node-date {
             font-size: 0.68rem;
@@ -285,6 +315,7 @@
             transition: all 0.25s ease;
             z-index: 2;
             flex-shrink: 0;
+            position: relative;
         }
         .event-node.active .node-dot {
             transform: scale(1.6);
@@ -450,6 +481,22 @@
         .src-card:hover {
             border-color: rgba(212,160,57,0.35);
         }
+        /* Bookmarked source highlight in timeline */
+        .src-card.src-bookmarked {
+            border-color: rgba(212,160,57,0.4);
+            background: rgba(212,160,57,0.04);
+        }
+        .src-bookmark-badge {
+            font-size: 0.62rem;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background: var(--gold-glow);
+            color: var(--gold);
+            border: 1px solid rgba(212,160,57,0.25);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
         .src-card-header {
             display: flex;
             align-items: center;
@@ -609,9 +656,9 @@
                 flex-direction: column;
                 text-align: center;
             }
-            .unit-header-stats {
+            .unit-header-right {
                 margin-left: 0;
-                text-align: center;
+                justify-content: center;
             }
             .event-node {
                 min-width: 75px;
@@ -620,6 +667,7 @@
                 font-size: 0.65rem;
                 max-width: 75px;
             }
+
         }
     </style>
     <script>(function(){var t=localStorage.getItem("ahsas-theme");if(!t)t=window.matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t)})()</script>
@@ -672,8 +720,12 @@
                 <!-- Unit Header (dynamic) -->
                 <div id="unitHeader"></div>
 
+
+
                 <!-- Horizontal Timeline Rail -->
-                <div id="timelineRailWrapper"></div>
+                <div class="timeline-rail-container" id="timelineRailContainer">
+                    <div id="timelineRailWrapper"></div>
+                </div>
 
                 <!-- Detail Panel -->
                 <div id="detailPanel"></div>
@@ -712,6 +764,11 @@
         let activeUnitId = null;
         let activeEventIndex = -1;
 
+        // Get bookmarks from localStorage
+        function getBookmarks() {
+            return JSON.parse(localStorage.getItem('ahsas-bookmarks') || '[]');
+        }
+
         // Get units with events
         const units = data.units.filter(u => u.keyEvents.length > 0);
 
@@ -741,8 +798,14 @@
             return d + ' CE';
         }
 
-        // ===== Select Unit =====
+
+
+        // ===== Select Unit (with transition) =====
         function selectUnit(unitId) {
+
+            const oldRail = document.getElementById('timelineRailWrapper');
+            const isTransition = activeUnitId !== null && oldRail && oldRail.querySelector('.timeline-rail-outer');
+
             activeUnitId = unitId;
             activeEventIndex = -1;
             const unit = units.find(u => u.id === unitId);
@@ -770,19 +833,19 @@
                         <div class="unit-header-period">${unit.dateRange || unit.period}</div>
                         <div class="unit-header-desc">${unit.description}</div>
                     </div>
-                    <div class="unit-header-stats">
-                        <strong>${events.length}</strong>
-                        key events
+                    <div class="unit-header-right">
+                        <div class="unit-header-stats">
+                            <strong>${events.length}</strong>
+                            key events
+                        </div>
                     </div>
                 </div>`;
 
-            // Render horizontal timeline rail
+            // Build rail HTML
             let railHtml = '<div class="timeline-rail">';
             events.forEach((event, i) => {
                 const primaryTheme = event.pieces && event.pieces.length > 0 ? event.pieces[0] : 'political';
                 const primaryColor = themes[primaryTheme] ? themes[primaryTheme].color : '#888';
-
-                // PIECES micro-dots
                 const pieceDots = (event.pieces || []).map(p => {
                     const t = themes[p];
                     return t ? `<span class="node-piece-dot" style="background:${t.color};"></span>` : '';
@@ -798,8 +861,8 @@
             });
             railHtml += '</div>';
 
-            document.getElementById('timelineRailWrapper').innerHTML = `
-                <div class="timeline-rail-outer">
+            const newRailContent = `
+                <div class="timeline-rail-outer rail-enter">
                     <div class="rail-fade-left" id="railFadeL"></div>
                     <div class="rail-fade-right visible" id="railFadeR"></div>
                     <button class="rail-scroll-btn left" id="railBtnL" onclick="window._scrollRail(-1)">←</button>
@@ -808,28 +871,39 @@
                     <div class="rail-progress"><div class="rail-progress-fill" id="railProgress" style="width:10%;"></div></div>
                 </div>`;
 
-            // Wire up scroll indicators
+            if (isTransition) {
+                // Slide-out old, slide-in new
+                const oldOuter = oldRail.querySelector('.timeline-rail-outer');
+                oldOuter.classList.add('rail-exit');
+                setTimeout(() => {
+                    oldRail.innerHTML = newRailContent;
+                    wireRailScroll();
+                    window._currentEvents = events;
+                    window._currentUnit = unit;
+                    selectEvent(0);
+                }, 220);
+            } else {
+                oldRail.innerHTML = newRailContent;
+                wireRailScroll();
+                window._currentEvents = events;
+                window._currentUnit = unit;
+                selectEvent(0);
+            }
+        }
+
+        function wireRailScroll() {
             requestAnimationFrame(() => {
                 const scroller = document.getElementById('railScroller');
                 if (scroller) {
                     updateScrollIndicators(scroller);
                     scroller.addEventListener('scroll', () => updateScrollIndicators(scroller), { passive: true });
                 }
+                // Remove rail-enter class after animation
+                const outer = document.querySelector('.timeline-rail-outer.rail-enter');
+                if (outer) {
+                    outer.addEventListener('animationend', () => outer.classList.remove('rail-enter'), { once: true });
+                }
             });
-
-            // Render detail placeholder
-            document.getElementById('detailPanel').innerHTML = `
-                <div class="detail-placeholder">
-                    <div class="icon-lg">👆</div>
-                    <p>Click any event above to explore its story.</p>
-                </div>`;
-
-            // Store events for navigation
-            window._currentEvents = events;
-            window._currentUnit = unit;
-
-            // Auto-select first event
-            selectEvent(0);
         }
 
         // ===== Select Event =====
@@ -867,14 +941,19 @@
                 : '';
 
             // Navigation
-            const prevDisabled = index === 0 ? 'disabled' : '';
-            const nextDisabled = index === events.length - 1 ? 'disabled' : '';
+            const prevIdx = index - 1;
+            const nextIdx = index + 1;
+            const prevDisabled = prevIdx < 0 ? 'disabled' : '';
+            const nextDisabled = nextIdx >= events.length ? 'disabled' : '';
 
-            // Related sources for this unit
+            // Related sources with bookmark badges
+            const bookmarks = getBookmarks();
             const unitSources = (window.AHSAS_SOURCES || []).filter(s => s.unit === unit.id);
             let sourcesHtml = '';
             if (unitSources.length > 0) {
                 const sourceCards = unitSources.map((s, si) => {
+                    const isBookmarked = bookmarks.includes(s.id);
+                    const bookmarkBadge = isBookmarked ? '<span class="src-bookmark-badge">⭐ Bookmarked</span>' : '';
                     const typeBadge = s.type === 'primary'
                         ? '<span class="src-badge primary">📜 Primary</span>'
                         : '<span class="src-badge secondary">📖 Secondary</span>';
@@ -883,9 +962,9 @@
                     const formatBadge = `<span class="src-badge ${fmtClass}">${formatMap[s.format] || '📝 Text'}</span>`;
                     const prompts = (s.analysisPrompts || []).map(p => `<div class="src-card-prompt">${p}</div>`).join('');
                     return `
-                        <div class="src-card" id="srcCard${si}">
+                        <div class="src-card ${isBookmarked ? 'src-bookmarked' : ''}" id="srcCard${si}">
                             <div class="src-card-header" onclick="window._toggleSrcCard(${si})">
-                                <div class="src-card-badges">${typeBadge}${formatBadge}</div>
+                                <div class="src-card-badges">${typeBadge}${formatBadge}${bookmarkBadge}</div>
                                 <span class="src-card-title">${s.title}</span>
                                 <span class="src-card-toggle">▼</span>
                             </div>
@@ -896,8 +975,8 @@
                                 <div class="src-card-citation">${s.mlaCitation}</div>
                                 ${prompts ? `<div class="src-card-prompts"><div class="src-card-prompts-label">Analysis Prompts</div>${prompts}</div>` : ''}
                                 <div class="src-card-actions">
-                                    ${s.url ? `<a class="src-action-link view" href="${s.url}" target="_blank" rel="noopener">View Original ↗</a>` : ''}
-                                    <a class="src-action-link analyze" href="/source-analyzer.html" target="_blank">Use in Analyzer ↗</a>
+                                    ${s.url ? `<a class="src-action-link view" href="${s.url}" target="_blank" rel="noopener">View Original</a>` : ''}
+                                    <a class="src-action-link analyze" href="/source-analyzer.html?title=${encodeURIComponent(s.title)}&type=${encodeURIComponent(s.format || 'text')}&sourceType=${encodeURIComponent(s.type)}">Analyze This Source</a>
                                 </div>
                             </div>
                         </div>`;
@@ -920,9 +999,9 @@
                     ${sourceLink}
                     ${sourcesHtml}
                     <div class="detail-panel-nav">
-                        <button class="detail-nav-btn" ${prevDisabled} onclick="window._selectEvent(${index - 1})">← ${index > 0 ? events[index-1].title.substring(0,25) + (events[index-1].title.length > 25 ? '…' : '') : 'Previous'}</button>
+                        <button class="detail-nav-btn" ${prevDisabled} onclick="window._selectEvent(${prevIdx >= 0 ? prevIdx : 0})">← ${prevIdx >= 0 ? events[prevIdx].title.substring(0,25) + (events[prevIdx].title.length > 25 ? '…' : '') : 'Previous'}</button>
                         <span style="font-size:0.75rem;color:var(--text-dim);">${index + 1} / ${events.length}</span>
-                        <button class="detail-nav-btn" ${nextDisabled} onclick="window._selectEvent(${index + 1})">${index < events.length - 1 ? events[index+1].title.substring(0,25) + (events[index+1].title.length > 25 ? '…' : '') : 'Next'} →</button>
+                        <button class="detail-nav-btn" ${nextDisabled} onclick="window._selectEvent(${nextIdx < events.length ? nextIdx : events.length - 1})">${nextIdx < events.length ? events[nextIdx].title.substring(0,25) + (events[nextIdx].title.length > 25 ? '…' : '') : 'Next'} →</button>
                     </div>
                 </div>`;
         }
@@ -956,7 +1035,9 @@
         };
 
         // Expose for onclick handlers
-        window._selectEvent = selectEvent;
+        window._selectEvent = function(idx) {
+            selectEvent(idx);
+        };
         window._toggleSrcCard = function(idx) {
             const card = document.getElementById('srcCard' + idx);
             if (card) card.classList.toggle('expanded');
@@ -967,16 +1048,28 @@
             if (!window._currentEvents) return;
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (activeEventIndex < window._currentEvents.length - 1) selectEvent(activeEventIndex + 1);
+                const nextIdx = activeEventIndex + 1;
+                if (nextIdx < window._currentEvents.length) selectEvent(nextIdx);
             } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (activeEventIndex > 0) selectEvent(activeEventIndex - 1);
+                const prevIdx = activeEventIndex - 1;
+                if (prevIdx >= 0) selectEvent(prevIdx);
             }
         });
+
+        // Toast
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            if (!t) return;
+            t.textContent = msg;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 2500);
+        }
 
         // Auto-select first unit
         if (units.length > 0) selectUnit(units[0].id);
     });
     </script>
+    <div class="toast" id="toast"></div>
 </body>
 </html>

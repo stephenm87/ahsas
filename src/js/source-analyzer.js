@@ -148,6 +148,7 @@
   // ===== Init =====
   function init() {
     loadState();
+    prefillFromURL();
     setupSourceType();
     setupPSToggle();
     setupEvalTabs();
@@ -155,8 +156,48 @@
     setupNavigation();
     setupAutoSave();
     setupExport();
+    setupWordCounts();
     updateQuestions();
     renderStep();
+  }
+
+  // ===== Deep-link pre-fill from URL params =====
+  function prefillFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('title')) return;
+
+    // Pre-fill source title
+    const title = params.get('title');
+    const titleEl = document.getElementById('sourceTitle');
+    if (titleEl && title && !titleEl.value) titleEl.value = title;
+
+    // Pre-fill source format type (text, image, map, data)
+    const type = params.get('type');
+    if (type && ['text', 'image', 'map', 'data'].includes(type)) {
+      sourceType = type;
+      document.querySelectorAll('.source-type-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.querySelector(`.source-type-btn[data-type="${type}"]`);
+      if (btn) btn.classList.add('active');
+      updateSourcePlaceholder();
+    }
+
+    // Pre-fill primary/secondary toggle
+    const sType = params.get('sourceType');
+    if (sType && ['primary', 'secondary'].includes(sType)) {
+      primarySecondary = sType;
+      document.querySelectorAll('.ps-toggle-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.querySelector(`.ps-toggle-btn[data-ps="${sType}"]`);
+      if (btn) btn.classList.add('active');
+      updateQuestions();
+      buildEvalTabs();
+      renderEvalTab();
+    }
+
+    // Clean URL params without page reload
+    window.history.replaceState({}, '', window.location.pathname);
+
+    // Show a toast
+    if (window.showToast) window.showToast('Source pre-filled: ' + title);
   }
 
   // ===== Source Type =====
@@ -540,8 +581,12 @@
   }
 
   function flashSave() {
+    const textEl = document.getElementById('analyzerAutosaveText');
+    const now = new Date();
+    if (textEl) textEl.textContent = 'Saved at ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     saveIndicator.classList.add('visible');
-    setTimeout(() => saveIndicator.classList.remove('visible'), 1200);
+    clearTimeout(saveIndicator._hideTimer);
+    saveIndicator._hideTimer = setTimeout(() => saveIndicator.classList.remove('visible'), 5000);
   }
 
   // ===== Export =====
@@ -637,6 +682,30 @@
       clearTimeout(timer);
       timer = setTimeout(() => fn.apply(this, args), ms);
     };
+  }
+
+  // ===== Word Counts =====
+  function setupWordCounts() {
+    const pairs = [
+      ['sourceContent', 'wcSourceContent'],
+      ['observeNotes', 'wcObserveNotes'],
+      ['cerClaim', 'wcCerClaim'],
+      ['cerEvidence', 'wcCerEvidence'],
+      ['cerReasoning', 'wcCerReasoning']
+    ];
+    pairs.forEach(([taId, wcId]) => {
+      const ta = document.getElementById(taId);
+      const wc = document.getElementById(wcId);
+      if (!ta || !wc) return;
+      const update = () => {
+        const text = ta.value.trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        wc.textContent = words + ' word' + (words !== 1 ? 's' : '');
+        wc.classList.toggle('has-content', words > 0);
+      };
+      ta.addEventListener('input', update);
+      update(); // Init
+    });
   }
 
   // Boot

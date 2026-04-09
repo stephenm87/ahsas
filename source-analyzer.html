@@ -247,12 +247,12 @@
             text-transform: uppercase;
             letter-spacing: 0.06em;
         }
-        .pieces-chip.p-political { color: #4a90d9; }
-        .pieces-chip.p-innovation { color: #e67e22; }
-        .pieces-chip.p-environmental { color: #2ecc71; }
-        .pieces-chip.p-cultural { color: #9b59b6; }
-        .pieces-chip.p-economic { color: var(--gold); }
-        .pieces-chip.p-social { color: var(--vermillion); }
+        .pieces-chip.p-political { color: var(--pieces-political); }
+        .pieces-chip.p-innovation { color: var(--pieces-innovation); }
+        .pieces-chip.p-environmental { color: var(--pieces-environmental); }
+        .pieces-chip.p-cultural { color: var(--pieces-cultural); }
+        .pieces-chip.p-economic { color: var(--pieces-economic); }
+        .pieces-chip.p-social { color: var(--pieces-social); }
 
         /* Bottom nav */
         .step-nav {
@@ -282,9 +282,9 @@
             font-weight: 700;
             margin-bottom: var(--space-sm);
         }
-        .review-label.observe-label { color: #4a90d9; }
-        .review-label.context-label { color: #e67e22; }
-        .review-label.analyze-label { color: #9b59b6; }
+        .review-label.observe-label { color: var(--pieces-political); }
+        .review-label.context-label { color: var(--pieces-innovation); }
+        .review-label.analyze-label { color: var(--pieces-cultural); }
         .review-label.pieces-label { color: var(--jade); }
         .review-label.cer-label { color: var(--gold); }
         .review-content {
@@ -378,9 +378,9 @@
         .analyzer-hint { font-size: 0.88rem; }
         .analyzer-intro-tagline { font-size: 1.05rem; }
         .framework-badge-text { font-size: 0.8rem; }
-        .cer-claim-label { color: #4a90d9; }
-        .cer-evidence-label { color: #2ecc71; }
-        .cer-reasoning-label { color: var(--gold); }
+        .cer-claim-label { color: var(--pieces-claim); }
+        .cer-evidence-label { color: var(--pieces-evidence); }
+        .cer-reasoning-label { color: var(--pieces-reasoning); }
         .btn-muted { opacity: 0.6; }
 
         /* Review extras */
@@ -517,6 +517,7 @@
                             <label class="form-label" for="sourceContent">Paste Source Text or Describe the Source</label>
                             <textarea id="sourceContent" class="form-textarea form-textarea-tall"
                                 placeholder="Paste the text of the source here, or describe an image/artifact/map in detail..."></textarea>
+                            <div class="word-count" id="wcSourceContent">0 words</div>
                         </div>
 
                         <div class="guiding-questions" id="observeQuestions">
@@ -533,6 +534,7 @@
                             <label class="form-label" for="observeNotes">Your Observations</label>
                             <textarea id="observeNotes" class="form-textarea"
                                 placeholder="Write what you observe — focus on what's literally there, not interpretation yet..."></textarea>
+                            <div class="word-count" id="wcObserveNotes">0 words</div>
                         </div>
                     </div>
                 </div>
@@ -633,18 +635,21 @@
                             <label class="form-label cer-claim-label">Claim — What argument can you make based on this source?</label>
                             <textarea id="cerClaim" class="form-textarea"
                                 placeholder="Write an arguable claim that this source helps support. Be specific and connect to a PIECES theme."></textarea>
+                            <div class="word-count" id="wcCerClaim">0 words</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label cer-evidence-label">Evidence — What specific details from this source support your claim?</label>
                             <textarea id="cerEvidence" class="form-textarea"
                                 placeholder="Quote or cite specific details from the source. Include dates, names, numbers, or direct quotes."></textarea>
+                            <div class="word-count" id="wcCerEvidence">0 words</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label cer-reasoning-label">Reasoning — Why does this evidence support your claim?</label>
                             <textarea id="cerReasoning" class="form-textarea"
                                 placeholder="Explain how your evidence proves your claim. Connect to PIECES themes and discuss broader significance."></textarea>
+                            <div class="word-count" id="wcCerReasoning">0 words</div>
                         </div>
                     </div>
                 </div>
@@ -682,6 +687,12 @@
                     <a href="/cer.html" class="btn btn-primary btn-sm">Open CER Builder →</a>
                 </div>
 
+                <div class="bridge-cta">
+                    <h4>📚 Need more sources?</h4>
+                    <p>Browse the Source Library for curated primary and secondary sources organized by era and theme.</p>
+                    <a href="/sources.html" class="btn btn-jade btn-sm">Open Source Library →</a>
+                </div>
+
             </div>
 
             </div>
@@ -706,8 +717,10 @@
         </footer>
     </div>
 
-    <!-- Save Indicator -->
-    <div class="save-indicator" id="saveIndicator">✓ Saved</div>
+    <button class="back-to-top" aria-label="Back to top">↑</button>
+
+    <!-- Auto-Save Indicator -->
+    <span class="autosave-badge" id="saveIndicator"><span class="save-dot"></span> <span id="analyzerAutosaveText">Not yet saved</span></span>
 
     <script type="module" src="/src/js/progress.js"></script>
     <script type="module" src="/src/js/nav.js"></script>
