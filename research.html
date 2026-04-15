@@ -6,6 +6,7 @@
     <title>Research Studio — AHSAS</title>
     <meta name="description" content="Inquiry-based research project scaffold. Build research questions, gather evidence, and let your thesis emerge from the investigation.">
     <link rel="stylesheet" href="/src/styles/main.css">
+    <link rel="stylesheet" href="/src/styles/auth.css">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0f0f14">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -778,6 +779,7 @@
                         <div class="logo-seal"><img src="/icons/logo.png" alt="AHSAS 亚洲歷史" width="38" height="38"></div>
                         <span class="logo-text">AHSAS</span>
                     </a>
+                    <div id="auth-badge" class="auth-badge-slot"></div>
                     <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
                     <button class="nav-toggle" aria-label="Toggle navigation">
                         <span></span><span></span><span></span>
@@ -1203,5 +1205,46 @@
     <script type="module" src="/src/js/progress.js"></script>
     <script type="module" src="/src/js/nav.js"></script>
     <script type="module" src="/src/js/research.js"></script>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" role="dialog" aria-modal="true" aria-label="Sign in">
+        <div class="auth-modal-card">
+            <button class="auth-modal-close" id="auth-modal-close" aria-label="Close">✕</button>
+            <div id="auth-modal-body">
+                <div class="auth-modal-logo">📚</div>
+                <h2 class="auth-modal-title">Save Your Work</h2>
+                <p class="auth-modal-subtitle">Sign in with your SAS school email to save your work and track progress.</p>
+                <input type="email" id="auth-email-input" class="auth-modal-input"
+                    placeholder="firstname.lastname@saschina.org"
+                    autocomplete="email" spellcheck="false">
+                <button class="auth-modal-btn" id="auth-send-btn">Send Magic Link</button>
+                <div class="auth-modal-error" id="auth-modal-error"></div>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { initAuth, signInWithMagicLink } from '/src/js/auth.js';
+        initAuth();
+        const modal = document.getElementById('auth-modal');
+        const closeBtn = document.getElementById('auth-modal-close');
+        closeBtn?.addEventListener('click', () => modal.classList.remove('visible'));
+        modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('visible'); });
+        const sendBtn = document.getElementById('auth-send-btn');
+        const emailInput = document.getElementById('auth-email-input');
+        const errorEl = document.getElementById('auth-modal-error');
+        sendBtn?.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            if (!email) { errorEl.textContent = 'Please enter your email.'; return; }
+            sendBtn.disabled = true; sendBtn.textContent = 'Sending...'; errorEl.textContent = '';
+            try {
+                await signInWithMagicLink(email);
+                document.getElementById('auth-modal-body').innerHTML = `<div class="auth-modal-success"><div class="auth-modal-success-icon">✉️</div><h3>Check your email!</h3><p>A sign-in link was sent to <strong>${email}</strong>.<br>Click it to sign in — no password needed.</p></div>`;
+            } catch (err) {
+                errorEl.textContent = err.message;
+                sendBtn.disabled = false; sendBtn.textContent = 'Send Magic Link';
+            }
+        });
+        emailInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendBtn.click(); });
+    </script>
 </body>
 </html>

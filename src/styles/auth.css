@@ -1,0 +1,213 @@
+/* =====================================================
+   Auth UI Styles — Shared across AHSAS, Companion, GCC
+   Magic Link modal + user badge
+   ===================================================== */
+
+/* ── Auth Badge (top-right of nav) ─────────────────── */
+.auth-user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px 4px 4px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+    cursor: default;
+}
+
+.auth-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c9a84c, #e8c97a);
+    color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.auth-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.auth-signout {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0 2px;
+    line-height: 1;
+    transition: color 0.2s;
+    transform: rotate(0deg);
+}
+.auth-signout:hover { color: rgba(255,255,255,0.8); }
+
+.auth-signin-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.auth-signin-btn:hover {
+    border-color: rgba(201,168,76,0.6);
+    color: #c9a84c;
+    background: rgba(201,168,76,0.06);
+}
+
+/* ── Auth Modal Overlay ─────────────────────────────── */
+#auth-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+#auth-modal.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.auth-modal-card {
+    background: #1a1a2e;
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 20px;
+    padding: 36px 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    animation: authSlideUp 0.3s ease;
+}
+@keyframes authSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.auth-modal-logo {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.auth-modal-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #e8c97a;
+    text-align: center;
+    margin: 0 0 6px;
+}
+
+.auth-modal-subtitle {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    margin: 0 0 28px;
+}
+
+.auth-modal-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+}
+.auth-modal-input:focus {
+    border-color: rgba(201,168,76,0.5);
+}
+.auth-modal-input::placeholder { color: rgba(255,255,255,0.3); }
+
+.auth-modal-btn {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #c9a84c, #e8c97a);
+    color: #1a1a2e;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+}
+.auth-modal-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.auth-modal-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+.auth-modal-error {
+    color: #ff6b6b;
+    font-size: 0.8rem;
+    margin-top: 8px;
+    min-height: 18px;
+    text-align: center;
+}
+
+.auth-modal-success {
+    text-align: center;
+    padding: 16px 0;
+}
+.auth-modal-success-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.auth-modal-success h3 {
+    color: #e8c97a;
+    font-size: 1.05rem;
+    margin: 0 0 8px;
+}
+.auth-modal-success p {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.82rem;
+    margin: 0;
+}
+
+.auth-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.auth-modal-close:hover { color: rgba(255,255,255,0.7); }
+
+.auth-modal-card { position: relative; }
+
+/* ── Save prompt (soft gate) ────────────────────────── */
+.auth-save-prompt {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    transition: color 0.2s;
+}
+.auth-save-prompt:hover { color: #c9a84c; }
+.auth-save-prompt::before { content: '🔒'; font-size: 0.7rem; }
