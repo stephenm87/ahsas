@@ -2,6 +2,9 @@
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+  [build.environment]
+    SUPABASE_URL = ""
+    SUPABASE_ANON_KEY = ""
 
 [dev]
   command = "npm run dev"
