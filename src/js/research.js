@@ -705,7 +705,12 @@
         state.subqCount = subqCount;
 
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            const serialised = JSON.stringify(state);
+            if (window.AHSAS_SYNC) {
+                window.AHSAS_SYNC.setItem(STORAGE_KEY, serialised);
+            } else {
+                localStorage.setItem(STORAGE_KEY, serialised);
+            }
             // Show auto-save badge
             const badge = document.getElementById('researchAutosaveBadge');
             const textEl = document.getElementById('researchAutosaveText');

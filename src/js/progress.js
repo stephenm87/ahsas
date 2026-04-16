@@ -10,7 +10,10 @@ function getProgress() {
 }
 
 function saveProgress(data) {
-  localStorage.setItem(AHSAS_PROGRESS_KEY, JSON.stringify(data));
+  const json = JSON.stringify(data);
+  localStorage.setItem(AHSAS_PROGRESS_KEY, json);
+  // Sync to cloud if signed in
+  (window.AHSAS_SYNC?.setItem(AHSAS_PROGRESS_KEY, json));
 }
 
 /**

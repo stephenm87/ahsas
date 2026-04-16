@@ -926,7 +926,14 @@
                 step: currentStep,
                 ts: Date.now()
             };
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+            try {
+                const serialised = JSON.stringify(state);
+                if (window.AHSAS_SYNC) {
+                    window.AHSAS_SYNC.setItem(STORAGE_KEY, serialised);
+                } else {
+                    localStorage.setItem(STORAGE_KEY, serialised);
+                }
+            } catch(e) {}
             // Show autosave badge with timestamp
             const badge = document.getElementById('autosaveBadge');
             const textEl = document.getElementById('autosaveText');
@@ -967,7 +974,11 @@
         }
 
         function clearState() {
-            try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+            if (window.AHSAS_SYNC) {
+                window.AHSAS_SYNC.removeItem(STORAGE_KEY);
+            } else {
+                try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+            }
         }
 
         // Auto-save on input changes
@@ -1515,6 +1526,11 @@
         // Load saved state on page load
         loadState();
         checkHandoff();
+
+        // Reload from cloud when user signs in mid-session
+        window.addEventListener('ahsas:sync-ready', () => {
+            loadState();
+        });
     })();
     </script>
 

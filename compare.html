@@ -368,6 +368,7 @@
                         <div class="logo-seal"><img src="/icons/logo.png" alt="AHSAS 亚洲歷史" width="38" height="38"></div>
                         <span class="logo-text">AHSAS</span>
                     </a>
+                    <div id="auth-badge" class="auth-badge-slot"></div>
                     <button class="theme-toggle" aria-label="Toggle theme">☀️</button>
                     <button class="nav-toggle" aria-label="Toggle navigation">
                         <span></span><span></span><span></span>
@@ -654,7 +655,11 @@
             document.getElementById('btnPrintCompare').addEventListener('click', () => window.print());
             document.getElementById('btnClearCompare').addEventListener('click', () => {
                 if (!confirm('Clear all comparison notes?')) return;
-                localStorage.removeItem(STORAGE_KEY);
+                if (window.AHSAS_SYNC) {
+                    window.AHSAS_SYNC.removeItem(STORAGE_KEY);
+                } else {
+                    localStorage.removeItem(STORAGE_KEY);
+                }
                 textareas.forEach(ta => ta.value = '');
                 checkSynthesisQuality();
             });
@@ -709,11 +714,12 @@
             const synthesis = document.getElementById('synthesisField');
             if (synthesis) fields.synthesis = synthesis.value;
 
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                a: unitA.id,
-                b: unitB.id,
-                fields
-            }));
+            const serialised = JSON.stringify({ a: unitA.id, b: unitB.id, fields });
+            if (window.AHSAS_SYNC) {
+                window.AHSAS_SYNC.setItem(STORAGE_KEY, serialised);
+            } else {
+                localStorage.setItem(STORAGE_KEY, serialised);
+            }
         }
 
         function copyAsText() {
@@ -777,6 +783,18 @@
                 buildComparison();
             }
         } catch(e) {}
+
+        // Reload when user signs in mid-session (cloud data pulled down)
+        window.addEventListener('ahsas:sync-ready', () => {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const saved = JSON.parse(raw);
+                if (saved.a) { selectA.value = saved.a; showUnitInfo(getUnit(saved.a), 'infoA'); }
+                if (saved.b) { selectB.value = saved.b; showUnitInfo(getUnit(saved.b), 'infoB'); }
+                buildComparison();
+            } catch(e) {}
+        });
     });
 
     // ===== Cross-Tool Pipeline: Send to Research Studio =====

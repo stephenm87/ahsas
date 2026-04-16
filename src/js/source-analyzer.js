@@ -592,7 +592,12 @@
       data[id] = val(id);
     });
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const serialised = JSON.stringify(data);
+      if (window.AHSAS_SYNC) {
+        window.AHSAS_SYNC.setItem(STORAGE_KEY, serialised);
+      } else {
+        localStorage.setItem(STORAGE_KEY, serialised);
+      }
     } catch (e) { /* Quota exceeded */ }
   }
 
@@ -647,7 +652,8 @@
 
     btnClear.addEventListener('click', () => {
       if (!confirm('Start a new analysis? This will clear all your current notes.')) return;
-      localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+    if (window.AHSAS_SYNC) window.AHSAS_SYNC.removeItem(STORAGE_KEY);
       FIELDS.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -862,4 +868,10 @@
   } else {
     init();
   }
+
+  // Reload state when user signs in mid-session (cloud data just pulled down)
+  window.addEventListener('ahsas:sync-ready', () => {
+    loadState();
+    renderStep();
+  });
 })();

@@ -1,4 +1,10 @@
 // Shared nav toggle for mobile hamburger menu + theme toggle
+import { initAuth } from './auth.js';
+import './sync.js'; // Cloud sync layer — initialises silently on every page
+
+// Initialize auth on every page (injects modal + badge automatically)
+initAuth();
+
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.querySelector('.nav-toggle');
   const navLinks = document.querySelector('.nav-links');

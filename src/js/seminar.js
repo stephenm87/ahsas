@@ -162,7 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
             row.querySelectorAll('input').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     evalState[q.id] = parseInt(e.target.value, 10);
-                    localStorage.setItem('ahsas_seminar_eval', JSON.stringify(evalState));
+                    const evalJson = JSON.stringify(evalState);
+                    localStorage.setItem('ahsas_seminar_eval', evalJson);
+                    (window.AHSAS_SYNC?.setItem('ahsas_seminar_eval', evalJson));
                     updateReflectionButton();
                 });
             });
@@ -371,7 +373,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveData() {
-        localStorage.setItem('ahsas_seminar_dna', JSON.stringify(counts));
+        const dnaJson = JSON.stringify(counts);
+        localStorage.setItem('ahsas_seminar_dna', dnaJson);
+        (window.AHSAS_SYNC?.setItem('ahsas_seminar_dna', dnaJson));
     }
 
     // 3. Reset Button
@@ -382,6 +386,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 evalState = {};
                 saveData();
                 localStorage.removeItem('ahsas_seminar_eval');
+                localStorage.removeItem('ahsas_seminar_prep');
+                // Clear cloud copies too
+                (window.AHSAS_SYNC?.setItem('ahsas_seminar_dna', '{}'));
+                (window.AHSAS_SYNC?.setItem('ahsas_seminar_eval', '{}'));
+                (window.AHSAS_SYNC?.setItem('ahsas_seminar_prep', '{}'));
                 
                 renderGrid();
                 renderEvalForm();
@@ -421,7 +430,11 @@ function initDiscussionPrep() {
                 const f = document.getElementById(fid);
                 if (f) data[fid] = f.value;
             });
-            try { localStorage.setItem(PREP_KEY, JSON.stringify(data)); } catch(e) {}
+            try {
+                const prepJson = JSON.stringify(data);
+                localStorage.setItem(PREP_KEY, prepJson);
+                (window.AHSAS_SYNC?.setItem(PREP_KEY, prepJson));
+            } catch(e) {}
             checkPrepQuality(id);
         });
     });
