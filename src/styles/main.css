@@ -1395,6 +1395,79 @@ button:focus-visible,
 .gap-md { gap: var(--space-md); }
 .hidden { display: none !important; }
 
+/* ---------- IB Skills Tracker Bars ---------- */
+.skills-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: var(--space-sm);
+}
+.skill-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+}
+.skill-icon {
+  font-size: 0.95rem;
+  text-align: center;
+  line-height: 1;
+}
+.skill-info { flex: 1; min-width: 0; }
+.skill-name-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.skill-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+.skill-ib {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.skill-track {
+  height: 5px;
+  background: var(--subtle-bg);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+.skill-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+.skill-mastery {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+.skill-mastery.developing { color: var(--text-muted); }
+.skill-mastery.practicing { color: var(--gold); font-style: normal; font-weight: 600; }
+.skill-mastery.proficient { color: var(--jade); font-style: normal; font-weight: 700; }
+.skill-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-align: right;
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .skill-name-row { flex-direction: column; gap: 1px; }
+  .skill-ib { display: none; }
+}
+
+
 /* Seminar utility classes */
 .view-padded { padding: var(--space-2xl) 0; }
 .mx-auto-narrow { max-width: 420px; margin-left: auto; margin-right: auto; }

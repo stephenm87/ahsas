@@ -1,6 +1,16 @@
 // AHSAS Student Progress Tracking (localStorage)
 const AHSAS_PROGRESS_KEY = 'ahsas-progress';
 
+// ── IB Skill Taxonomy ────────────────────────────────────────────────────────
+const SKILLS = [
+  { id: 'source-eval',   icon: '🔍', name: 'Source Evaluation',    ib: 'Paper 1 · OPVL / HIPP',  key: 'source-analysis', color: '#ef4444' },
+  { id: 'argumentation', icon: '✍️',  name: 'Historical Argument',   ib: 'Paper 2 / 3 · Essay',    key: 'cer',             color: '#2d8a6e' },
+  { id: 'inquiry',       icon: '🔬', name: 'Research & Inquiry',    ib: 'Internal Assessment',    key: 'research',        color: '#d4a039' },
+  { id: 'discussion',    icon: '🗣️', name: 'Critical Discussion',   ib: 'Oral / Seminar',         key: 'seminar',         color: '#8b5cf6' },
+  { id: 'comparison',    icon: '⚖️', name: 'Analytical Comparison', ib: 'Paper 1 / 2 · Compare',  key: 'compare',         color: '#0ea5e9' },
+  { id: 'conceptual',    icon: '🧩', name: 'Conceptual Thinking',   ib: 'All Papers · PIECES',    key: 'pieces',          color: '#f97316' },
+];
+
 function getProgress() {
   try {
     return JSON.parse(localStorage.getItem(AHSAS_PROGRESS_KEY)) || { completions: [], stats: {} };
@@ -36,6 +46,18 @@ function recordCompletion(toolName, label) {
 
   saveProgress(data);
   return data;
+}
+
+/**
+ * Get all skill stats mapped to the IB taxonomy.
+ * @returns {Array<{id, icon, name, ib, key, color, count}>}
+ */
+function getSkillStats() {
+  const data = getProgress();
+  return SKILLS.map(skill => ({
+    ...skill,
+    count: data.stats[skill.key] || 0
+  }));
 }
 
 /**
@@ -99,7 +121,9 @@ function formatRelativeTime(isoString) {
 window.ahsasProgress = {
   recordCompletion,
   getStats,
+  getSkillStats,
   getRecentActivity,
   clearProgress,
-  formatRelativeTime
+  formatRelativeTime,
+  SKILLS,
 };

@@ -2,6 +2,8 @@
     let currentStep = 1;
     let completedSteps = new Set();
     const STORAGE_KEY = 'ahsas_research_studio';
+    let _outlineRecorded = false; // prevent duplicate skill recording per session
+
 
     document.addEventListener('DOMContentLoaded', function() {
         loadState();
@@ -189,6 +191,13 @@
             document.getElementById('thesisReminder').textContent = thesis ? thesis.value || '(complete Step 6 first)' : '';
             buildBodyParagraphs();
             setTimeout(buildFlowchart, 100);
+            // Record Research & Inquiry skill completion (once per session)
+            if (!_outlineRecorded && completedSteps.size >= 4) {
+                _outlineRecorded = true;
+                const rqEl = document.getElementById('researchQuestion');
+                const rqText = (rqEl?.value || 'Research Project').trim().substring(0, 50);
+                if (window.ahsasProgress) window.ahsasProgress.recordCompletion('research', rqText);
+            }
         }
 
         renderTracker();

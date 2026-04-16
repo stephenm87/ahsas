@@ -517,10 +517,10 @@
                 <div id="progressDashboard" class="progress-dashboard animate-in delay-3" style="display:none;">
                     <div class="card">
                         <div class="progress-header">
-                            <h3>📊 Your Progress</h3>
+                            <h3>⚡ IB Skills Tracker</h3>
                             <button id="clearProgress" class="btn btn-sm btn-secondary">Clear</button>
                         </div>
-                        <div id="progressStats" class="progress-stats"></div>
+                        <div id="skillsBars" class="skills-bars"></div>
                         <div id="progressRecent" class="progress-recent"></div>
                     </div>
                 </div>
@@ -824,23 +824,103 @@
             const clearAllBtn = document.getElementById('clearAllProgress');
             if (clearAllBtn) wireConfirmButton(clearAllBtn, 'Clear All');
 
-            // --- Progress Dashboard ---
-            const stats = window.ahsasProgress ? window.ahsasProgress.getStats() : null;
-            if (stats && stats.total > 0) {
-                const dashboard = document.getElementById('progressDashboard');
-                dashboard.style.display = 'block';
-                const statsEl = document.getElementById('progressStats');
-                const items = [];
-                if (stats.cer > 0) items.push(`<span>✍️ <strong>${stats.cer}</strong> CER paragraph${stats.cer > 1 ? 's' : ''} built</span>`);
-                if (stats['source-analysis'] > 0) items.push(`<span>🔍 <strong>${stats['source-analysis']}</strong> source${stats['source-analysis'] > 1 ? 's' : ''} analyzed</span>`);
-                statsEl.innerHTML = items.join('');
-                const recent = window.ahsasProgress.getRecentActivity();
-                if (recent.length > 0) {
-                    document.getElementById('progressRecent').textContent = `Last active: ${relTime(stats.lastActivity)}`;
+            // --- Skills Dashboard ---
+            (function renderSkillsDashboard() {
+                // 1. Recorded completion counts
+                const prog = JSON.parse(localStorage.getItem('ahsas-progress') || '{}');
+                const pStats = prog.stats || {};
+
+                // 2. Base skill counts from recordCompletion data
+                const counts = {
+                    'source-eval':   pStats['source-analysis'] || 0,
+                    'argumentation': pStats['cer']              || 0,
+                    'inquiry':       pStats['research']         || 0,
+                    'discussion':    pStats['seminar']          || 0,
+                    'comparison':    pStats['compare']          || 0,
+                    'conceptual':    pStats['pieces']           || 0,
+                };
+
+                // 3. Supplement from raw localStorage (tools not fully wired to recordCompletion yet)
+                try {
+                    const rs = JSON.parse(localStorage.getItem('ahsas_research_studio') || 'null');
+                    if (rs && counts['inquiry'] === 0) {
+                        const done = Array.isArray(rs.completedSteps) ? rs.completedSteps.length
+                                   : (rs.completedSteps ? Object.keys(rs.completedSteps).length : 0);
+                        if (done >= 3) counts['inquiry'] = Math.max(1, Math.floor(done / 2));
+                    }
+                } catch(e) {}
+                try {
+                    const dna = JSON.parse(localStorage.getItem('ahsas_seminar_dna') || '{}');
+                    const contribs = Object.values(dna).reduce((a, b) => a + (Number(b) || 0), 0);
+                    const evalSaved = !!localStorage.getItem('ahsas_seminar_eval');
+                    if (counts['discussion'] === 0 && (contribs > 0 || evalSaved))
+                        counts['discussion'] = evalSaved ? 2 : 1;
+                } catch(e) {}
+                try {
+                    const comp = JSON.parse(localStorage.getItem('ahsas-compare') || 'null');
+                    if (counts['comparison'] === 0 && comp) counts['comparison'] = 1;
+                } catch(e) {}
+
+                // 4. Show dashboard only if any data exists
+                const totalPoints = Object.values(counts).reduce((a, b) => a + b, 0);
+                const hasData = ['ahsas-cer-builder','ahsas_source_analyzer','ahsas_research_studio',
+                                 'ahsas_seminar_dna','ahsas-compare'].some(k => localStorage.getItem(k));
+                if (totalPoints === 0 && !hasData) return;
+                document.getElementById('progressDashboard').style.display = 'block';
+
+                // 5. Render skill bars
+                const SKILLS_DISPLAY = [
+                    { id: 'source-eval',   icon: '🔍', name: 'Source Evaluation',    ib: 'Paper 1 · OPVL / HIPP',  color: '#ef4444' },
+                    { id: 'argumentation', icon: '✍️',  name: 'Historical Argument',   ib: 'Paper 2 / 3 · Essay',    color: '#2d8a6e' },
+                    { id: 'inquiry',       icon: '🔬', name: 'Research & Inquiry',    ib: 'Internal Assessment',    color: '#d4a039' },
+                    { id: 'discussion',    icon: '🗣️', name: 'Critical Discussion',   ib: 'Oral / Seminar',         color: '#8b5cf6' },
+                    { id: 'comparison',    icon: '⚖️', name: 'Analytical Comparison', ib: 'Paper 1 / 2 · Compare',  color: '#0ea5e9' },
+                    { id: 'conceptual',    icon: '🧩', name: 'Conceptual Thinking',   ib: 'All Papers · PIECES',    color: '#f97316' },
+                ];
+                function getMastery(n) {
+                    if (n === 0) return { label: 'Not started', cls: '' };
+                    if (n === 1) return { label: 'Developing', cls: 'developing' };
+                    if (n <  5)  return { label: 'Practicing',  cls: 'practicing' };
+                    return { label: 'Proficient', cls: 'proficient' };
+                }
+                const barsEl = document.getElementById('skillsBars');
+                if (!barsEl) return;
+                barsEl.innerHTML = SKILLS_DISPLAY.map(sk => {
+                    const n = counts[sk.id] || 0;
+                    const pct = Math.min(n / 5, 1) * 100;
+                    const m = getMastery(n);
+                    return `
+                    <div class="skill-row">
+                        <span class="skill-icon">${sk.icon}</span>
+                        <div class="skill-info">
+                            <div class="skill-name-row">
+                                <span class="skill-label">${sk.name}</span>
+                                <span class="skill-ib">${sk.ib}</span>
+                            </div>
+                            <div class="skill-track">
+                                <div class="skill-fill" style="background:${sk.color};width:0%" data-target="${pct}"></div>
+                            </div>
+                            <div class="skill-mastery ${m.cls}">${m.label}</div>
+                        </div>
+                        <span class="skill-count">${n === 0 ? '—' : n + '×'}</span>
+                    </div>`;
+                }).join('');
+
+                // Animate bars in after paint
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    barsEl.querySelectorAll('.skill-fill').forEach(f => {
+                        f.style.width = f.dataset.target + '%';
+                    });
+                }));
+
+                // Last active
+                if (prog.completions && prog.completions.length > 0) {
+                    const last = prog.completions[prog.completions.length - 1].timestamp;
+                    document.getElementById('progressRecent').textContent = `Last active: ${relTime(last)}`;
                 }
                 const clearBtn = document.getElementById('clearProgress');
                 if (clearBtn) wireConfirmButton(clearBtn, 'Clear');
-            }
+            })();
         });
     </script>
 
