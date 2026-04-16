@@ -295,6 +295,24 @@
                 </div>
             </div>
         `).join('');
+
+        area.innerHTML += `
+          <div class="nt-bridge">
+            <div class="nt-bridge-icon">📚</div>
+            <div class="nt-bridge-body">
+              <div class="nt-bridge-header">
+                <span class="nt-wordmark">NoodleTools</span>
+                <span class="nt-bridge-tip">Build your Works Cited as you go</span>
+              </div>
+              <p class="nt-bridge-desc">
+                As you track each source above, add it to your <strong>NoodleTools project</strong> right away — don't leave citations until the end.
+                Have your source type, author, title, URL, and publication date ready.
+              </p>
+              <a class="nt-btn" href="https://my.noodletools.com" target="_blank" rel="noopener noreferrer">
+                Open NoodleTools for this project ↗
+              </a>
+            </div>
+          </div>`;
     }
 
     function buildMatrix() {
@@ -331,6 +349,23 @@
             </div>`;
         });
         html += `</div>`;
+        html += `
+          <div class="nt-bridge" style="margin-top:var(--space-xl);">
+            <div class="nt-bridge-icon">📚</div>
+            <div class="nt-bridge-body">
+              <div class="nt-bridge-header">
+                <span class="nt-wordmark">NoodleTools</span>
+                <span class="nt-bridge-tip">Turn each finding into a Notecard</span>
+              </div>
+              <p class="nt-bridge-desc">
+                Each <strong>key finding</strong> above should become a NoodleTools notecard linked to its source.
+                Copy the text → open NoodleTools → create a notecard. This makes writing your outline much faster.
+              </p>
+              <a class="nt-btn" href="https://my.noodletools.com" target="_blank" rel="noopener noreferrer">
+                Open NoodleTools Notecards ↗
+              </a>
+            </div>
+          </div>`;
         container.innerHTML = html;
     }
 

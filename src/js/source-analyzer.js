@@ -546,6 +546,34 @@
       ${cerContent || '<div class="review-empty">No notes added</div>'}
     </div>`;
 
+    // NoodleTools Bridge
+    const ntTitle = val('sourceTitle') || '';
+    const ntTypeLabels = {
+      website: 'Website / Online', pdf: 'PDF Document', book: 'Book',
+      journal: 'Journal / Academic Article', news: 'News Article',
+      video: 'Video', other: 'Other'
+    };
+    const ntTypeLabel = ntTypeLabels[sourceType] || sourceType || 'source';
+    html += `
+      <div class="nt-bridge">
+        <div class="nt-bridge-icon">📚</div>
+        <div class="nt-bridge-body">
+          <div class="nt-bridge-header">
+            <span class="nt-wordmark">NoodleTools</span>
+            <span class="nt-bridge-tip">Create your Works Cited entry</span>
+          </div>
+          <p class="nt-bridge-desc">
+            Great analysis! Now open NoodleTools to build the citation for
+            <strong>${ntTitle ? escapeHtml(ntTitle) : 'this source'}</strong>.
+            In NoodleTools, choose <strong>${escapeHtml(ntTypeLabel)}</strong> as the source type,
+            then enter the author, title, URL/publisher, and date accessed.
+          </p>
+          <a class="nt-btn" href="https://my.noodletools.com" target="_blank" rel="noopener noreferrer">
+            Open NoodleTools ↗
+          </a>
+        </div>
+      </div>`;
+
     container.innerHTML = html;
   }
 
