@@ -226,12 +226,12 @@ const AHSAS_CURRICULUM = {
 
   // PIECES theme metadata
   piecesThemes: {
-    political: { label: 'Political', icon: '🏛️', color: '#c73e3a' },
-    innovation: { label: 'Innovation', icon: '🔬', color: '#0ea5e9' },
-    environmental: { label: 'Environmental', icon: '🌍', color: '#22c55e' },
-    cultural: { label: 'Cultural', icon: '🎭', color: '#a855f7' },
-    economic: { label: 'Economic', icon: '💰', color: '#f59e0b' },
-    social: { label: 'Social', icon: '👥', color: '#ec4899' }
+    political:    { label: 'Political',    icon: '🏛️', color: '#6aabf0' },
+    innovation:   { label: 'Innovation',   icon: '🔬', color: '#f0a050' },
+    environmental:{ label: 'Environmental',icon: '🌍', color: '#50d98e' },
+    cultural:     { label: 'Cultural',     icon: '🎭', color: '#c39bea' },
+    economic:     { label: 'Economic',     icon: '💰', color: '#e0b14c' },
+    social:       { label: 'Social',       icon: '👥', color: '#e05550' }
   }
 };
 
