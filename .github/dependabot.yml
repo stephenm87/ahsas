@@ -1,0 +1,34 @@
+version: 2
+updates:
+  # npm dependencies (Vite, Supabase, Netlify functions)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    # Group minor/patch updates into one PR to reduce noise
+    groups:
+      vite-ecosystem:
+        patterns: ["vite", "@vitejs/*"]
+      supabase:
+        patterns: ["@supabase/*"]
+      netlify:
+        patterns: ["@netlify/*"]
+    # No more than 5 open PRs at once
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # GitHub Actions versions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "chore(ci)"

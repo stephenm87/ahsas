@@ -1,0 +1,51 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          # Audit these pages from the built output
+          urls: |
+            http://localhost/
+            http://localhost/seminar.html
+            http://localhost/source-analyzer.html
+          # Static server to serve the built dist/
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          configPath: .lighthouserc.json
+
+      - name: Format Lighthouse results
+        if: always()
+        run: |
+          echo "### 🔦 Lighthouse Results" >> $GITHUB_STEP_SUMMARY
+          echo "Results uploaded to temporary public storage (link in step output above)" >> $GITHUB_STEP_SUMMARY

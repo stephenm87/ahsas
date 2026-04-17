@@ -21,6 +21,16 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    # Content Security Policy
+    # - default-src 'self': only load from your own domain by default
+    # - script-src 'self' 'unsafe-inline': allows inline <script> tags (needed for current HTML files)
+    # - style-src: allows Google Fonts + inline styles
+    # - font-src: Google Fonts files
+    # - connect-src: Supabase API + Gemini AI API
+    # - img-src: self + data URIs for charts/icons
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com https://api.serper.dev; img-src 'self' data: blob:; worker-src 'self'; manifest-src 'self';"
+
 
 # Service worker must never be cached — browsers need the latest version
 [[headers]]
