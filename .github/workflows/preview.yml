@@ -24,8 +24,7 @@ jobs:
             const repo = context.repo.repo;
 
             // Netlify preview URL format: deploy-preview-{PR}--{site-name}.netlify.app
-            // Update 'ahsas-classroom' below to match your actual Netlify site name
-            const siteSlug = 'ahsas-classroom';
+            const siteSlug = 'ahsas-project';
             const previewUrl = `https://deploy-preview-${prNumber}--${siteSlug}.netlify.app`;
 
             const body = [
