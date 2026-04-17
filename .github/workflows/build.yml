@@ -1,0 +1,46 @@
+name: Build Check
+
+# Runs on every push to main AND on pull requests targeting main.
+# If the build fails here, you know before Netlify tries to deploy.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Vite Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js (matches your local version)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Install dependencies (uses package-lock.json for exact versions)
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Run the Vite build — this is the actual safety net
+      #    If any import is broken, a file is missing, or JS has a
+      #    syntax error, this step fails and you get an email + red X
+      - name: Build
+        run: npm run build
+        env:
+          # Vite needs these to exist at build time (even as empty strings)
+          # Real values live in Netlify's environment dashboard
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
+
+      # 5. Report build size — useful to spot if something accidentally got huge
+      - name: Report build size
+        run: du -sh dist/ && echo "Files:" && find dist -type f | wc -l
