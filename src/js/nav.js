@@ -116,3 +116,12 @@ window.showToast = function(msg) {
     toast.classList.remove('visible');
   }, 2200);
 };
+
+// ===== Service Worker Registration =====
+// Runs on every page (nav.js is loaded by all pages).
+// This ensures offline support works even if the user's first visit is a sub-page.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}

@@ -1,5 +1,5 @@
 // AHSAS Service Worker — Offline Support
-const CACHE_NAME = 'ahsas-v4';
+const CACHE_NAME = 'ahsas-v5';
 const OFFLINE_URLS = [
     '/',
     '/index.html',
@@ -8,14 +8,14 @@ const OFFLINE_URLS = [
     '/cer.html',
     '/cer-builder.html',
     '/source-analyzer.html',
+    '/sources.html',
     '/timeline.html',
     '/compare.html',
+    '/research.html',
     '/about.html',
-    '/src/styles/main.css',
-    '/src/js/nav.js',
-    '/src/js/source-analyzer.js',
-    '/src/js/progress.js',
-    '/src/data/curriculum.js'
+    '/manifest.json',
+    '/icons/icon-192.png',
+    '/icons/icon-512.png',
 ];
 
 // Install: cache core assets
