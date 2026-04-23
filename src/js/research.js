@@ -45,6 +45,9 @@
         
         // Check for cross-tool handoff imports
         checkResearchHandoff();
+        
+        // Load Source Analyzer completions for pipeline
+        loadSourceAnalyzerData();
     });
 
     // ===== Cross-Tool Pipeline: Import from CER Builder or Compare Tool =====
@@ -279,6 +282,7 @@
                         </select>
                     </div>
                     <textarea class="studio-input" rows="2" placeholder="Evaluate reliability (CRAAP: Currency, Relevance, Authority, Accuracy, Purpose)..." data-hunt-eval="${sq.num}-1"></textarea>
+                    <a href="/source-analyzer.html" target="_blank" class="sa-deeplink" title="Open Source Analyzer to do a full HIPP/API + C.E.C. analysis">🔍 Analyze in Source Analyzer →</a>
                 </div>
 
                 <!-- Source 2 -->
@@ -301,6 +305,7 @@
                         </select>
                     </div>
                     <textarea class="studio-input" rows="2" placeholder="Evaluate reliability (OPVL: Origin, Purpose, Value, Limitations)..." data-hunt-eval="${sq.num}-2"></textarea>
+                    <a href="/source-analyzer.html" target="_blank" class="sa-deeplink" title="Open Source Analyzer to do a full HIPP/API + C.E.C. analysis">🔍 Analyze in Source Analyzer →</a>
                 </div>
             </div>
         `).join('');
@@ -376,6 +381,9 @@
             </div>
           </div>`;
         container.innerHTML = html;
+        
+        // Auto-populate from Source Analyzer data if available
+        autoPopulateMatrix();
     }
 
     let manualParaCount = 0;
@@ -419,10 +427,23 @@
     }
 
     function buildParaSection(num, label, sqText, dataKey) {
+        // Check for Source Analyzer data that could pre-fill
+        const saData = getSourceAnalyzerForSQ(dataKey);
+        const hasImport = saData && (saData.claim || saData.evidence || saData.reasoning);
+        
         return `
             <div class="outline-section">
                 <div class="outline-section-label body">Body Paragraph ${num} — ${label}</div>
                 ${sqText ? `<p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:var(--space-md);font-style:italic;">${sqText}</p>` : ''}
+                ${hasImport ? `
+                <div class="sa-import-banner">
+                    <div class="sa-import-icon">🔗</div>
+                    <div class="sa-import-body">
+                        <div class="sa-import-label">Source Analyzer notes available</div>
+                        <div class="sa-import-desc">Auto-fill from your C.E.C. & CER analysis of <strong>${saData.sourceTitle || 'source'}</strong></div>
+                    </div>
+                    <button class="sa-import-btn" onclick="importSAToOutline('${dataKey}')">↓ Import</button>
+                </div>` : ''}
                 <div class="field-group">
                     <label class="field-label">Claim</label>
                     <textarea class="studio-input" rows="2" placeholder="What argument will this paragraph make?" data-outline-claim="${dataKey}"></textarea>
@@ -837,6 +858,131 @@
             t = setTimeout(() => fn.apply(this, args), ms);
         };
     }
+
+    // ===== SOURCE ANALYZER → RESEARCH STUDIO PIPELINE =====
+    let _saAnalyses = []; // Cached Source Analyzer completions
+
+    function loadSourceAnalyzerData() {
+        _saAnalyses = [];
+        try {
+            // Load the main Source Analyzer state
+            const raw = localStorage.getItem('ahsas_source_analyzer');
+            if (raw) {
+                const data = JSON.parse(raw);
+                if (data.sourceTitle) {
+                    _saAnalyses.push({
+                        sourceTitle: data.sourceTitle || '',
+                        sourceContent: data.sourceContent || '',
+                        observeNotes: data.observeNotes || '',
+                        cecConnect: data.cecConnect || '',
+                        cecExtend: data.cecExtend || '',
+                        cecChallenge: data.cecChallenge || '',
+                        claim: data.cerClaim || '',
+                        evidence: data.cerEvidence || '',
+                        reasoning: data.cerReasoning || '',
+                        piecesExplanation: data.piecesExplanation || '',
+                        themes: data.selectedPiecesThemes || []
+                    });
+                }
+            }
+            // Also check for any multi-analysis storage (future-proofing)
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('ahsas_source_analyzer_') && key !== 'ahsas_source_analyzer') {
+                    try {
+                        const d = JSON.parse(localStorage.getItem(key));
+                        if (d.sourceTitle) {
+                            _saAnalyses.push({
+                                sourceTitle: d.sourceTitle || '',
+                                sourceContent: d.sourceContent || '',
+                                observeNotes: d.observeNotes || '',
+                                cecConnect: d.cecConnect || '',
+                                cecExtend: d.cecExtend || '',
+                                cecChallenge: d.cecChallenge || '',
+                                claim: d.cerClaim || '',
+                                evidence: d.cerEvidence || '',
+                                reasoning: d.cerReasoning || '',
+                                piecesExplanation: d.piecesExplanation || '',
+                                themes: d.selectedPiecesThemes || []
+                            });
+                        }
+                    } catch(e) {}
+                }
+            }
+        } catch(e) {}
+    }
+
+    function autoPopulateMatrix() {
+        // If there are Source Analyzer analyses, show a hint in the matrix
+        if (_saAnalyses.length === 0) return;
+        const container = document.getElementById('matrixContainer');
+        if (!container) return;
+
+        // Add an import banner at the top of the matrix
+        const existingBanner = container.querySelector('.sa-matrix-banner');
+        if (existingBanner) return; // Don't duplicate
+
+        const banner = document.createElement('div');
+        banner.className = 'sa-matrix-banner';
+        banner.innerHTML = `
+            <div class="sa-import-icon">\ud83d\udd17</div>
+            <div class="sa-import-body">
+                <div class="sa-import-label">Source Analyzer Data Available</div>
+                <div class="sa-import-desc">
+                    You have ${_saAnalyses.length} source analysis${_saAnalyses.length > 1 ? 'es' : ''} completed.
+                    Your C.E.C. notes and CER arguments can flow into your outline in Step 7.
+                </div>
+            </div>
+        `;
+        container.insertBefore(banner, container.firstChild);
+    }
+
+    function getSourceAnalyzerForSQ(dataKey) {
+        // Try to match Source Analyzer data to a sub-question paragraph
+        // For now, return the first available SA analysis that has CER data
+        if (_saAnalyses.length === 0) return null;
+        
+        // Simple strategy: assign analyses in order to body paragraphs
+        const sqNum = parseInt(dataKey) || parseInt(dataKey.replace('manual-', ''));
+        const idx = (sqNum || 1) - 1;
+        if (idx < _saAnalyses.length) {
+            return _saAnalyses[idx];
+        }
+        return null;
+    }
+
+    function importSAToOutline(dataKey) {
+        const saData = getSourceAnalyzerForSQ(dataKey);
+        if (!saData) return;
+
+        // Populate CER fields from Source Analyzer
+        const claimEl = document.querySelector(`[data-outline-claim="${dataKey}"]`);
+        const evidenceEl = document.querySelector(`[data-outline-evidence="${dataKey}"]`);
+        const reasoningEl = document.querySelector(`[data-outline-reasoning="${dataKey}"]`);
+
+        if (claimEl && !claimEl.value && saData.claim) claimEl.value = saData.claim;
+        if (evidenceEl && !evidenceEl.value && saData.evidence) evidenceEl.value = saData.evidence;
+        if (reasoningEl && !reasoningEl.value) {
+            // Combine C.E.C. notes with CER reasoning for richer content
+            let reasoning = saData.reasoning || '';
+            if (saData.cecConnect) reasoning += (reasoning ? ' ' : '') + saData.cecConnect;
+            if (reasoning) reasoningEl.value = reasoning;
+        }
+
+        // Hide the import banner
+        const banner = document.querySelector(`[onclick="importSAToOutline('${dataKey}')"]`);
+        if (banner) {
+            const bannerDiv = banner.closest('.sa-import-banner');
+            if (bannerDiv) {
+                bannerDiv.innerHTML = '<div class="sa-import-icon">\u2705</div><div class="sa-import-body"><div class="sa-import-label">Imported!</div><div class="sa-import-desc">Review and refine the pre-filled content below.</div></div>';
+                bannerDiv.style.borderColor = 'rgba(45,138,110,0.3)';
+                bannerDiv.style.background = 'rgba(45,138,110,0.06)';
+            }
+        }
+
+        saveState();
+    }
+    window.importSAToOutline = importSAToOutline;
 
     // ===== QUESTION FEEDBACK ENGINE =====
     function analyzeQuestion() {

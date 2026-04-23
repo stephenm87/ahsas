@@ -10,7 +10,7 @@
   // ===== State =====
   const STORAGE_KEY = 'ahsas_source_analyzer';
   let currentStep = 0;
-  const TOTAL_STEPS = 4; // 0-3, plus review
+  const TOTAL_STEPS = 5; // 0-4, plus review
   let sourceType = 'text';
   let primarySecondary = 'primary';
   let selectedPiecesThemes = new Set();
@@ -32,6 +32,7 @@
     'sourceTitle', 'sourceContent', 'observeNotes',
     'evalField0', 'evalField1', 'evalField2', 'evalField3',
     'piecesExplanation',
+    'cecConnect', 'cecExtend', 'cecChallenge',
     'cerClaim', 'cerEvidence', 'cerReasoning'
   ];
 
@@ -158,6 +159,7 @@
     setupExport();
     setupWordCounts();
     setupCERPipeline();
+    setupCECBridge();
     updateQuestions();
     renderStep();
   }
@@ -530,6 +532,22 @@
       ${piecesContent || '<div class="review-empty">No notes added</div>'}
     </div>`;
 
+    // C.E.C.
+    const cecFields = [
+      { id: 'cecConnect', label: '🟢 Connect', desc: 'How this source relates to the inquiry question' },
+      { id: 'cecExtend', label: '🟡 Extend', desc: 'New information this source adds' },
+      { id: 'cecChallenge', label: '🔴 Challenge', desc: 'What this source complicates or contradicts' }
+    ];
+    let cecContent = '';
+    cecFields.forEach(f => {
+      const v = val(f.id);
+      if (v) cecContent += `<div class="review-field-block"><strong class="review-field-label">${f.label}</strong><div class="review-content">${escapeHtml(v)}</div></div>`;
+    });
+    html += `<div class="review-block">
+      <div class="review-label cec-label">Connect · Extend · Challenge</div>
+      ${cecContent || '<div class="review-empty">No notes added</div>'}
+    </div>`;
+
     // CER
     const cerFields = [
       { id: 'cerClaim', label: 'Claim' },
@@ -604,6 +622,9 @@
     setTimeout(() => {
       checkAnalyzerQuality('evalFieldActive');
       checkAnalyzerQuality('piecesExplanation');
+      checkAnalyzerQuality('cecConnect');
+      checkAnalyzerQuality('cecExtend');
+      checkAnalyzerQuality('cecChallenge');
       checkAnalyzerQuality('cerClaim');
       checkAnalyzerQuality('cerEvidence');
       checkAnalyzerQuality('cerReasoning');
@@ -704,6 +725,87 @@
       renderEvalTab();
       renderStep();
     });
+
+    // Download .doc
+    const btnDoc = document.getElementById('btnDownloadDoc');
+    if (btnDoc) {
+      btnDoc.addEventListener('click', downloadDoc);
+    }
+  }
+
+  function downloadDoc() {
+    syncEvalField();
+    const title = val('sourceTitle') || 'Untitled Source';
+    const fw = FRAMEWORKS[primarySecondary];
+    const esc = (s) => s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '(not yet written)';
+
+    let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>Source Analysis: ${esc(title)}</title>
+<style>
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.8; color: #1a1a1a; max-width: 700px; margin: 0 auto; padding: 40px; }
+  h1 { font-size: 16pt; border-bottom: 2px solid #ccc; padding-bottom: 8px; }
+  h2 { font-size: 13pt; margin-top: 24px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  h2.observe { color: #2563eb; } h2.evaluate { color: #7c3aed; } h2.pieces { color: #2d8a6e; }
+  h2.cec { color: #d4a039; } h2.cer { color: #c7403a; }
+  .label { font-weight: bold; color: #555; font-size: 10pt; text-transform: uppercase; letter-spacing: 0.5px; }
+  .meta { font-size: 10pt; color: #888; margin-bottom: 16pt; }
+  .cec-label { display: inline-block; font-weight: bold; font-size: 10pt; padding: 2px 8px; border-radius: 3px; margin-bottom: 4px; }
+  .cec-c { background: #e6f5ee; color: #2d8a6e; } .cec-e { background: #fdf6e3; color: #b8860b; } .cec-ch { background: #fce8e8; color: #c7403a; }
+  p { margin: 6pt 0; }
+</style>
+</head><body>
+<h1>Source Analysis: ${esc(title)}</h1>
+<p class="meta">Type: ${sourceType} (${primarySecondary}) · Framework: ${fw.name}</p>`;
+
+    // Source content
+    const content = val('sourceContent');
+    if (content) {
+      html += `<p><span class="label">Source Content:</span></p><p>${esc(content)}</p>`;
+    }
+
+    // Observe
+    html += `<h2 class="observe">Observe</h2>`;
+    html += `<p>${esc(val('observeNotes'))}</p>`;
+
+    // Evaluate
+    html += `<h2 class="evaluate">${fw.name} Evaluation</h2>`;
+    fw.tabs.forEach((tab, i) => {
+      const v = val(`evalField${i}`);
+      html += `<p><span class="label">${tab.letter} — ${tab.label}:</span></p><p>${esc(v)}</p>`;
+    });
+
+    // PIECES
+    html += `<h2 class="pieces">PIECES Connection</h2>`;
+    const themeNames = { political: '🏛️ Political', innovation: '🔬 Innovation', environmental: '🌍 Environmental', cultural: '🎭 Cultural', economic: '💰 Economic', social: '👥 Social' };
+    if (selectedPiecesThemes.size > 0) {
+      html += `<p><span class="label">Themes:</span> ${Array.from(selectedPiecesThemes).map(t => themeNames[t] || t).join(', ')}</p>`;
+    }
+    html += `<p>${esc(val('piecesExplanation'))}</p>`;
+
+    // C.E.C.
+    html += `<h2 class="cec">Connect · Extend · Challenge</h2>`;
+    const cecConnect = val('cecConnect');
+    const cecExtend = val('cecExtend');
+    const cecChallenge = val('cecChallenge');
+    html += `<p><span class="cec-label cec-c">Connect</span></p><p>${esc(cecConnect)}</p>`;
+    html += `<p><span class="cec-label cec-e">Extend</span></p><p>${esc(cecExtend)}</p>`;
+    html += `<p><span class="cec-label cec-ch">Challenge</span></p><p>${esc(cecChallenge)}</p>`;
+
+    // CER
+    html += `<h2 class="cer">CER Argument</h2>`;
+    html += `<p><span class="label">Claim:</span></p><p>${esc(val('cerClaim'))}</p>`;
+    html += `<p><span class="label">Evidence:</span></p><p>${esc(val('cerEvidence'))}</p>`;
+    html += `<p><span class="label">Reasoning:</span></p><p>${esc(val('cerReasoning'))}</p>`;
+
+    html += `</body></html>`;
+
+    const blob = new Blob([html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'source-analysis-' + (title.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 30)) + '.doc';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function buildPlainText() {
@@ -725,6 +827,11 @@
     lines.push('--- PIECES ---');
     lines.push(`Themes: ${Array.from(selectedPiecesThemes).join(', ') || '(none)'}`);
     lines.push(val('piecesExplanation') || '(empty)');
+    lines.push('');
+    lines.push('--- CONNECT · EXTEND · CHALLENGE ---');
+    lines.push(`Connect: ${val('cecConnect') || '(empty)'}`);
+    lines.push(`Extend: ${val('cecExtend') || '(empty)'}`);
+    lines.push(`Challenge: ${val('cecChallenge') || '(empty)'}`);
     lines.push('');
     lines.push('--- CER ---');
     lines.push(`Claim: ${val('cerClaim') || '(empty)'}`);
@@ -758,6 +865,9 @@
     const pairs = [
       ['sourceContent', 'wcSourceContent'],
       ['observeNotes', 'wcObserveNotes'],
+      ['cecConnect', 'wcCecConnect'],
+      ['cecExtend', 'wcCecExtend'],
+      ['cecChallenge', 'wcCecChallenge'],
       ['cerClaim', 'wcCerClaim'],
       ['cerEvidence', 'wcCerEvidence'],
       ['cerReasoning', 'wcCerReasoning']
@@ -778,6 +888,23 @@
       ta.addEventListener('input', update);
       update(); // Init
     });
+  }
+
+  // ===== C.E.C. Research Question Bridge =====
+  function setupCECBridge() {
+    // Try to load research question from Research Studio localStorage
+    try {
+      const raw = localStorage.getItem('ahsas_research_studio');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      const rq = (data.fields && data.fields.researchQuestion) || data.researchQuestion || data.rq || '';
+      const rqText = document.getElementById('cecRQText');
+      const rqEmpty = document.getElementById('cecRQEmpty');
+      if (rq && rq.trim()) {
+        if (rqText) rqText.innerHTML = `<em>"${escapeHtml(rq.trim())}"</em>`;
+        if (rqEmpty) rqEmpty.style.display = 'none';
+      }
+    } catch (e) { /* silently fail */ }
   }
 
   // ===== Observation Checklist Auto-Check =====
@@ -808,6 +935,9 @@
     let gateId = '';
     if (id === 'evalFieldActive') gateId = 'gateEval';
     else if (id === 'piecesExplanation') gateId = 'gatePieces';
+    else if (id === 'cecConnect') gateId = 'gateCecConnect';
+    else if (id === 'cecExtend') gateId = 'gateCecExtend';
+    else if (id === 'cecChallenge') gateId = 'gateCecChallenge';
     else if (id === 'cerClaim') gateId = 'gateCerClaim';
     else if (id === 'cerEvidence') gateId = 'gateCerEvidence';
     else if (id === 'cerReasoning') gateId = 'gateCerReasoning';
@@ -838,7 +968,25 @@
       if (!connectors.some(c => lower.includes(c)) && wc >= 5) {
         issues.push({ icon: '🟡', text: '<strong>Show the connection:</strong> Try using verbs like "demonstrates," "reveals," or "shows that" to explain the connection.' });
       }
-    } 
+    }
+    else if (id === 'cecConnect') {
+      if (wc < 10) issues.push({ icon: '🔴', text: `<strong>Be specific.</strong> Explain exactly how this source relates to your research question (~15 words). You have ${wc}.` });
+      else if (!lower.includes('because') && !lower.includes('connects') && !lower.includes('relates') && !lower.includes('confirms') && !lower.includes('supports')) {
+        issues.push({ icon: '🟡', text: '<strong>Strengthen the connection:</strong> Use language like "connects to my question because..." or "confirms that..."' });
+      }
+    }
+    else if (id === 'cecExtend') {
+      if (wc < 10) issues.push({ icon: '🔴', text: `<strong>What's new?</strong> Explain what new information this source adds (~15 words). You have ${wc}.` });
+      else if (!lower.includes('new') && !lower.includes('extends') && !lower.includes('adds') && !lower.includes('expands') && !lower.includes('didn')) {
+        issues.push({ icon: '🟡', text: '<strong>Show what\'s new:</strong> Use language like "extends my thinking by..." or "I didn\'t know that..."' });
+      }
+    }
+    else if (id === 'cecChallenge') {
+      if (wc < 10) issues.push({ icon: '🔴', text: `<strong>Push back.</strong> What does this source complicate or contradict? (~15 words). You have ${wc}.` });
+      else if (!lower.includes('challenge') && !lower.includes('contradict') && !lower.includes('complicate') && !lower.includes('however') && !lower.includes('but') && !lower.includes('question')) {
+        issues.push({ icon: '🟡', text: '<strong>Show the tension:</strong> Use language like "challenges my assumption that..." or "complicates the idea that..."' });
+      }
+    }
     else if (id === 'cerClaim') {
       if (wc < 8) issues.push({ icon: '🔴', text: `<strong>Too short.</strong> A claim must be a complete sentence taking a stance (~10 words). You have ${wc}.` });
       const arguable = ['because', 'although', 'while', 'however'];

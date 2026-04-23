@@ -406,6 +406,84 @@
         .analyzer-hint { font-size: 0.88rem; }
         .analyzer-intro-tagline { font-size: 1.05rem; }
         .framework-badge-text { font-size: 0.8rem; }
+
+        /* C.E.C. Step Styles */
+        .cec-section {
+            margin-bottom: var(--space-lg);
+        }
+        .cec-section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+        }
+        .cec-section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .cec-connect .cec-section-icon {
+            background: rgba(45,138,110,0.12);
+            color: var(--jade);
+            border: 1px solid rgba(45,138,110,0.25);
+        }
+        .cec-extend .cec-section-icon {
+            background: rgba(212,160,57,0.12);
+            color: var(--gold);
+            border: 1px solid rgba(212,160,57,0.25);
+        }
+        .cec-challenge .cec-section-icon {
+            background: rgba(199,62,58,0.12);
+            color: var(--vermillion);
+            border: 1px solid rgba(199,62,58,0.25);
+        }
+        .cec-section-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .cec-section-desc {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: var(--space-sm);
+            padding-left: calc(32px + var(--space-sm));
+        }
+        .cec-rq-banner {
+            background: var(--subtle-bg);
+            border: 1px solid var(--subtle-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        .cec-rq-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .cec-rq-text {
+            font-size: 0.95rem;
+            color: var(--text);
+            font-style: italic;
+            line-height: 1.6;
+        }
+        .cec-rq-empty {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        .cec-rq-link {
+            font-size: 0.82rem;
+            margin-top: var(--space-xs);
+        }
+        .review-label.cec-label { color: var(--pieces-innovation); }
         .cer-claim-label { color: var(--pieces-claim); }
         .cer-evidence-label { color: var(--pieces-evidence); }
         .cer-reasoning-label { color: var(--pieces-reasoning); }
@@ -548,7 +626,7 @@
                 <!-- Framework Badge -->
                 <p class="text-center text-muted mb-md no-print framework-badge-text">Evaluation Framework: <strong id="frameworkBadge">HIPP</strong></p>
 
-                <!-- Step Progress Bar (4 steps) -->
+                <!-- Step Progress Bar (5 steps) -->
                 <div class="step-progress animate-in delay-2 no-print" id="stepProgress">
                     <div class="step-pip active" data-step="0" title="Observe">1</div>
                     <div class="step-connector" data-conn="0"></div>
@@ -556,14 +634,16 @@
                     <div class="step-connector" data-conn="1"></div>
                     <div class="step-pip" data-step="2" title="PIECES">3</div>
                     <div class="step-connector" data-conn="2"></div>
-                    <div class="step-pip" data-step="3" title="CER">4</div>
+                    <div class="step-pip" data-step="3" title="C.E.C.">4</div>
+                    <div class="step-connector" data-conn="3"></div>
+                    <div class="step-pip" data-step="4" title="CER">5</div>
                 </div>
 
                 <!-- ===== STEP 0: Source Input + Observe ===== -->
                 <div class="step-panel active animate-in" data-panel="0">
                     <div class="card">
                         <div class="step-header">
-                            <div class="step-number">Step 1 of 4</div>
+                            <div class="step-number">Step 1 of 5</div>
                             <div class="step-title">👁️ Observe</div>
                             <div class="step-subtitle">Describe what you see — stay at the surface level</div>
                         </div>
@@ -612,7 +692,7 @@
                 <div class="step-panel" data-panel="1">
                     <div class="card">
                         <div class="step-header">
-                            <div class="step-number">Step 2 of 4</div>
+                            <div class="step-number">Step 2 of 5</div>
                             <div class="step-title" id="evalStepTitle">📝 HIPP Evaluation</div>
                             <div class="step-subtitle" id="evalStepSubtitle">🕰️ Historical Context</div>
                         </div>
@@ -644,7 +724,7 @@
                 <div class="step-panel" data-panel="2">
                     <div class="card">
                         <div class="step-header">
-                            <div class="step-number">Step 3 of 4</div>
+                            <div class="step-number">Step 3 of 5</div>
                             <div class="step-title">🧩 PIECES Connection</div>
                             <div class="step-subtitle">Which thematic lenses apply to this source?</div>
                         </div>
@@ -689,11 +769,87 @@
                     </div>
                 </div>
 
-                <!-- ===== STEP 3: CER Connection ===== -->
+                <!-- ===== STEP 3: C.E.C. (Connect, Extend, Challenge) ===== -->
                 <div class="step-panel" data-panel="3">
                     <div class="card">
                         <div class="step-header">
-                            <div class="step-number">Step 4 of 4</div>
+                            <div class="step-number">Step 4 of 5</div>
+                            <div class="step-title">🔗 Connect · Extend · Challenge</div>
+                            <div class="step-subtitle">Process this source through your own research question</div>
+                        </div>
+
+                        <p class="text-muted text-center mb-lg analyzer-hint">
+                            Before building an argument, show how this source relates to <em>your</em> specific inquiry.
+                            AI can summarize a source — but only <em>you</em> know how it fits your question.
+                        </p>
+
+                        <!-- Research Question Banner (auto-populated from Research Studio) -->
+                        <div class="cec-rq-banner" id="cecRQBanner">
+                            <div class="cec-rq-label">Your Research Question</div>
+                            <div class="cec-rq-text" id="cecRQText"><em>No research question set yet.</em></div>
+                            <div class="cec-rq-empty" id="cecRQEmpty">
+                                <a href="/research.html" class="cec-rq-link">Set your research question in the Research Studio →</a>
+                            </div>
+                        </div>
+
+                        <!-- CONNECT -->
+                        <div class="cec-section cec-connect">
+                            <div class="cec-section-header">
+                                <div class="cec-section-icon">C</div>
+                                <div class="cec-section-label">Connect</div>
+                            </div>
+                            <div class="cec-section-desc">
+                                How does this source directly relate to your inquiry question? What confirms what you already suspected?
+                            </div>
+                            <div class="form-group">
+                                <textarea id="cecConnect" class="form-textarea"
+                                    placeholder="This source connects to my research question because..."></textarea>
+                                <div class="word-count" id="wcCecConnect">0 words</div>
+                                <div id="gateCecConnect" class="quality-gate"></div>
+                            </div>
+                        </div>
+
+                        <!-- EXTEND -->
+                        <div class="cec-section cec-extend">
+                            <div class="cec-section-header">
+                                <div class="cec-section-icon">E</div>
+                                <div class="cec-section-label">Extend</div>
+                            </div>
+                            <div class="cec-section-desc">
+                                What new information does this source add that you didn't know before? How does it expand or refine your argument?
+                            </div>
+                            <div class="form-group">
+                                <textarea id="cecExtend" class="form-textarea"
+                                    placeholder="This source extends my thinking by..."></textarea>
+                                <div class="word-count" id="wcCecExtend">0 words</div>
+                                <div id="gateCecExtend" class="quality-gate"></div>
+                            </div>
+                        </div>
+
+                        <!-- CHALLENGE -->
+                        <div class="cec-section cec-challenge">
+                            <div class="cec-section-header">
+                                <div class="cec-section-icon">C</div>
+                                <div class="cec-section-label">Challenge</div>
+                            </div>
+                            <div class="cec-section-desc">
+                                What does this source complicate? Does it contradict your emerging thesis or introduce a perspective you hadn't considered?
+                            </div>
+                            <div class="form-group">
+                                <textarea id="cecChallenge" class="form-textarea"
+                                    placeholder="This source challenges my thinking because..."></textarea>
+                                <div class="word-count" id="wcCecChallenge">0 words</div>
+                                <div id="gateCecChallenge" class="quality-gate"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== STEP 4: CER Connection ===== -->
+                <div class="step-panel" data-panel="4">
+                    <div class="card">
+                        <div class="step-header">
+                            <div class="step-number">Step 5 of 5</div>
                             <div class="step-title">📝 CER Connection</div>
                             <div class="step-subtitle">Turn your analysis into an argument</div>
                         </div>
@@ -741,8 +897,9 @@
                     </div>
 
                     <div class="btn-row mt-xl no-print">
-                        <button class="btn btn-primary" id="btnPrintAnalysis">🖨️ Print Analysis</button>
+                        <button class="btn btn-primary" id="btnPrintAnalysis">🖨️ Print / PDF</button>
                         <button class="btn btn-secondary" id="btnCopyAnalysis">📋 Copy as Text</button>
+                        <button class="btn btn-secondary" id="btnDownloadDoc">⬇️ Download .doc</button>
                         <button class="btn btn-primary" id="btnSendToCER">✍️ Send to CER Builder →</button>
                         <button class="btn btn-secondary btn-muted" id="btnClearAll">↺ Start New Analysis</button>
                     </div>

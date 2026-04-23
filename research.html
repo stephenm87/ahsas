@@ -450,6 +450,67 @@
             background: rgba(212,160,57,0.08);
             border-bottom: 1px solid rgba(212,160,57,0.15);
         }
+
+        /* ===== Source Analyzer Pipeline Styles ===== */
+        .sa-deeplink {
+            display: inline-block;
+            margin-top: var(--space-xs);
+            font-size: 0.78rem;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all var(--transition);
+        }
+        .sa-deeplink:hover {
+            color: var(--jade);
+            text-decoration: underline;
+        }
+        .sa-import-banner, .sa-matrix-banner {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            background: rgba(212,160,57,0.06);
+            border: 1px solid rgba(212,160,57,0.2);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-md);
+        }
+        .sa-import-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .sa-import-body {
+            flex: 1;
+        }
+        .sa-import-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .sa-import-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-top: 2px;
+        }
+        .sa-import-btn {
+            padding: 6px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font-body);
+            white-space: nowrap;
+        }
+        .sa-import-btn:hover {
+            background: rgba(212,160,57,0.15);
+        }
         .feedback-engine-label {
             font-size: 0.72rem;
             text-transform: uppercase;
