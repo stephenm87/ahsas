@@ -39,6 +39,10 @@
         window.copyOutline = copyOutline;
         window.printOutline = printOutline;
         window.downloadDoc = downloadDoc;
+        window.printStep = printStep;
+        window.copyStep = copyStep;
+        window.downloadStepDoc = downloadStepDoc;
+        window.addManualParagraph = addManualParagraph;
         
         // Build flowchart on step change
         buildFlowchart();
@@ -617,6 +621,338 @@
     function printOutline() {
         openPreview();
         setTimeout(() => { window.print(); }, 400);
+    }
+
+    // ===== 3b. Per-Step Print =====
+    function printStep(stepNum) {
+        const container = document.getElementById('stepPrintContainer');
+        if (!container) return;
+
+        const STEP_TITLES = {
+            1: '🗺️ Topic Exploration',
+            2: '❓ Question Workshop',
+            3: '🔀 Sub-Question Mapping',
+            4: '🔍 Source Hunt',
+            5: '📊 Evidence Matrix',
+            6: '💡 Emerging Thesis',
+            7: '📝 Outline Builder'
+        };
+        const STEP_SKILLS = {
+            1: 'Curiosity & Topic Selection',
+            2: 'Questioning & Critical Thinking',
+            3: 'Decomposition & Analytical Framing',
+            4: 'Source Evaluation & Evidence Gathering',
+            5: 'Synthesis & Pattern Recognition',
+            6: 'Thesis Construction from Evidence',
+            7: 'Essay Architecture & CER Integration'
+        };
+
+        const v = (val) => val && val.trim() ? `<span class="print-field-value">${val.trim()}</span>` : `<span class="print-field-empty">(not yet completed)</span>`;
+        const now = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        let html = `<h1>Research Studio — Step ${stepNum}: ${STEP_TITLES[stepNum]}</h1>`;
+        html += `<div class="print-meta">Skill: ${STEP_SKILLS[stepNum]} · Printed ${now}</div>`;
+
+        switch (stepNum) {
+            case 1: {
+                const area = document.getElementById('topicArea')?.value || '';
+                const why = document.getElementById('topicWhy')?.value || '';
+                const qs = document.getElementById('topicQuestions')?.value || '';
+                html += `<div class="print-field"><div class="print-field-label">Broad Area of Interest</div>${v(area)}</div>`;
+                html += `<div class="print-field"><div class="print-field-label">Why Does This Interest You?</div>${v(why)}</div>`;
+                html += `<div class="print-field"><div class="print-field-label">Initial Questions (Brainstorm)</div>${v(qs)}</div>`;
+                break;
+            }
+            case 2: {
+                const rq = document.getElementById('researchQuestion')?.value || '';
+                const checks = [...document.querySelectorAll('.rq-check')];
+                const checkLabels = [
+                    'Open-ended (not yes/no)',
+                    'Specific enough to research',
+                    'Requires analysis, not just description',
+                    'Connects to a PIECES theme',
+                    'Genuinely interesting to me'
+                ];
+                html += `<div class="print-field"><div class="print-field-label">Research Question</div>${v(rq)}</div>`;
+                html += `<div class="print-field"><div class="print-field-label">Quality Checklist</div>`;
+                checks.forEach((c, i) => {
+                    html += `<div class="print-checklist-item">${c.checked ? '☑' : '☐'} ${checkLabels[i] || ''}</div>`;
+                });
+                html += `</div>`;
+                break;
+            }
+            case 3: {
+                const sqs = getSubQuestions();
+                const piecesLabels = { political: '🏛️ Political', innovation: '🔬 Innovation', environmental: '🌍 Environmental', cultural: '🎭 Cultural', economic: '💰 Economic', social: '👥 Social' };
+                if (sqs.length === 0) {
+                    html += `<div class="print-field"><div class="print-field-empty">No sub-questions written yet.</div></div>`;
+                } else {
+                    sqs.forEach(sq => {
+                        html += `<div class="print-subq"><div class="print-subq-num">Sub-Question ${sq.num}</div>`;
+                        html += `<div class="print-field-value">${sq.text}</div>`;
+                        if (sq.piece) html += `<div style="font-size:9pt;color:#666;margin-top:2px;">PIECES Lens: ${piecesLabels[sq.piece] || sq.piece}</div>`;
+                        html += `</div>`;
+                    });
+                }
+                break;
+            }
+            case 4: {
+                const sqs = getSubQuestions();
+                if (sqs.length === 0) {
+                    html += `<div class="print-field"><div class="print-field-empty">Complete sub-questions first.</div></div>`;
+                } else {
+                    sqs.forEach(sq => {
+                        html += `<div class="print-subq"><div class="print-subq-num">Sources for Sub-Question ${sq.num}: ${sq.text}</div>`;
+                        for (let s = 1; s <= 2; s++) {
+                            const title = document.querySelector(`[data-hunt="${sq.num}-${s}"]`)?.value || '';
+                            const type = document.querySelector(`[data-hunt-type="${sq.num}-${s}"]`)?.value || '';
+                            const rel = document.querySelector(`[data-hunt-rel="${sq.num}-${s}"]`)?.value || '';
+                            const evalN = document.querySelector(`[data-hunt-eval="${sq.num}-${s}"]`)?.value || '';
+                            const relLabels = { confirms: '✅ Confirms', complicates: '⚠️ Complicates', contradicts: '❌ Contradicts' };
+                            html += `<div style="margin-top:8px;padding-left:12px;border-left:2px solid #ddd;">`;
+                            html += `<div class="print-field-label">Source ${s}</div>`;
+                            html += `<div class="print-field">${v(title)}</div>`;
+                            if (type) html += `<div style="font-size:9pt;color:#666;">Type: ${type}</div>`;
+                            if (rel) html += `<div style="font-size:9pt;color:#666;">Relationship: ${relLabels[rel] || rel}</div>`;
+                            if (evalN) html += `<div class="print-field"><div class="print-field-label">Evaluation</div>${v(evalN)}</div>`;
+                            html += `</div>`;
+                        }
+                        html += `</div>`;
+                    });
+                }
+                break;
+            }
+            case 5: {
+                const sqs = getSubQuestions();
+                const patterns = document.getElementById('emergingPatterns')?.value || '';
+                if (sqs.length === 0) {
+                    html += `<div class="print-field"><div class="print-field-empty">Complete sub-questions first.</div></div>`;
+                } else {
+                    sqs.forEach(sq => {
+                        html += `<div class="print-subq"><div class="print-subq-num">Evidence for Sub-Question ${sq.num}: ${sq.text}</div>`;
+                        const f1 = document.querySelector(`[data-matrix-finding="${sq.num}-1"]`)?.value || '';
+                        const f2 = document.querySelector(`[data-matrix-finding="${sq.num}-2"]`)?.value || '';
+                        const syn = document.querySelector(`[data-matrix-synthesis="${sq.num}"]`)?.value || '';
+                        html += `<div class="print-field"><div class="print-field-label">Source 1 Finding</div>${v(f1)}</div>`;
+                        html += `<div class="print-field"><div class="print-field-label">Source 2 Finding</div>${v(f2)}</div>`;
+                        html += `<div class="print-field"><div class="print-field-label">Synthesis</div>${v(syn)}</div>`;
+                        html += `</div>`;
+                    });
+                }
+                html += `<div class="print-field"><div class="print-field-label">Emerging Patterns</div>${v(patterns)}</div>`;
+                break;
+            }
+            case 6: {
+                const rq = document.getElementById('researchQuestion')?.value || '';
+                const thesis = document.getElementById('thesisStatement')?.value || '';
+                const checks = [...document.querySelectorAll('.thesis-check')];
+                const checkLabels = [
+                    'Directly answers the research question',
+                    'Arguable (someone could disagree)',
+                    'Specific (not vague or overly broad)',
+                    'Supported by evidence',
+                    'Acknowledges complexity (not one-sided)'
+                ];
+                html += `<div class="print-field"><div class="print-field-label">Research Question</div>${v(rq)}</div>`;
+                html += `<div class="print-field"><div class="print-field-label">Thesis Statement</div>${v(thesis)}</div>`;
+                html += `<div class="print-field"><div class="print-field-label">Thesis Checklist</div>`;
+                checks.forEach((c, i) => {
+                    html += `<div class="print-checklist-item">${c.checked ? '☑' : '☐'} ${checkLabels[i] || ''}</div>`;
+                });
+                html += `</div>`;
+                break;
+            }
+            default:
+                // Step 7 uses the existing full preview/print
+                printOutline();
+                return;
+        }
+
+        // Populate container and print
+        container.innerHTML = html;
+        // Small delay to ensure DOM renders before print dialog
+        setTimeout(() => {
+            window.print();
+            // Clean up after print so it doesn't interfere next time
+            setTimeout(() => { container.innerHTML = ''; }, 500);
+        }, 300);
+    }
+
+    // ===== 3c. Per-Step Plain Text Generator (shared by copy & download) =====
+    function getStepPlainText(stepNum) {
+        const STEP_TITLES = {
+            1: 'Topic Exploration', 2: 'Question Workshop', 3: 'Sub-Question Mapping',
+            4: 'Source Hunt', 5: 'Evidence Matrix', 6: 'Emerging Thesis', 7: 'Outline Builder'
+        };
+        const STEP_SKILLS = {
+            1: 'Curiosity & Topic Selection', 2: 'Questioning & Critical Thinking',
+            3: 'Decomposition & Analytical Framing', 4: 'Source Evaluation & Evidence Gathering',
+            5: 'Synthesis & Pattern Recognition', 6: 'Thesis Construction from Evidence',
+            7: 'Essay Architecture & CER Integration'
+        };
+        const piecesLabels = { political: 'Political', innovation: 'Innovation', environmental: 'Environmental', cultural: 'Cultural', economic: 'Economic', social: 'Social' };
+        const relLabels = { confirms: 'Confirms', complicates: 'Complicates', contradicts: 'Contradicts' };
+        const now = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        let text = `# Research Studio — Step ${stepNum}: ${STEP_TITLES[stepNum]}\n`;
+        text += `Skill: ${STEP_SKILLS[stepNum]} · ${now}\n\n---\n\n`;
+
+        switch (stepNum) {
+            case 1: {
+                const area = document.getElementById('topicArea')?.value || '';
+                const why = document.getElementById('topicWhy')?.value || '';
+                const qs = document.getElementById('topicQuestions')?.value || '';
+                text += `## Broad Area of Interest\n${area || '(not yet completed)'}\n\n`;
+                text += `## Why Does This Interest You?\n${why || '(not yet completed)'}\n\n`;
+                text += `## Initial Questions (Brainstorm)\n${qs || '(not yet completed)'}\n`;
+                break;
+            }
+            case 2: {
+                const rq = document.getElementById('researchQuestion')?.value || '';
+                const checks = [...document.querySelectorAll('.rq-check')];
+                const checkLabels = ['Open-ended (not yes/no)', 'Specific enough to research', 'Requires analysis, not just description', 'Connects to a PIECES theme', 'Genuinely interesting to me'];
+                text += `## Research Question\n${rq || '(not yet completed)'}\n\n`;
+                text += `## Quality Checklist\n`;
+                checks.forEach((c, i) => { text += `${c.checked ? '[x]' : '[ ]'} ${checkLabels[i] || ''}\n`; });
+                text += '\n';
+                break;
+            }
+            case 3: {
+                const sqs = getSubQuestions();
+                if (sqs.length === 0) {
+                    text += '(No sub-questions written yet.)\n';
+                } else {
+                    sqs.forEach(sq => {
+                        text += `### Sub-Question ${sq.num}\n${sq.text}\n`;
+                        if (sq.piece) text += `PIECES Lens: ${piecesLabels[sq.piece] || sq.piece}\n`;
+                        text += '\n';
+                    });
+                }
+                break;
+            }
+            case 4: {
+                const sqs = getSubQuestions();
+                if (sqs.length === 0) {
+                    text += '(Complete sub-questions first.)\n';
+                } else {
+                    sqs.forEach(sq => {
+                        text += `### Sources for Sub-Question ${sq.num}: ${sq.text}\n\n`;
+                        for (let s = 1; s <= 2; s++) {
+                            const title = document.querySelector(`[data-hunt="${sq.num}-${s}"]`)?.value || '';
+                            const type = document.querySelector(`[data-hunt-type="${sq.num}-${s}"]`)?.value || '';
+                            const rel = document.querySelector(`[data-hunt-rel="${sq.num}-${s}"]`)?.value || '';
+                            const evalN = document.querySelector(`[data-hunt-eval="${sq.num}-${s}"]`)?.value || '';
+                            text += `**Source ${s}:** ${title || '(not yet added)'}\n`;
+                            if (type) text += `Type: ${type}\n`;
+                            if (rel) text += `Relationship: ${relLabels[rel] || rel}\n`;
+                            if (evalN) text += `Evaluation: ${evalN}\n`;
+                            text += '\n';
+                        }
+                    });
+                }
+                break;
+            }
+            case 5: {
+                const sqs = getSubQuestions();
+                const patterns = document.getElementById('emergingPatterns')?.value || '';
+                if (sqs.length === 0) {
+                    text += '(Complete sub-questions first.)\n\n';
+                } else {
+                    sqs.forEach(sq => {
+                        text += `### Evidence for Sub-Question ${sq.num}: ${sq.text}\n\n`;
+                        const f1 = document.querySelector(`[data-matrix-finding="${sq.num}-1"]`)?.value || '';
+                        const f2 = document.querySelector(`[data-matrix-finding="${sq.num}-2"]`)?.value || '';
+                        const syn = document.querySelector(`[data-matrix-synthesis="${sq.num}"]`)?.value || '';
+                        text += `**Source 1 Finding:** ${f1 || '(not yet completed)'}\n`;
+                        text += `**Source 2 Finding:** ${f2 || '(not yet completed)'}\n`;
+                        text += `**Synthesis:** ${syn || '(not yet completed)'}\n\n`;
+                    });
+                }
+                text += `## Emerging Patterns\n${patterns || '(not yet completed)'}\n`;
+                break;
+            }
+            case 6: {
+                const rq = document.getElementById('researchQuestion')?.value || '';
+                const thesis = document.getElementById('thesisStatement')?.value || '';
+                const checks = [...document.querySelectorAll('.thesis-check')];
+                const checkLabels = ['Directly answers the research question', 'Arguable (someone could disagree)', 'Specific (not vague or overly broad)', 'Supported by evidence', 'Acknowledges complexity (not one-sided)'];
+                text += `## Research Question\n${rq || '(not yet completed)'}\n\n`;
+                text += `## Thesis Statement\n${thesis || '(not yet completed)'}\n\n`;
+                text += `## Thesis Checklist\n`;
+                checks.forEach((c, i) => { text += `${c.checked ? '[x]' : '[ ]'} ${checkLabels[i] || ''}\n`; });
+                text += '\n';
+                break;
+            }
+            default:
+                // Step 7 — use existing full outline copy
+                return null;
+        }
+        return text;
+    }
+
+    // ===== 3d. Copy Step to Clipboard =====
+    function copyStep(stepNum) {
+        if (stepNum === 7) { copyOutline(); return; }
+        const text = getStepPlainText(stepNum);
+        if (!text) return;
+
+        navigator.clipboard.writeText(text).then(() => {
+            showIndicator('✅ Step ' + stepNum + ' copied to clipboard!');
+        }).catch(() => {
+            // Fallback: download as .md
+            const blob = new Blob([text], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `research-step-${stepNum}.md`; a.click();
+            URL.revokeObjectURL(url);
+            showIndicator('📥 Downloaded as research-step-' + stepNum + '.md');
+        });
+    }
+
+    // ===== 3e. Download Step as .doc =====
+    function downloadStepDoc(stepNum) {
+        if (stepNum === 7) { downloadDoc(); return; }
+        const text = getStepPlainText(stepNum);
+        if (!text) return;
+
+        const STEP_TITLES = {
+            1: 'Topic Exploration', 2: 'Question Workshop', 3: 'Sub-Question Mapping',
+            4: 'Source Hunt', 5: 'Evidence Matrix', 6: 'Emerging Thesis'
+        };
+
+        // Convert markdown-style text to basic HTML for Word
+        let bodyHtml = text
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\[x\]/g, '☑')
+            .replace(/\[ \]/g, '☐')
+            .replace(/^---$/gm, '<hr>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+        bodyHtml = '<p>' + bodyHtml + '</p>';
+
+        const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>Research Studio - Step ${stepNum}</title>
+<style>
+  body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.8; color: #1a1a1a; max-width: 700px; margin: 0 auto; padding: 40px; }
+  h1 { font-size: 16pt; border-bottom: 2px solid #ccc; padding-bottom: 8px; }
+  h2 { font-size: 13pt; margin-top: 20px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+  h3 { font-size: 12pt; margin-top: 16px; color: #c7403a; }
+  hr { border: none; border-top: 1px solid #ddd; margin: 12px 0; }
+  p { margin: 6pt 0; }
+</style>
+</head><body>${bodyHtml}</body></html>`;
+
+        const blob = new Blob([html], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `research-step-${stepNum}-${STEP_TITLES[stepNum].toLowerCase().replace(/\s+/g, '-')}.doc`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showIndicator('⬇️ Downloaded Step ' + stepNum + ' as .doc');
     }
 
     // ===== 5. Download as .doc =====

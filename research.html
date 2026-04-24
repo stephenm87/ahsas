@@ -368,6 +368,42 @@
             font-size: 0.82rem;
         }
 
+        /* Per-step export toolbar */
+        .step-export-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: var(--space-lg);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--subtle-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+        }
+        .step-export-toolbar .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: var(--font-body);
+            white-space: nowrap;
+        }
+        .step-export-toolbar .export-btn:hover {
+            border-color: var(--jade);
+            color: var(--jade);
+            background: rgba(45,138,110,0.08);
+        }
+        .step-export-toolbar .export-btn .btn-icon {
+            font-size: 0.85rem;
+        }
+
         /* Outline builder */
         .outline-section {
             background: var(--subtle-bg);
@@ -810,6 +846,7 @@
         /* ===== Print Stylesheet ===== */
         @media print {
             body * { visibility: hidden; }
+            /* Full-outline preview print */
             .preview-overlay, .preview-overlay * { visibility: visible !important; }
             .preview-overlay {
                 display: flex !important;
@@ -826,7 +863,77 @@
             }
             .preview-close { display: none !important; }
             .site-header, .site-footer, .step-tracker, .studio-intro, .studio-principle,
-            .step-card, .save-indicator { display: none !important; }
+            .step-card, .save-indicator, .step-export-toolbar { display: none !important; }
+            /* Per-step print */
+            .step-print-container:not(:empty), .step-print-container:not(:empty) * { visibility: visible !important; }
+            .step-print-container {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 99999;
+                background: #fff;
+                color: #1a1a1a;
+                padding: 32px 48px;
+                box-sizing: border-box;
+                font-family: 'Georgia', 'Times New Roman', serif;
+                line-height: 1.8;
+            }
+            .step-print-container h1 {
+                font-size: 16pt;
+                margin-bottom: 4px;
+                color: #111;
+                border-bottom: 2px solid #ccc;
+                padding-bottom: 6px;
+            }
+            .step-print-container .print-meta {
+                font-size: 9pt;
+                color: #888;
+                margin-bottom: 16px;
+            }
+            .step-print-container .print-field {
+                margin-bottom: 12px;
+            }
+            .step-print-container .print-field-label {
+                font-weight: 700;
+                font-family: system-ui, sans-serif;
+                font-size: 9pt;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: #555;
+            }
+            .step-print-container .print-field-value {
+                font-size: 11pt;
+                color: #1a1a1a;
+                white-space: pre-wrap;
+            }
+            .step-print-container .print-field-empty {
+                font-size: 10pt;
+                color: #aaa;
+                font-style: italic;
+            }
+            .step-print-container .print-checklist-item {
+                font-size: 10pt;
+                color: #333;
+                margin-bottom: 4px;
+            }
+            .step-print-container .print-subq {
+                margin-bottom: 16px;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+            }
+            .step-print-container .print-subq-num {
+                font-weight: 700;
+                color: #c7403a;
+                font-size: 10pt;
+            }
+        }
+
+        /* Hidden container for step printing — only visible via @media print */
+        .step-print-container {
+            display: none;
         }
     </style>
     <script>(function(){var t=localStorage.getItem("ahsas-theme");if(!t)t=window.matchMedia("(prefers-color-scheme:light)").matches?"light":"dark";document.documentElement.setAttribute("data-theme",t)})()</script>
@@ -929,6 +1036,12 @@
                         <a href="/pieces.html" target="_blank" class="btn btn-secondary btn-sm">Explore PIECES ↗</a>
                     </div>
 
+                    <div class="step-export-toolbar">
+                        <button class="export-btn" onclick="copyStep(1)"><span class="btn-icon">📋</span> Copy Text</button>
+                        <button class="export-btn" onclick="downloadStepDoc(1)"><span class="btn-icon">⬇️</span> Download .doc</button>
+                        <button class="export-btn" onclick="printStep(1)"><span class="btn-icon">🖨️</span> Print / PDF</button>
+                    </div>
+
                     <div class="step-nav">
                         <span></span>
                         <button class="btn btn-primary" onclick="goToStep(2)">Next: Question Workshop →</button>
@@ -993,6 +1106,12 @@
                             </div>
                             <div class="feedback-result" id="feedbackResult"></div>
                         </div>
+                    </div>
+
+                    <div class="step-export-toolbar">
+                        <button class="export-btn" onclick="copyStep(2)"><span class="btn-icon">📋</span> Copy Text</button>
+                        <button class="export-btn" onclick="downloadStepDoc(2)"><span class="btn-icon">⬇️</span> Download .doc</button>
+                        <button class="export-btn" onclick="printStep(2)"><span class="btn-icon">🖨️</span> Print / PDF</button>
                     </div>
 
                     <div class="step-nav">
@@ -1061,6 +1180,12 @@
 
                     <button class="btn btn-secondary btn-sm" style="margin-top:var(--space-sm);" onclick="addSubQuestion()">+ Add Sub-Question</button>
 
+                    <div class="step-export-toolbar">
+                        <button class="export-btn" onclick="copyStep(3)"><span class="btn-icon">📋</span> Copy Text</button>
+                        <button class="export-btn" onclick="downloadStepDoc(3)"><span class="btn-icon">⬇️</span> Download .doc</button>
+                        <button class="export-btn" onclick="printStep(3)"><span class="btn-icon">🖨️</span> Print / PDF</button>
+                    </div>
+
                     <div class="step-nav">
                         <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
                         <button class="btn btn-primary" onclick="goToStep(4)">Next: Source Hunt →</button>
@@ -1082,6 +1207,12 @@
 
                     <div style="margin-top:var(--space-md);">
                         <a href="/sources.html" target="_blank" class="btn btn-secondary btn-sm">Open Source Library ↗</a>
+                    </div>
+
+                    <div class="step-export-toolbar">
+                        <button class="export-btn" onclick="copyStep(4)"><span class="btn-icon">📋</span> Copy Text</button>
+                        <button class="export-btn" onclick="downloadStepDoc(4)"><span class="btn-icon">⬇️</span> Download .doc</button>
+                        <button class="export-btn" onclick="printStep(4)"><span class="btn-icon">🖨️</span> Print / PDF</button>
                     </div>
 
                     <div class="step-nav">
@@ -1106,6 +1237,12 @@
                         <label class="field-label">Emerging Patterns</label>
                         <p class="field-hint">What patterns do you see across your evidence? What surprised you? What contradictions emerged?</p>
                         <textarea class="studio-input" id="emergingPatterns" rows="4" placeholder="I notice that... The evidence suggests... Surprisingly..."></textarea>
+                    </div>
+
+                    <div class="step-export-toolbar">
+                        <button class="export-btn" onclick="copyStep(5)"><span class="btn-icon">📋</span> Copy Text</button>
+                        <button class="export-btn" onclick="downloadStepDoc(5)"><span class="btn-icon">⬇️</span> Download .doc</button>
+                        <button class="export-btn" onclick="printStep(5)"><span class="btn-icon">🖨️</span> Print / PDF</button>
                     </div>
 
                     <div class="step-nav">
@@ -1157,6 +1294,12 @@
                     </div>
                     
                     <div class="feedback-results" id="thesisFeedbackResult"></div>
+
+                    <div class="step-export-toolbar">
+                        <button class="export-btn" onclick="copyStep(6)"><span class="btn-icon">📋</span> Copy Text</button>
+                        <button class="export-btn" onclick="downloadStepDoc(6)"><span class="btn-icon">⬇️</span> Download .doc</button>
+                        <button class="export-btn" onclick="printStep(6)"><span class="btn-icon">🖨️</span> Print / PDF</button>
+                    </div>
 
                     <div class="step-nav">
                         <button class="btn btn-secondary" onclick="goToStep(5)">← Back</button>
@@ -1255,6 +1398,9 @@
     </div>
 
     <button class="back-to-top" aria-label="Back to top">↑</button>
+
+    <!-- Per-Step Print Container (hidden, populated dynamically) -->
+    <div class="step-print-container" id="stepPrintContainer"></div>
 
     <!-- Preview Modal Overlay -->
     <div class="preview-overlay" id="previewOverlay">
